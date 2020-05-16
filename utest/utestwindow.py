@@ -9,7 +9,6 @@ from utest import pathutils
 from utest import iconutils
 from utest import reimportall
 from utest import settings
-from utest import mayautils
 from utest import constants
 from utest import testlogbrowser
 from utest import testrootedit
@@ -17,6 +16,7 @@ from utest import testtreeview
 from utest import testmanager
 from utest import statuslabel
 from utest.libs import nose2
+from utest import dcc
 from utest.plugins import testlister
 from utest.plugins import viewupdater
 
@@ -43,7 +43,7 @@ class UTestWindow(QtWidgets.QWidget):
     _config_key_testRootDir = "testRootDir"
 
     def __init__(self, startDirOrModule=None, topDir=None, parent=None):
-        parent = parent or mayautils.findMayaWindow()
+        parent = parent or dcc.findParentWindow()
         QtWidgets.QWidget.__init__(self, parent)
 
         self._initIcons()

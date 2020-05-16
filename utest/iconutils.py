@@ -11,7 +11,7 @@ def iconPath(iconName):
     return os.path.join(_iconDir(), iconName)
 
 
-def testIconPaths(iconName):
+def iconPathSet(iconName):
     iconDir = _iconDir()
     nameParts = list(iconName.partition("."))
     nameParts.insert(1, None)

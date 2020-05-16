@@ -102,7 +102,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
 
     @classmethod
     def _initComboIcons(cls, iconVarName, iconFileName):
-        iconPaths = iconutils.testIconPaths(iconFileName)
+        iconPaths = iconutils.iconPathSet(iconFileName)
         icons = []
         for path in iconPaths:
             icons.append(QtGui.QIcon(path))
