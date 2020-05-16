@@ -11,7 +11,7 @@ class DummyTests(unittest.TestCase):
         print ("Call {}.setUp()".format(self.__class__.__name__))
 
     def tearDown(self):
-        print ("Call {}.setUp()".format(self.__class__.__name__))
+        print ("Call {}.tearDown()".format(self.__class__.__name__))
 
     def test_passed(self):
         logger.info('About to pass.')

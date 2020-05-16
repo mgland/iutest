@@ -9,7 +9,12 @@ class TestListerTestCase(unittest.TestCase):
         topDir = pathutils.utestRootDir()
         tests = list(testlister.iterAllTestPathsFromRootDir(startDir, topDir))
         self.assertTrue(tests)
-        print tests
+        hasThisTest = False
+        prefix = 'utest.tests.utests.test_testlister.TestListerTestCase.test_'
+        for tid in tests:
+            if tid.startswith(prefix):
+                hasThisTest = True
+        self.assertTrue(hasThisTest)
 
     def test_listByModulePath(self):
         modulePath = 'utest.tests'
