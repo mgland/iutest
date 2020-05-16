@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 class ViewUpdater(object):
-    """This class is set of nose2 event hooks to update the tests tree view.
+    """This class is a set of nose2 event hooks for updating the tests tree view.
     """
 
     lastRunTestIds = []

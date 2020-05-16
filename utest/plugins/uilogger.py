@@ -11,6 +11,9 @@ logger = logging.getLogger(__name__)
 
 
 class TestUiLoggerPlugin(resultPlugin.ResultReporter):
+    """A nose2 plug to capture the logs for ui.
+    """
+
     _originalStdOut = sys.stdout
     _originalStdErr = sys.stderr
 

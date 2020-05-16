@@ -24,8 +24,8 @@ utest.runUi()
 # Put utest dir into sys.path
 import utest
 
-utest.runAllTests(startDirOrModule='pathToTestRootDir', topDir='pathToPythonTopDir', failEarly=False)
-utest.runAllTests(startDirOrModule='package.module1.tests', topDir='pathToPythonTopDir', failEarly=False)
+utest.runAllTests(startDirOrModule='pathToTestRootDir', topDir='pathToPythonTopDir', stopOnError=False)
+utest.runAllTests(startDirOrModule='package.module1.tests', topDir='pathToPythonTopDir', stopOnError=False)
 
 utest.runTests('package.module1.tests.testmodule1', 'package.module1.tests.testmodule2')
 ```

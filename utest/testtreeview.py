@@ -285,7 +285,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
 
     def testIdOfItem(self, item):
         return item.toolTip(0)
-    
+
     def _resetExpandStates(self, item):
         item.setExpanded(True)
         childCount = item.childCount()

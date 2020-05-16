@@ -40,8 +40,8 @@ def parseParameterizedTestId(testId):
 
 
 class TestCollector(nose2.events.Plugin):
-
-    """Collect but don't run tests"""
+    """A nose2 plug to collect the tests without running them.
+    """
 
     commandLineSwitch = (None, "list-tests", "List test but not running them.")
     _mpmode = False
