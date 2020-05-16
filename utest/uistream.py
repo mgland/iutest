@@ -1,0 +1,148 @@
+import weakref
+from nose2 import result
+import re
+import sys
+import logging
+
+
+class UiStream(object):
+    _reportUi = None
+    _urlTempalte = "<a href='?{1}={2}'>{0}</a>"
+    _traceExp = re.compile(r"File \"(.*?)\", line (.*)?,")
+
+    @classmethod
+    def register(cls, wgt):
+        cls._reportUi = weakref.ref(wgt)
+
+    @classmethod
+    def ui(cls):
+        if not cls._reportUi:
+            return None
+
+        return cls._reportUi()
+
+    @classmethod
+    def deregister(cls, wgt):
+        if cls.ui() == wgt:
+            cls._reportUi = None
+
+    def __init__(self):
+        self._testResult = None
+        self._linkInfo = None
+        self._processStackTraceLink = False
+        self._captureStdOut = False
+
+    def setResult(self, result=None):
+        self._testResult = result
+
+    def setLinkInfo(self, linkInfo=None):
+        self._linkInfo = linkInfo
+
+    def _processLinkInMsg(self, msg):
+        if not self._linkInfo:
+            return msg
+
+        html = self._urlTempalte.format(*self._linkInfo)
+        return msg.replace(self._linkInfo[0], html)
+
+    def _processLinkInStackTrace(self, msg):
+        if not self._processStackTraceLink:
+            return msg
+        lines = msg.split("\n")
+        for i, line in enumerate(lines):
+            matches = re.finditer(self._traceExp, line)
+            if not matches:
+                continue
+
+            data = []
+            for _, match in enumerate(matches, start=1):
+                for groupNum in range(0, len(match.groups())):
+                    groupNum = groupNum + 1
+                    data.append(match.group(groupNum))
+
+            if not len(data) == 2:
+                continue
+
+            html = self._urlTempalte.format(data[0], *data)
+            lines[i] = line.replace(data[0], html)
+        return "<br>".join(lines)
+
+    def setProcessStackTraceLink(self, process):
+        self._processStackTraceLink = process
+
+    def write(self, msg):
+        reportUi = self.ui()
+        if not reportUi:
+            return
+
+        msg = self._processLinkInMsg(msg)
+        msg = self._processLinkInStackTrace(msg)
+
+        if self._testResult == result.ERROR:
+            reportUi.logError(msg)
+
+        elif self._testResult == result.FAIL:
+            reportUi.logFailed(msg)
+
+        elif self._testResult == result.SKIP:
+            reportUi.logWarning(msg)
+
+        elif self._testResult == result.PASS:
+            reportUi.logSuccess(msg)
+
+        else:
+            reportUi.logInformation(msg)
+
+    def writeln(self, msg=None):
+        if msg:
+            self.write(msg)
+        self.write("<br>")
+
+    def flush(self):
+        pass
+
+
+def writePlainTextToUiStream(msg):
+    reportUi = UiStream.ui()
+    if reportUi:
+        reportUi.logInformation(msg)
+
+
+class BaseCapturer(object):
+    def __init__(self, originalStream):
+        self._originalStream = originalStream
+
+    def write(self, msg):
+        writePlainTextToUiStream(msg)
+        self._originalStream.write(msg)
+
+
+class StdOutCapturer(BaseCapturer):
+    def start(self):
+        sys.stdout = self
+
+    def stop(self):
+        sys.stdout = self._originalStream
+
+
+class StdErrCapturer(BaseCapturer):
+    def start(self):
+        sys.stderr = self
+
+    def stop(self):
+        sys.stderr = self._originalStream
+
+
+class LogHandler(logging.Handler):
+    def __init__(self):
+        logging.Handler.__init__(self)
+        self._rootLogger = logging.getLogger()
+
+    def emit(self, record):
+        writePlainTextToUiStream(self.format(record))
+
+    def start(self):
+        self._rootLogger.addHandler(self)
+
+    def stop(self):
+        self._rootLogger.removeHandler(self)
