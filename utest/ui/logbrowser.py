@@ -1,7 +1,7 @@
 from utest.ui import uiconstants
 from utest.core import uistream
 from utest.qt import QtCore, QtGui, QtWidgets
-
+from utest.core import gotocode
 
 class LogBrowser(QtWidgets.QTextBrowser):
     def __init__(self, parent=None):
@@ -16,8 +16,7 @@ class LogBrowser(QtWidgets.QTextBrowser):
         self.setOpenLinks(False)
         self.anchorClicked.connect(self.onLinkClicked)
         self._initCSS()
-
-        self.process = QtCore.QProcess(self)
+        self._codeVisitor = gotocode.CodeLineVisitor(self)
 
     def _initCSS(self):
         css = """
@@ -47,14 +46,7 @@ class LogBrowser(QtWidgets.QTextBrowser):
             return
         if not line:
             line = 0
-        self.browseSourceFileOnLine(path, line)
-
-    def browseSourceFileOnLine(self, filePath, line=0):
-        # program = "D:/Programs/Microsoft VS Code/Code.exe"
-        program = "code"
-        target = ":".join([filePath, line])
-        arguments = ["--goto", target]
-        self.process.start(program, arguments)
+        self._codeVisitor.goTo(path, line)
 
     def logSeparator(self,):
         sep = ">" * 70

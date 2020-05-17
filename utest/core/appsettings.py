@@ -1,7 +1,9 @@
 import collections
+import logging
 from utest.core import constants
 from utest.qt import QtCore
 
+logger = logging.getLogger(__name__)
 
 def get():
     return AppSettings.get()
@@ -46,8 +48,8 @@ class AppSettings(object):
         if sync:
             self._qsettings().sync()
 
-    def simpleConfigValue(self, key):
-        return self._qsettings().value(key)
+    def simpleConfigValue(self, key, defaultValue=None):
+        return self._qsettings().value(key, defaultValue)
 
     def removeConfig(self, key):
         self._qsettings().remove(key)
@@ -64,3 +66,16 @@ class AppSettings(object):
         settingsObj = object.__getattribute__(self, "_qsettings")()
         return getattr(settingsObj, attr)
     
+    def testDirSettings(self):
+        with SettingsGroupContext(constants.CONFIG_KEY_SAVED_TEST_DIR) as settings:
+            logger.debug("Settings ini file:%s", settings.fileName())
+            names = settings.childGroups()
+            data = collections.OrderedDict()
+            for n in names:
+                with SettingsGroupContext(n):
+                    data[n] = (
+                        settings.simpleConfigValue(constants.CONFIG_KEY_TEST_TOP_DER),
+                        settings.simpleConfigValue(constants.CONFIG_KEY_TEST_START_DER),
+                    )
+
+        return data

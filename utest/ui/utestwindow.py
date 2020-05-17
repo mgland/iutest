@@ -12,12 +12,13 @@ from utest.core import iconutils
 from utest.core import appsettings
 from utest.core import constants
 from utest.core import testmanager
-from utest.core import settings
+from utest.core import appsettings
 from utest.ui import logbrowser
 from utest.ui import rootpathedit
 from utest.ui import testtreeview
 from utest.ui import statuslabel
 from utest.ui import uiutils
+from utest.ui import configwindow
 from utest.libs import nose2
 from utest.plugins import testlister
 from utest.plugins import viewupdater
@@ -103,7 +104,7 @@ class UTestWindow(QtWidgets.QWidget):
 
         self._testManager.setBeforeTestStartHook(self._beforeRunningTests)
         self.reload(keepUiStates=False)
-        
+
         self._restorePanelVisState()
 
     def setIsStandalone(self, isStandalone):
@@ -145,6 +146,9 @@ class UTestWindow(QtWidgets.QWidget):
         _console = QtWidgets.QLabel("Console")
         self._clearLogOnRunBtn = uiutils.makeIconButton(self._clearLogOnRunIcon, self)
         self._clearLogOnRunBtn.setCheckable(True)
+        autoClear = appsettings.get().simpleConfigValue(constants.CONFIG_KEY_AUTO_CLEAR_LOG_STATE)
+        self._clearLogOnRunBtn.setChecked(autoClear or False)
+        self._clearLogOnRunBtn.toggled.connect(self._onAutoClearButtonToggled)
 
         self._clearLogBtn = uiutils.makeIconButton(self._clearLogIcon, self)
         self._clearLogBtn.clicked.connect(self._logWgt.clear)
@@ -181,9 +185,6 @@ class UTestWindow(QtWidgets.QWidget):
         cls._initSingleIcon("_stopAtErrorIcon", "stopAtError.svg")
         cls._initSingleIcon("_runAllIcon", "runAll.svg")
         cls._initSingleIcon("_runSelectedIcon", "runSelected.svg")
-    
-    def _onStopOnErrorStageChanged(self, stop):
-        self._testManager.setStopOnError(stop)
 
     def _regenerateMenu(self):
         self._moreMenu.clear()
@@ -200,11 +201,17 @@ class UTestWindow(QtWidgets.QWidget):
         self._moreMenu.addSeparator()
 
         # Read settings:
-        config = self._readDirSettings()
+        config = appsettings.get().testDirSettings()
         for key, pair in config.items():
             act = self._moreMenu.addAction(key)
             act.triggered.connect(self.onSavedDirPairLoad)
             act.setToolTip("\n".join(pair))
+        self._moreMenu.addSeparator()
+        act = self._moreMenu.addAction("Config..")
+        act.triggered.connect(self._onConfigWindow)
+
+    def _onConfigWindow(self):
+        configwindow.ConfigWindow.show(self)
 
     def _makeMenuToolButton(self, icon):
         btn = QtWidgets.QToolButton(self)
@@ -255,12 +262,28 @@ class UTestWindow(QtWidgets.QWidget):
 
         self._autoFilterBtn = uiutils.makeIconButton(self._autoFilterIcon, self)
         self._autoFilterBtn.setCheckable(True)
+        autoFilter = appsettings.get().simpleConfigValue(constants.CONFIG_KEY_AUTO_FILTERING_STATE)
+        self._autoFilterBtn.setChecked(autoFilter or False)
+        self._autoFilterBtn.toggled.connect(self._onAutoFilterButtonToggled)
         self._topLayout.addWidget(self._autoFilterBtn)
+
+    def _onAutoFilterButtonToggled(self, state):
+        appsettings.get().saveSimpleConfig(constants.CONFIG_KEY_AUTO_FILTERING_STATE, state)
+
+    def _onAutoClearButtonToggled(self, state):
+        appsettings.get().saveSimpleConfig(constants.CONFIG_KEY_AUTO_CLEAR_LOG_STATE, state)
+    
+    def _onStopOnErrorButtonToggled(self, stop):
+        self._testManager.setStopOnError(stop)
+        appsettings.get().saveSimpleConfig(constants.CONFIG_KEY_STOP_ON_ERROR, stop)
 
     def _makeBtmButtons(self):
         self._stopAtErrorBtn = uiutils.makeIconButton(self._stopAtErrorIcon, self)
-        self._stopAtErrorBtn.toggled.connect(self._onStopOnErrorStageChanged)
+        self._stopAtErrorBtn.toggled.connect(self._onStopOnErrorButtonToggled)
         self._stopAtErrorBtn.setCheckable(True)
+        stopOnError = appsettings.get().simpleConfigValue(constants.CONFIG_KEY_STOP_ON_ERROR) or False
+        self._stopAtErrorBtn.setChecked(stopOnError)
+        self._testManager.setStopOnError(stopOnError)
         self._btmLayout.addWidget(self._stopAtErrorBtn, 0)
 
         self._resetAllBtn = uiutils.makeIconButton(self._resetIcon, self)
@@ -374,7 +397,7 @@ class UTestWindow(QtWidgets.QWidget):
         if not name:
             return
             
-        config = self._readDirSettings()
+        config = appsettings.get().testDirSettings()
         if name not in config or not config[name]:
             logger.error("The last setting name %s does not exist.", name)
             return
@@ -407,22 +430,8 @@ class UTestWindow(QtWidgets.QWidget):
     def _deferredRegenerateMenu(self):
         QtCore.QTimer.singleShot(0, self._regenerateMenu)
 
-    def _readDirSettings(self):
-        with appsettings.SettingsGroupContext(constants.CONFIG_KEY_SAVED_TEST_DIR) as settings:
-            logger.debug("Settings ini file:%s", settings.fileName())
-            names = settings.childGroups()
-            data = collections.OrderedDict()
-            for n in names:
-                with appsettings.SettingsGroupContext(n):
-                    data[n] = (
-                        settings.simpleConfigValue(constants.CONFIG_KEY_TEST_TOP_DER),
-                        settings.simpleConfigValue(constants.CONFIG_KEY_TEST_START_DER),
-                    )
-
-        return data
-
     def _onDeleteCurrentDirSettings(self):
-        config = self._readDirSettings()
+        config = appsettings.get().testDirSettings()
         removeNames = []
         startDir = self._testManager.startDirOrModule()
         for name, pair in config.items():
