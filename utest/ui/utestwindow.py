@@ -150,12 +150,15 @@ class UTestWindow(QtWidgets.QWidget):
         return wgt, splitterLay
 
     def _makeLogTopLayout(self):
+        _console = QtWidgets.QLabel("Console")
         self._clearLogOnRunBtn = self._makeIconButton(self._clearLogOnRunIcon)
         self._clearLogOnRunBtn.setCheckable(True)
 
         self._clearLogBtn = self._makeIconButton(self._clearLogIcon)
         self._clearLogBtn.clicked.connect(self._logWgt.clear)
 
+        self._logTopLayout.addWidget(_console, 0)
+        self._logTopLayout.addStretch(1)
         self._logTopLayout.addWidget(self._clearLogOnRunBtn, 0)
         self._logTopLayout.addWidget(self._clearLogBtn, 0)
 
