@@ -1,6 +1,6 @@
 import logging
 
-from utest.qt import QtCore, QtGui, QtWidgets
+from utest.qt import QtCore, QtGui, QtWidgets, Signal
 from utest.core import iconutils
 from utest.core import constants
 from utest.core import pathutils
@@ -54,8 +54,8 @@ class ViewStates(object):
 
 
 class TestTreeView(QtWidgets.QTreeWidget):
-    runAllTest = QtCore.Signal()
-    runTests = QtCore.Signal(list)
+    runAllTest = Signal()
+    runTests = Signal(list)
 
     _testAllIcons = []
     _testPackageIcons = []

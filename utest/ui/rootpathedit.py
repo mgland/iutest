@@ -1,8 +1,8 @@
-from utest.qt import QtCore, QtWidgets
+from utest.qt import QtCore, QtWidgets, Signal
 
 
 class RootPathEdit(QtWidgets.QLineEdit):
-    rootPathChanged = QtCore.Signal(str, str)
+    rootPathChanged = Signal(str, str)
 
     def __init__(self, parent=None):
         QtWidgets.QLineEdit.__init__(self, parent)
