@@ -280,6 +280,7 @@ class UTestWindow(QtWidgets.QWidget):
     def onReimportAndRefresh(self):
         if reimportall.reimportAllChangedPythonModules():
             self.reload(keepUiStates=True)
+            self._applyCurrentFilter()
 
     def onAddFilter(self):
         stateKeyword = self.sender().text()
@@ -328,6 +329,7 @@ class UTestWindow(QtWidgets.QWidget):
         if dirPath:
             self._testManager.setStartDirOrModule(dirPath)
             self._updateDirUI()
+            self._searchLE.clear()
             self.reload()
 
     def _onBrowseTopDir(self):
@@ -337,6 +339,7 @@ class UTestWindow(QtWidgets.QWidget):
         if dirPath:
             self._testManager.setTopDir(dirPath)
 
+        self._searchLE.clear()
         self._updateDirUI()
         self.reload()
 
@@ -449,6 +452,9 @@ class UTestWindow(QtWidgets.QWidget):
         self.updateButtonsEnabled()
         self._statusLbl.reportTestCount(self._view.testCount())
         self._statusLbl.reportTestCount(self._view.testCount())
+
+    def _applyCurrentFilter(self):
+        self.onFilterTextChanged(self._searchLE.text())
 
     def updateButtonsEnabled(self):
         enabled = self._view.hasTests()
