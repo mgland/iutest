@@ -35,6 +35,7 @@ class UTestWindow(QtWidgets.QWidget):
     _stopAtErrorIcon = None
     _runAllIcon = None
     _runSelectedIcon = None
+    _panelStateIconSet = None
 
     _Settings = None
     _config_key_savedDir = "testDirs"
@@ -66,8 +67,8 @@ class UTestWindow(QtWidgets.QWidget):
         self._mainLay.addWidget(self._splitter, 1)
 
         # left layout -----------------------------------
-        leftLay = self._createSplitterContent()
-
+        self._leftWidget, leftLay = self._createSplitterContent()
+    
         self._topLayout = QtWidgets.QHBoxLayout()
         self._topLayout.setSpacing(3)
         self._topLayout.setContentsMargins(0, 0, 0, 0)
@@ -82,7 +83,7 @@ class UTestWindow(QtWidgets.QWidget):
         leftLay.addWidget(self._view)
 
         # right layout -----------------------------------
-        rightLay = self._createSplitterContent()
+        self._rightWidget, rightLay = self._createSplitterContent()
         self._logWgt = logbrowser.LogBrowser(self)
         rightLay.addWidget(self._logWgt)
 
@@ -142,7 +143,7 @@ class UTestWindow(QtWidgets.QWidget):
         splitterLay.setSpacing(3)
         splitterLay.setContentsMargins(0, 0, 0, 0)
         self._splitter.addWidget(wgt)
-        return splitterLay
+        return wgt, splitterLay
 
     @classmethod
     def _getSettings(cls):
@@ -159,8 +160,13 @@ class UTestWindow(QtWidgets.QWidget):
 
     @classmethod
     def _initIcons(cls):
-        if cls._utestIcon:
+        if cls._panelStateIconSet:
             return
+
+        panelStatePaths = iconutils.iconPathSet('panelMode.svg', 
+                                    constants.PANEL_VIS_STATE_ICON_SUFFIXES,
+                                    includeInput=False)
+        cls._panelStateIconSet = [QtGui.QIcon(p) for p in panelStatePaths]
 
         cls._initSingleIcon("_utestIcon", "utest.svg")
         cls._initSingleIcon("_reimportIcon", "reimport.svg")
@@ -173,7 +179,7 @@ class UTestWindow(QtWidgets.QWidget):
         cls._initSingleIcon("_stopAtErrorIcon", "stopAtError.svg")
         cls._initSingleIcon("_runAllIcon", "runAll.svg")
         cls._initSingleIcon("_runSelectedIcon", "runSelected.svg")
-
+    
     def _makeIconButton(self, icon):
         btn = QtWidgets.QPushButton("", self)
         btn.setIcon(icon)
@@ -222,9 +228,13 @@ class UTestWindow(QtWidgets.QWidget):
         self._browseBtn, self._moreMenu = self._makeMenuToolButton(self._moreIcon)
         self._regenerateMenu()
 
+        self._panelVisBtn = self._makeIconButton(self._panelStateIconSet[-1])
+        self._panelVisBtn.clicked.connect(self._onPanelVisButtonClicked)
+
         self._dirLayout.addWidget(lbl)
         self._dirLayout.addWidget(self._rootDirLE)
         self._dirLayout.addWidget(self._browseBtn)
+        self._dirLayout.addWidget(self._panelVisBtn)
 
         self._updateDirUI()
 
@@ -317,6 +327,19 @@ class UTestWindow(QtWidgets.QWidget):
         self._updateDirUI()
         self._searchLE.clear()
         self.reload()
+
+    def _onPanelVisButtonClicked(self):
+        leftVis = self._leftWidget.isVisible()
+        rightVis = self._rightWidget.isVisible()
+        state = constants.PANEL_VIS_STATE_BOTH_ON
+        if not leftVis:
+            state = constants.PANEL_VIS_STATE_RIGHT_ON
+        elif not rightVis:
+            state = constants.PANEL_VIS_STATE_LEFT_ON
+        state = (state + 1) % 3
+        self._panelVisBtn.setIcon(self._panelStateIconSet[state])
+        self._leftWidget.setVisible(state != constants.PANEL_VIS_STATE_RIGHT_ON)
+        self._rightWidget.setVisible(state != constants.PANEL_VIS_STATE_LEFT_ON)
 
     def _updateDirUI(self):
         self._rootDirLE.setText(self._testManager.startDirOrModule())

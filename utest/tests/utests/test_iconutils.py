@@ -2,6 +2,7 @@ import unittest
 import os
 
 from utest.core import iconutils
+from utest.core import constants
 
 class IconUtilsTestCase(unittest.TestCase):
     def setUp(self):
@@ -13,7 +14,7 @@ class IconUtilsTestCase(unittest.TestCase):
         self.assertTrue(os.path.isfile(iconPath))
 
     def test_iconPathSet(self):
-        iconPaths = iconutils.iconPathSet(self._iconFile)
+        iconPaths = iconutils.iconPathSet(self._iconFile, constants.TEST_ICON_SUFFIXES)
         self.assertTrue(iconPaths)
         for iconPath in iconPaths:
             self.assertTrue(iconPath)
