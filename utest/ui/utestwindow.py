@@ -146,8 +146,8 @@ class UTestWindow(QtWidgets.QWidget):
         _console = QtWidgets.QLabel("Console")
         self._clearLogOnRunBtn = uiutils.makeIconButton(self._clearLogOnRunIcon, self)
         self._clearLogOnRunBtn.setCheckable(True)
-        autoClear = appsettings.get().simpleConfigValue(constants.CONFIG_KEY_AUTO_CLEAR_LOG_STATE)
-        self._clearLogOnRunBtn.setChecked(autoClear or False)
+        autoClear = bool(appsettings.get().simpleConfigValue(constants.CONFIG_KEY_AUTO_CLEAR_LOG_STATE))
+        self._clearLogOnRunBtn.setChecked(autoClear)
         self._clearLogOnRunBtn.toggled.connect(self._onAutoClearButtonToggled)
 
         self._clearLogBtn = uiutils.makeIconButton(self._clearLogIcon, self)
@@ -262,8 +262,8 @@ class UTestWindow(QtWidgets.QWidget):
 
         self._autoFilterBtn = uiutils.makeIconButton(self._autoFilterIcon, self)
         self._autoFilterBtn.setCheckable(True)
-        autoFilter = appsettings.get().simpleConfigValue(constants.CONFIG_KEY_AUTO_FILTERING_STATE)
-        self._autoFilterBtn.setChecked(autoFilter or False)
+        autoFilter = bool(appsettings.get().simpleConfigValue(constants.CONFIG_KEY_AUTO_FILTERING_STATE))
+        self._autoFilterBtn.setChecked(autoFilter)
         self._autoFilterBtn.toggled.connect(self._onAutoFilterButtonToggled)
         self._topLayout.addWidget(self._autoFilterBtn)
 
@@ -281,7 +281,7 @@ class UTestWindow(QtWidgets.QWidget):
         self._stopAtErrorBtn = uiutils.makeIconButton(self._stopAtErrorIcon, self)
         self._stopAtErrorBtn.toggled.connect(self._onStopOnErrorButtonToggled)
         self._stopAtErrorBtn.setCheckable(True)
-        stopOnError = appsettings.get().simpleConfigValue(constants.CONFIG_KEY_STOP_ON_ERROR) or False
+        stopOnError = bool(appsettings.get().simpleConfigValue(constants.CONFIG_KEY_STOP_ON_ERROR))
         self._stopAtErrorBtn.setChecked(stopOnError)
         self._testManager.setStopOnError(stopOnError)
         self._btmLayout.addWidget(self._stopAtErrorBtn, 0)
