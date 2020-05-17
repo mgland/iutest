@@ -55,3 +55,12 @@ PANEL_VIS_STATE_ICON_SUFFIXES = (
     '_left',
     '_both',
 )
+
+
+# Config Keys --------------------------------------------
+CONFIG_KEY_SAVED_TEST_DIR = "testDirs"
+CONFIG_KEY_LAST_SAVED_TEST_DIR = "lastTestDirs"
+CONFIG_KEY_TEST_TOP_DER = "topDir"
+CONFIG_KEY_TEST_START_DER = "testRootDir"
+
+CONFIG_KEY_PANEL_VIS_STATE = "panelVisState"

@@ -9,13 +9,15 @@ from utest.core import reimportall
 from utest.qt import QtCore, QtGui, QtWidgets
 from utest.core import pathutils
 from utest.core import iconutils
-from utest.core import settings
+from utest.core import appsettings
 from utest.core import constants
 from utest.core import testmanager
+from utest.core import settings
 from utest.ui import logbrowser
 from utest.ui import rootpathedit
 from utest.ui import testtreeview
 from utest.ui import statuslabel
+from utest.ui import uiutils
 from utest.libs import nose2
 from utest.plugins import testlister
 from utest.plugins import viewupdater
@@ -38,11 +40,6 @@ class UTestWindow(QtWidgets.QWidget):
     _runSelectedIcon = None
     _panelStateIconSet = None
 
-    _Settings = None
-    _config_key_savedDir = "testDirs"
-    _config_key_lastSavedDir = "lastTestDirs"
-    _config_key_topDir = "topDir"
-    _config_key_testRootDir = "testRootDir"
 
     def __init__(self, startDirOrModule=None, topDir=None, parent=None):
         parent = parent or dcc.findParentWindow()
@@ -52,13 +49,11 @@ class UTestWindow(QtWidgets.QWidget):
         self.setWindowIcon(self._utestIcon)
         self._testManager = testmanager.TestManager(self, startDirOrModule, topDir)
 
-        self._mainLay = QtWidgets.QVBoxLayout(self)
-        self._mainLay.setContentsMargins(6, 6, 6, 6)
-        self._mainLay.setSpacing(3)
+        self._mainLay = uiutils.makeMainLayout(self)
         self.setContentsMargins(0, 0, 0, 0)
 
         # Top layout ------------------------------
-        self._dirLayout = self._makeHButtonLayout()
+        self._dirLayout = uiutils.makeMinorHorizontalLayout()
         self._makeDirWidgets()
         self._mainLay.addLayout(self._dirLayout)
 
@@ -68,7 +63,7 @@ class UTestWindow(QtWidgets.QWidget):
         # left layout -----------------------------------
         self._leftWidget, leftLay = self._createSplitterContent()
     
-        self._topLayout = self._makeHButtonLayout()
+        self._topLayout = uiutils.makeMinorHorizontalLayout()
         self._makeTopWidgets()
         leftLay.addLayout(self._topLayout)
 
@@ -81,14 +76,14 @@ class UTestWindow(QtWidgets.QWidget):
 
         # right layout -----------------------------------
         self._rightWidget, rightLay = self._createSplitterContent()
-        self._logTopLayout = self._makeHButtonLayout()
+        self._logTopLayout = uiutils.makeMinorHorizontalLayout()
         self._logWgt = logbrowser.LogBrowser(self)
         self._makeLogTopLayout()
         rightLay.addLayout(self._logTopLayout, 0)
         rightLay.addWidget(self._logWgt, 1)
 
         # bottom layout -----------------------------------
-        self._btmLayout = self._makeHButtonLayout()
+        self._btmLayout = uiutils.makeMinorHorizontalLayout()
         self._makeBtmButtons()
         self._mainLay.addLayout(self._btmLayout)
 
@@ -105,14 +100,11 @@ class UTestWindow(QtWidgets.QWidget):
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)  # for reimport convenience.
 
         self._loadLastDirsFromSettings()
+
         self._testManager.setBeforeTestStartHook(self._beforeRunningTests)
         self.reload(keepUiStates=False)
-
-    def _makeHButtonLayout(self):
-        _layout = QtWidgets.QHBoxLayout()
-        _layout.setSpacing(3)
-        _layout.setContentsMargins(0, 0, 0, 0)
-        return _layout
+        
+        self._restorePanelVisState()
 
     def setIsStandalone(self, isStandalone):
         if isStandalone:
@@ -151,24 +143,16 @@ class UTestWindow(QtWidgets.QWidget):
 
     def _makeLogTopLayout(self):
         _console = QtWidgets.QLabel("Console")
-        self._clearLogOnRunBtn = self._makeIconButton(self._clearLogOnRunIcon)
+        self._clearLogOnRunBtn = uiutils.makeIconButton(self._clearLogOnRunIcon, self)
         self._clearLogOnRunBtn.setCheckable(True)
 
-        self._clearLogBtn = self._makeIconButton(self._clearLogIcon)
+        self._clearLogBtn = uiutils.makeIconButton(self._clearLogIcon, self)
         self._clearLogBtn.clicked.connect(self._logWgt.clear)
 
         self._logTopLayout.addWidget(_console, 0)
         self._logTopLayout.addStretch(1)
         self._logTopLayout.addWidget(self._clearLogOnRunBtn, 0)
         self._logTopLayout.addWidget(self._clearLogBtn, 0)
-
-    @classmethod
-    def _getSettings(cls):
-        if cls._Settings:
-            return cls._Settings
-
-        cls._Settings = settings.createIniSettings("TestManager")
-        return cls._Settings
 
     @classmethod
     def _initSingleIcon(cls, iconVarName, iconFileName):
@@ -198,14 +182,6 @@ class UTestWindow(QtWidgets.QWidget):
         cls._initSingleIcon("_runAllIcon", "runAll.svg")
         cls._initSingleIcon("_runSelectedIcon", "runSelected.svg")
     
-    def _makeIconButton(self, icon):
-        btn = QtWidgets.QPushButton("", self)
-        btn.setIcon(icon)
-        btn.setFlat(True)
-        btn.setIconSize(QtCore.QSize(20, 20))
-        btn.setFixedSize(QtCore.QSize(24, 24))
-        return btn
-
     def _onStopOnErrorStageChanged(self, stop):
         self._testManager.setStopOnError(stop)
 
@@ -246,7 +222,7 @@ class UTestWindow(QtWidgets.QWidget):
         self._browseBtn, self._moreMenu = self._makeMenuToolButton(self._moreIcon)
         self._regenerateMenu()
 
-        self._panelVisBtn = self._makeIconButton(self._panelStateIconSet[-1])
+        self._panelVisBtn = uiutils.makeIconButton(self._panelStateIconSet[-1], self)
         self._panelVisBtn.clicked.connect(self._onPanelVisButtonClicked)
 
         self._dirLayout.addWidget(lbl)
@@ -257,7 +233,7 @@ class UTestWindow(QtWidgets.QWidget):
         self._updateDirUI()
 
     def _makeTopWidgets(self):
-        reimportBtn = self._makeIconButton(self._reimportIcon)
+        reimportBtn = uiutils.makeIconButton(self._reimportIcon, self)
         reimportBtn.clicked.connect(self.onReimportAndRefresh)
         self._topLayout.addWidget(reimportBtn)
 
@@ -266,7 +242,7 @@ class UTestWindow(QtWidgets.QWidget):
         self._searchLE.textChanged.connect(self.onFilterTextChanged)
         self._topLayout.addWidget(self._searchLE)
 
-        self._clearSearchBtn = self._makeIconButton(self._clearIcon)
+        self._clearSearchBtn = uiutils.makeIconButton(self._clearIcon, self)
         self._clearSearchBtn.setEnabled(False)
         self._clearSearchBtn.clicked.connect(self.clearSearch)
         self._topLayout.addWidget(self._clearSearchBtn)
@@ -277,17 +253,17 @@ class UTestWindow(QtWidgets.QWidget):
             act.triggered.connect(self.onAddFilter)
         self._topLayout.addWidget(self._filterBtn)
 
-        self._autoFilterBtn = self._makeIconButton(self._autoFilterIcon)
+        self._autoFilterBtn = uiutils.makeIconButton(self._autoFilterIcon, self)
         self._autoFilterBtn.setCheckable(True)
         self._topLayout.addWidget(self._autoFilterBtn)
 
     def _makeBtmButtons(self):
-        self._stopAtErrorBtn = self._makeIconButton(self._stopAtErrorIcon)
+        self._stopAtErrorBtn = uiutils.makeIconButton(self._stopAtErrorIcon, self)
         self._stopAtErrorBtn.toggled.connect(self._onStopOnErrorStageChanged)
         self._stopAtErrorBtn.setCheckable(True)
         self._btmLayout.addWidget(self._stopAtErrorBtn, 0)
 
-        self._resetAllBtn = self._makeIconButton(self._resetIcon)
+        self._resetAllBtn = uiutils.makeIconButton(self._resetIcon, self)
         self._resetAllBtn.clicked.connect(self._view.resetAllItemsToNormal)
         self._btmLayout.addWidget(self._resetAllBtn, 1)
 
@@ -326,9 +302,8 @@ class UTestWindow(QtWidgets.QWidget):
 
         configName = act.text()
 
-        settings = self._getSettings()
-        settings.setValue(self._config_key_lastSavedDir, configName)
-        settings.sync()
+        settings = appsettings.get()
+        settings.saveSimpleConfig(constants.CONFIG_KEY_LAST_SAVED_TEST_DIR, configName)
 
         self._updateWindowTitle(configName)
         self._updateDirUI()
@@ -340,7 +315,19 @@ class UTestWindow(QtWidgets.QWidget):
         self._updateWindowTitle(startDir)
         self._updateDirUI()
         self._searchLE.clear()
-        self.reload()
+        self.reload(keepUiStates=False)
+
+    def _setPanelVisState(self, state, saveSettings=True):
+        state = min(constants.PANEL_VIS_STATE_BOTH_ON, max(0, state))
+        self._panelVisBtn.setIcon(self._panelStateIconSet[state])
+        self._leftWidget.setVisible(state != constants.PANEL_VIS_STATE_RIGHT_ON)
+        self._rightWidget.setVisible(state != constants.PANEL_VIS_STATE_LEFT_ON)
+        if saveSettings:
+            appsettings.get().saveSimpleConfig(constants.CONFIG_KEY_PANEL_VIS_STATE, state)
+        
+    def _restorePanelVisState(self):
+        state = appsettings.get().simpleConfigValue(constants.CONFIG_KEY_PANEL_VIS_STATE)
+        self._setPanelVisState(state, saveSettings=False)
 
     def _onPanelVisButtonClicked(self):
         leftVis = self._leftWidget.isVisible()
@@ -351,9 +338,7 @@ class UTestWindow(QtWidgets.QWidget):
         elif not rightVis:
             state = constants.PANEL_VIS_STATE_LEFT_ON
         state = (state + 1) % 3
-        self._panelVisBtn.setIcon(self._panelStateIconSet[state])
-        self._leftWidget.setVisible(state != constants.PANEL_VIS_STATE_RIGHT_ON)
-        self._rightWidget.setVisible(state != constants.PANEL_VIS_STATE_LEFT_ON)
+        self._setPanelVisState(state)
 
     def _updateDirUI(self):
         self._rootDirLE.setText(self._testManager.startDirOrModule())
@@ -384,17 +369,18 @@ class UTestWindow(QtWidgets.QWidget):
         self.setWindowTitle("{} - {}".format(constants.APP_NAME, configName))
 
     def _loadLastDirsFromSettings(self):
-        settings = self._getSettings()
-        name = settings.value(self._config_key_lastSavedDir)
+        settings = appsettings.get()
+        name = settings.simpleConfigValue(constants.CONFIG_KEY_LAST_SAVED_TEST_DIR)
         if not name:
             return
+            
         config = self._readDirSettings()
         if name not in config or not config[name]:
             logger.error("The last setting name %s does not exist.", name)
             return
 
         _topDir, _startDirOrModule = config[name]
-        self._testManager.setDirs(_topDir, _startDirOrModule)
+        self._testManager.setDirs(_startDirOrModule, _topDir)
         self._updateDirUI()
         self._updateWindowTitle(name)
 
@@ -408,16 +394,13 @@ class UTestWindow(QtWidgets.QWidget):
             return
 
         topDir = self._testManager.topDir()
-        settings = self._getSettings()
+        with appsettings.SettingsGroupContext(constants.CONFIG_KEY_SAVED_TEST_DIR):
+            with appsettings.SettingsGroupContext(name[0]) as settings:
+                settings.saveSimpleConfig(constants.CONFIG_KEY_TEST_TOP_DER, topDir, sync=False)
+                settings.saveSimpleConfig(constants.CONFIG_KEY_TEST_START_DER, startDir, sync=False)
 
-        settings.beginGroup(self._config_key_savedDir)
-        settings.setValue("%s/%s" % (name[0], self._config_key_topDir), topDir)
-        settings.setValue("%s/%s" % (name[0], self._config_key_testRootDir), startDir)
-        settings.endGroup()
+        settings.saveSimpleConfig(constants.CONFIG_KEY_LAST_SAVED_TEST_DIR, name[0])
 
-        settings.setValue(self._config_key_lastSavedDir, name[0])
-
-        settings.sync()
         self._deferredRegenerateMenu()
         self._updateWindowTitle(name[0])
 
@@ -425,20 +408,17 @@ class UTestWindow(QtWidgets.QWidget):
         QtCore.QTimer.singleShot(0, self._regenerateMenu)
 
     def _readDirSettings(self):
-        settings = self._getSettings()
-        logger.debug("Settings ini file:%s", settings.fileName())
-        settings.beginGroup(self._config_key_savedDir)
-        names = settings.childGroups()
-        data = collections.OrderedDict()
-        for n in names:
-            settings.beginGroup(n)
-            data[n] = (
-                settings.value(self._config_key_topDir),
-                settings.value(self._config_key_testRootDir),
-            )
-            settings.endGroup()
+        with appsettings.SettingsGroupContext(constants.CONFIG_KEY_SAVED_TEST_DIR) as settings:
+            logger.debug("Settings ini file:%s", settings.fileName())
+            names = settings.childGroups()
+            data = collections.OrderedDict()
+            for n in names:
+                with appsettings.SettingsGroupContext(n):
+                    data[n] = (
+                        settings.simpleConfigValue(constants.CONFIG_KEY_TEST_TOP_DER),
+                        settings.simpleConfigValue(constants.CONFIG_KEY_TEST_START_DER),
+                    )
 
-        settings.endGroup()
         return data
 
     def _onDeleteCurrentDirSettings(self):
@@ -458,12 +438,11 @@ class UTestWindow(QtWidgets.QWidget):
         if answer != QtWidgets.QMessageBox.Yes:
             return
 
-        settings = self._getSettings()
-        settings.beginGroup(self._config_key_savedDir)
-        for n in removeNames:
-            settings.remove(n)
-            logger.info("Remove the dir setting: %s", n)
-        settings.endGroup()
+        with appsettings.SettingsGroupContext(constants.CONFIG_KEY_SAVED_TEST_DIR) as settings:
+            for n in removeNames:
+                settings.removeConfig(n)
+                logger.info("Remove the dir setting: %s", n)
+
         self._deferredRegenerateMenu()
 
     def onRunAll(self):
