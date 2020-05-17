@@ -15,10 +15,10 @@ def iterAllTestPathsFromRootDir(startDirOrModuleName, topDir=None):
         "--list-tests",
         "--plugin",
         "nose2.plugins.loader.eggdiscovery",
+        "--plugin",
+        "utest.plugins.removeduplicated",
         "--exclude-plugin",
         "nose2.plugins.result",
-        "-t",
-        pathutils.utestRootDir(),
     ]
     if pathutils.isPath(startDirOrModuleName):
         argv.extend(["-s", startDirOrModuleName, "-t", topDir])

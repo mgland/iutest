@@ -67,6 +67,8 @@ class TestManager(object):
             "utest.plugins.uilogger",
             "--plugin",
             "nose2.plugins.loader.eggdiscovery",
+            "--plugin",
+            "utest.plugins.removeduplicated",
             "--exclude-plugin",
             "utest.plugins.testlister",
         ]
@@ -80,7 +82,7 @@ class TestManager(object):
 
         if self._beforeTestStartHook:
             self._beforeTestStartHook(tests)
-
+        
         viewupdater.ViewUpdater.resetLastData()
         nose2.discover(
             argv=argv, exit=False, extraHooks=viewupdater.ViewUpdater.getHooks(self._ui)
