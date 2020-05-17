@@ -10,8 +10,8 @@ from utest import iconutils
 from utest import reimportall
 from utest import settings
 from utest import constants
-from utest import testlogbrowser
-from utest import testrootedit
+from utest import logbrowser
+from utest import rootpathedit
 from utest import testtreeview
 from utest import testmanager
 from utest import statuslabel
@@ -83,7 +83,7 @@ class UTestWindow(QtWidgets.QWidget):
 
         # right layout -----------------------------------
         rightLay = self._createSplitterContent()
-        self._logWgt = testlogbrowser.TestLogBrowser(self)
+        self._logWgt = logbrowser.LogBrowser(self)
         rightLay.addWidget(self._logWgt)
 
         # bottom layout -----------------------------------
@@ -189,7 +189,7 @@ class UTestWindow(QtWidgets.QWidget):
 
     def _makeDirWidgets(self):
         lbl = QtWidgets.QLabel("Test Root")
-        self._rootDirLE = testrootedit.TestRootEdit(self)
+        self._rootDirLE = rootpathedit.RootPathEdit(self)
         self._rootDirLE.rootPathChanged.connect(self.onRootPathEdited)
 
         self._browseBtn, self._moreMenu = self._makeMenuToolButton(self._moreIcon)
@@ -286,6 +286,7 @@ class UTestWindow(QtWidgets.QWidget):
     def onRootPathEdited(self, startDir, topDir):
         self._testManager.setDirs(startDir, topDir)
         self._updateWindowTitle(startDir)
+        self._updateDirUI()
         self._searchLE.clear()
         self.reload()
 

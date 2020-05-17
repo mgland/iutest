@@ -3,7 +3,7 @@ from utest import uistream
 from utest.qt import QtCore, QtGui, QtWidgets
 
 
-class TestLogBrowser(QtWidgets.QTextBrowser):
+class LogBrowser(QtWidgets.QTextBrowser):
 
     LOG_COLOR_INFORMATION = QtGui.QColor(200, 200, 200)
     LOG_COLOR_ERROR = QtGui.QColor(234, 52, 95)

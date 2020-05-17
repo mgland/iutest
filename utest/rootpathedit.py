@@ -1,7 +1,7 @@
 from utest.qt import QtCore, QtWidgets
 
 
-class TestRootEdit(QtWidgets.QLineEdit):
+class RootPathEdit(QtWidgets.QLineEdit):
     rootPathChanged = QtCore.Signal(str, str)
 
     def __init__(self, parent=None):

@@ -8,6 +8,9 @@ class TestListerTestCase(unittest.TestCase):
         startDir = pathutils.utestPackageDir()
         topDir = pathutils.utestRootDir()
         tests = list(testlister.iterAllTestPathsFromRootDir(startDir, topDir))
+        self._checkListedTests(tests)
+    
+    def _checkListedTests(self, tests):
         self.assertTrue(tests)
         hasThisTest = False
         prefix = 'utest.tests.utests.test_testlister.TestListerTestCase.test_'
@@ -19,8 +22,7 @@ class TestListerTestCase(unittest.TestCase):
     def test_listByModulePath(self):
         modulePath = 'utest.tests'
         tests = list(testlister.iterAllTestPathsFromRootDir(modulePath))
-        self.assertTrue(tests)
-        print tests
+        self._checkListedTests(tests)
 
     @params(('package.to.module.testcase.test', False), 
             ('package.to.module.testcase.test:0', True))

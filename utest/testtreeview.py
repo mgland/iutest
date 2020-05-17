@@ -314,9 +314,10 @@ class TestTreeView(QtWidgets.QTreeWidget):
     def reload(self, keepUiStates=True):
         if keepUiStates:
             self._viewStates.save()
+            
         self._testItems = []
-
         self._rootTestItem = None
+        self._allItemsIdMap = {}
         self.clear()
 
         startDirOrModule = self._testManager.startDirOrModule()
@@ -329,7 +330,6 @@ class TestTreeView(QtWidgets.QTreeWidget):
         self._setItemIconState(self._rootTestItem, constants.TEST_ICON_STATE_NORMAL)
         self.addTopLevelItem(self._rootTestItem)
 
-        self._allItemsIdMap = {}
         self._allItemsIdMap[startDirOrModule] = self._rootTestItem
 
         isModule = not pathutils.isPath(startDirOrModule)
