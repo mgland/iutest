@@ -31,6 +31,7 @@ class UTestWindow(QtWidgets.QWidget):
     _filterIcon = None
     _autoFilterIcon = None
     _resetIcon = None
+    _clearLogOnRunIcon = None
     _clearLogIcon = None
     _stopAtErrorIcon = None
     _runAllIcon = None
@@ -57,9 +58,7 @@ class UTestWindow(QtWidgets.QWidget):
         self.setContentsMargins(0, 0, 0, 0)
 
         # Top layout ------------------------------
-        self._dirLayout = QtWidgets.QHBoxLayout()
-        self._dirLayout.setSpacing(3)
-        self._dirLayout.setContentsMargins(0, 0, 0, 0)
+        self._dirLayout = self._makeHButtonLayout()
         self._makeDirWidgets()
         self._mainLay.addLayout(self._dirLayout)
 
@@ -69,9 +68,7 @@ class UTestWindow(QtWidgets.QWidget):
         # left layout -----------------------------------
         self._leftWidget, leftLay = self._createSplitterContent()
     
-        self._topLayout = QtWidgets.QHBoxLayout()
-        self._topLayout.setSpacing(3)
-        self._topLayout.setContentsMargins(0, 0, 0, 0)
+        self._topLayout = self._makeHButtonLayout()
         self._makeTopWidgets()
         leftLay.addLayout(self._topLayout)
 
@@ -84,13 +81,14 @@ class UTestWindow(QtWidgets.QWidget):
 
         # right layout -----------------------------------
         self._rightWidget, rightLay = self._createSplitterContent()
+        self._logTopLayout = self._makeHButtonLayout()
         self._logWgt = logbrowser.LogBrowser(self)
-        rightLay.addWidget(self._logWgt)
+        self._makeLogTopLayout()
+        rightLay.addLayout(self._logTopLayout, 0)
+        rightLay.addWidget(self._logWgt, 1)
 
         # bottom layout -----------------------------------
-        self._btmLayout = QtWidgets.QHBoxLayout()
-        self._btmLayout.setSpacing(3)
-        self._btmLayout.setContentsMargins(0, 3, 0, 0)
+        self._btmLayout = self._makeHButtonLayout()
         self._makeBtmButtons()
         self._mainLay.addLayout(self._btmLayout)
 
@@ -109,6 +107,12 @@ class UTestWindow(QtWidgets.QWidget):
         self._loadLastDirsFromSettings()
         self._testManager.setBeforeTestStartHook(self._beforeRunningTests)
         self.reload(keepUiStates=False)
+
+    def _makeHButtonLayout(self):
+        _layout = QtWidgets.QHBoxLayout()
+        _layout.setSpacing(3)
+        _layout.setContentsMargins(0, 0, 0, 0)
+        return _layout
 
     def setIsStandalone(self, isStandalone):
         if isStandalone:
@@ -145,6 +149,16 @@ class UTestWindow(QtWidgets.QWidget):
         self._splitter.addWidget(wgt)
         return wgt, splitterLay
 
+    def _makeLogTopLayout(self):
+        self._clearLogOnRunBtn = self._makeIconButton(self._clearLogOnRunIcon)
+        self._clearLogOnRunBtn.setCheckable(True)
+
+        self._clearLogBtn = self._makeIconButton(self._clearLogIcon)
+        self._clearLogBtn.clicked.connect(self._logWgt.clear)
+
+        self._logTopLayout.addWidget(self._clearLogOnRunBtn, 0)
+        self._logTopLayout.addWidget(self._clearLogBtn, 0)
+
     @classmethod
     def _getSettings(cls):
         if cls._Settings:
@@ -176,6 +190,7 @@ class UTestWindow(QtWidgets.QWidget):
         cls._initSingleIcon("_autoFilterIcon", "autoFilter.svg")
         cls._initSingleIcon("_resetIcon", "reset.svg")
         cls._initSingleIcon("_clearLogIcon", "clearLog.svg")
+        cls._initSingleIcon("_clearLogOnRunIcon", "clearLogOnRun.svg")
         cls._initSingleIcon("_stopAtErrorIcon", "stopAtError.svg")
         cls._initSingleIcon("_runAllIcon", "runAll.svg")
         cls._initSingleIcon("_runSelectedIcon", "runSelected.svg")
@@ -264,10 +279,6 @@ class UTestWindow(QtWidgets.QWidget):
         self._topLayout.addWidget(self._autoFilterBtn)
 
     def _makeBtmButtons(self):
-        self._clearLogBtn = self._makeIconButton(self._clearLogIcon)
-        self._clearLogBtn.clicked.connect(self._logWgt.clear)
-        self._btmLayout.addWidget(self._clearLogBtn, 0)
-
         self._stopAtErrorBtn = self._makeIconButton(self._stopAtErrorIcon)
         self._stopAtErrorBtn.toggled.connect(self._onStopOnErrorStageChanged)
         self._stopAtErrorBtn.setCheckable(True)
@@ -507,6 +518,8 @@ class UTestWindow(QtWidgets.QWidget):
 
     def onTestRunningSessionStart(self):
         self._statusLbl.setText("Running tests...")
+        if self._clearLogOnRunBtn.isChecked():
+            self._logWgt.clear()
         self._logWgt.logSeparator()
 
     def onAllTestsFinished(self):
