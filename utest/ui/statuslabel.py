@@ -1,6 +1,6 @@
 from utest.qt import QtWidgets, QtCore
-from utest import constants
 from utest.plugins import viewupdater
+from utest.ui import uiconstants
 
 
 class StatusLabel(QtWidgets.QLabel):
@@ -23,14 +23,14 @@ class StatusLabel(QtWidgets.QLabel):
             == viewupdater.ViewUpdater.lastRunCount
         ):
             msgs.append(
-                "<font color=%s>ALL GOOD :)</font>" % constants.LOG_COLOR_SUCCESS.name()
+                "<font color=%s>ALL GOOD :)</font>" % uiconstants.LOG_COLOR_SUCCESS.name()
             )
         else:
             if viewupdater.ViewUpdater.lastFailedCount:
                 msgs.append(
                     "<font color=%s>%s failed</font>"
                     % (
-                        constants.LOG_COLOR_FAILED.name(),
+                        uiconstants.LOG_COLOR_FAILED.name(),
                         viewupdater.ViewUpdater.lastFailedCount,
                     )
                 )
@@ -38,7 +38,7 @@ class StatusLabel(QtWidgets.QLabel):
                 msgs.append(
                     "<font color=%s>%s errors</font>"
                     % (
-                        constants.LOG_COLOR_ERROR.name(),
+                        uiconstants.LOG_COLOR_ERROR.name(),
                         viewupdater.ViewUpdater.lastErrorCount,
                     )
                 )
@@ -46,7 +46,7 @@ class StatusLabel(QtWidgets.QLabel):
                 msgs.append(
                     "<font color=%s>%s skipped</font>"
                     % (
-                        constants.LOG_COLOR_WARNING.name(),
+                        uiconstants.LOG_COLOR_WARNING.name(),
                         viewupdater.ViewUpdater.lastSkipCount,
                     )
                 )

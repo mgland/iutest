@@ -5,7 +5,7 @@ import logging
 
 from nose2.plugins import result as resultPlugin  # This has to be imported this way.
 from nose2 import result, events, util  # This has to be imported this way.
-from utest import uistream
+from utest.core import uistream
 
 logger = logging.getLogger(__name__)
 

@@ -2,7 +2,7 @@ import unittest
 import logging
 import nose2  # This has to be imported this way.
 
-from utest import pathutils
+from utest.core import pathutils
 
 logger = logging.getLogger(__name__)
 

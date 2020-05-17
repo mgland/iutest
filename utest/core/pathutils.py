@@ -4,7 +4,7 @@ import inspect
 
 def utestPackageDir():
     filePath = os.path.abspath(inspect.getfile(inspect.currentframe()))
-    return os.path.dirname(filePath)
+    return os.path.dirname(os.path.dirname(filePath))
 
 
 def utestRootDir():

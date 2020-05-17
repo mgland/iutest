@@ -4,19 +4,19 @@ import sys
 import collections
 import weakref
 
-from utest.qt import QtCore, QtGui, QtWidgets
-from utest import pathutils
-from utest import iconutils
-from utest import reimportall
-from utest import settings
-from utest import constants
-from utest import logbrowser
-from utest import rootpathedit
-from utest import testtreeview
-from utest import testmanager
-from utest import statuslabel
-from utest.libs import nose2
 from utest import dcc
+from utest.core import reimportall
+from utest.qt import QtCore, QtGui, QtWidgets
+from utest.core import pathutils
+from utest.core import iconutils
+from utest.core import settings
+from utest.core import constants
+from utest.core import testmanager
+from utest.ui import logbrowser
+from utest.ui import rootpathedit
+from utest.ui import testtreeview
+from utest.ui import statuslabel
+from utest.libs import nose2
 from utest.plugins import testlister
 from utest.plugins import viewupdater
 

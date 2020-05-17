@@ -1,6 +1,6 @@
 import os
-from utest import constants
-from utest import pathutils
+from utest.core import constants
+from utest.core import pathutils
 
 
 def _iconDir():

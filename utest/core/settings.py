@@ -1,6 +1,5 @@
-from PySide2 import QtCore
-
-from utest import constants
+from utest.core import constants
+from utest.qt import QtCore
 
 
 def createIniSettings(toolName):

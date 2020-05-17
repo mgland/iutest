@@ -1,7 +1,7 @@
 import unittest
 import os
 
-from utest import iconutils
+from utest.core import iconutils
 
 class IconUtilsTestCase(unittest.TestCase):
     def setUp(self):

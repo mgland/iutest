@@ -1,7 +1,7 @@
 import unittest
 import os
 
-from utest import pathutils
+from utest.core import pathutils
 from nose2.tools import params
 
 class PathUtilsTestCase(unittest.TestCase):

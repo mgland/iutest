@@ -1,16 +1,9 @@
-from utest import constants
-from utest import uistream
+from utest.ui import uiconstants
+from utest.core import uistream
 from utest.qt import QtCore, QtGui, QtWidgets
 
 
 class LogBrowser(QtWidgets.QTextBrowser):
-
-    LOG_COLOR_INFORMATION = QtGui.QColor(200, 200, 200)
-    LOG_COLOR_ERROR = QtGui.QColor(234, 52, 95)
-    LOG_COLOR_FAILED = QtGui.QColor(234, 52, 95)
-    LOG_COLOR_WARNING = QtGui.QColor(220, 206, 135)
-    LOG_COLOR_SUCCESS = QtGui.QColor(138, 211, 11)
-
     def __init__(self, parent=None):
         QtWidgets.QTextBrowser.__init__(self, parent)
         fn = self.font()
@@ -66,19 +59,19 @@ class LogBrowser(QtWidgets.QTextBrowser):
         self.logInformation("<br>{}<br>".format(sep))
 
     def logInformation(self, msg, *args):
-        self.logWithColor(msg, constants.LOG_COLOR_INFORMATION, *args)
+        self.logWithColor(msg, uiconstants.LOG_COLOR_INFORMATION, *args)
 
     def logSuccess(self, msg, *args):
-        self.logWithColor(msg, constants.LOG_COLOR_SUCCESS, *args)
+        self.logWithColor(msg, uiconstants.LOG_COLOR_SUCCESS, *args)
 
     def logFailed(self, msg, *args):
-        self.logWithColor(msg, constants.LOG_COLOR_FAILED, *args)
+        self.logWithColor(msg, uiconstants.LOG_COLOR_FAILED, *args)
 
     def logError(self, msg, *args):
-        self.logWithColor(msg, constants.LOG_COLOR_ERROR, *args)
+        self.logWithColor(msg, uiconstants.LOG_COLOR_ERROR, *args)
 
     def logWarning(self, msg, *args):
-        self.logWithColor(msg, constants.LOG_COLOR_WARNING, *args)
+        self.logWithColor(msg, uiconstants.LOG_COLOR_WARNING, *args)
 
     def closeEvent(self, event):
         uistream.UiStream.deregister(self)

@@ -14,8 +14,9 @@ def _initNose2():
 
 _initNose2()
 
-from utest import utestwindow
-from utest import testmanager
+from utest.core import testmanager
+from utest.core import reimportall
+from utest.ui import utestwindow
 
 
 def runUi(startDirOrModule=None, topDir=None):
@@ -37,7 +38,7 @@ def runAllTests(startDirOrModule=None, topDir=None, stopOnError=False):
         topDir (str): The top directory that need to be put in sys.path in order for the tests work.
         stopOnError (bool): Stop the tests running on the first error/failure.
     """
-    manager = testmanager.TestManager(None, startDir=startDirOrModule, topDir=topDir)
+    manager = testmanager.TestManager(None, startDirOrModule=startDirOrModule, topDir=topDir)
     manager.setStopOnError(stopOnError)
     manager.runAllTests()
 
@@ -48,5 +49,13 @@ def runTests(*tests):
     Args:
         tests (tuple): The tests input in arbitrary number. Each of them is a python module path str.
     """
-    manager = testmanager.TestManager(None, startDir=None)
+    manager = testmanager.TestManager(None, startDirOrModule=None)
     manager.runTests(*tests)
+
+
+__all__ = [
+    'reimportall',
+    'runUi',
+    'runAllTests',
+    'runTests',
+]

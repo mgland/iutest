@@ -1,6 +1,6 @@
 import unittest
 from utest.plugins import testlister
-from utest import pathutils
+from utest.core import pathutils
 from nose2.tools import params
 
 class TestListerTestCase(unittest.TestCase):

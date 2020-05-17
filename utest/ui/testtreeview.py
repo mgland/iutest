@@ -1,9 +1,9 @@
 import logging
 
 from utest.qt import QtCore, QtGui, QtWidgets
-from utest import iconutils
-from utest import constants
-from utest import pathutils
+from utest.core import iconutils
+from utest.core import constants
+from utest.core import pathutils
 from utest.plugins import testlister
 from utest.plugins import viewupdater
 

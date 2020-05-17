@@ -1,5 +1,5 @@
 import unittest
-from utest import testmanager
+from utest.core import testmanager
 
 class TestManagerTestCase(unittest.TestCase):
     pass

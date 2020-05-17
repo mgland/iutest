@@ -1,7 +1,7 @@
 import logging
 
 from utest.libs import nose2
-from utest import pathutils
+from utest.core import pathutils
 from utest.plugins import viewupdater
 from utest.plugins import testlister
 
