@@ -39,6 +39,7 @@ class LogBrowser(QtWidgets.QTextBrowser):
         msg = "<font color=%s>%s</font>" % (color.name(), msg)
         self.insertHtml(msg)
         self.moveCursor(QtGui.QTextCursor.End)
+        self.horizontalScrollBar().setValue(0)
 
     def onLinkClicked(self, url):
         path, _, line = url.query().rpartition("=")
@@ -57,7 +58,7 @@ class LogBrowser(QtWidgets.QTextBrowser):
 
     def logSeparator(self,):
         sep = ">" * 70
-        self.logInformation("<br>{}<br>".format(sep))
+        self.logWarning("<br>{}<br>".format(sep))
 
     def logInformation(self, msg, *args):
         self.logWithColor(msg, uiconstants.LOG_COLOR_INFORMATION, *args)

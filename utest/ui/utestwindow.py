@@ -463,7 +463,6 @@ class UTestWindow(QtWidgets.QWidget):
         self._executeSelectedBtn.setEnabled(enabled)
 
     def _beforeRunningTests(self, tests):
-        self.onTestRunningSessionStart()
         self._logWgt.onTestStart()
         self._view.resetTestItemsById(tests)
 
