@@ -50,6 +50,22 @@ class StatusLabel(QtWidgets.QLabel):
                         viewupdater.ViewUpdater.lastSkipCount,
                     )
                 )
+            if viewupdater.ViewUpdater.lastExpectedFailureCount:
+                msgs.append(
+                    "<font color=%s>%s expected failures</font>"
+                    % (
+                        uiconstants.LOG_COLOR_SUCCESS.name(),
+                        viewupdater.ViewUpdater.lastExpectedFailureCount,
+                    )
+                )
+            if viewupdater.ViewUpdater.lastUnexpectedSuccessCount:
+                msgs.append(
+                    "<font color=%s>%s unexpected successes</font>"
+                    % (
+                        uiconstants.LOG_COLOR_ERROR.name(),
+                        viewupdater.ViewUpdater.lastUnexpectedSuccessCount,
+                    )
+                )
         self.setText(", ".join(msgs))
 
     def reportTestCount(self, testCount):

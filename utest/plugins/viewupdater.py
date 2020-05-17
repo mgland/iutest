@@ -14,8 +14,10 @@ class ViewUpdater(object):
     lastRunCount = 0
     lastErrorCount = 0
     lastFailedCount = 0
+    lastExpectedFailureCount = 0
     lastSkipCount = 0
     lastSuccessCount = 0
+    lastUnexpectedSuccessCount = 0
     lastFailedTest = None
 
     runTime = 0
@@ -71,7 +73,10 @@ class ViewUpdater(object):
             )
 
         elif event.outcome == result.FAIL:
-            cls.lastFailedCount += 1
+            if not event.expected:
+                cls.lastFailedCount += 1
+            else:
+                cls.lastExpectedFailureCount += 1
             if not self.lastFailedTest:
                 ViewUpdater.lastFailedTest = testId
             self.callManagerMethod(
@@ -85,7 +90,11 @@ class ViewUpdater(object):
             )
 
         elif event.outcome == result.PASS:
-            cls.lastSuccessCount += 1
+            if event.expected:
+                cls.lastSuccessCount += 1
+            else:
+                cls.lastUnexpectedSuccessCount += 1
+
             self.callManagerMethod(
                 "showResultOnItemByTestId", testId, constants.TEST_ICON_STATE_SUCCESS
             )
@@ -96,8 +105,10 @@ class ViewUpdater(object):
         cls.lastRunCount = 0
         cls.lastErrorCount = 0
         cls.lastFailedCount = 0
+        cls.lastExpectedFailureCount = 0
         cls.lastSkipCount = 0
         cls.lastSuccessCount = 0
+        cls.lastUnexpectedSuccessCount = 0
 
     @classmethod
     def getHooks(cls, manager):

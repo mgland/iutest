@@ -29,10 +29,16 @@ class DummyTests(unittest.TestCase):
         self.assertTrue(False, 'False will never be True.')
 
     @unittest.expectedFailure
-    def test_shouldFailed(self):
+    def test_expectedFailureButSuccess(self):
         logger.warning('This should not pass.')
         self.assertTrue(True)
 
+    @unittest.expectedFailure
+    def test_expectedFailure(self):
+        logger.warning('This should not pass.')
+        self.assertTrue(False)
+
+    @unittest.skipUnless(hasattr(unittest.TestCase, 'subTest'), 'Current TestCase version does not support subTest')
     def test_subTests(self):
         for i in range(0, 6):
             with self.subTest(i=i):
