@@ -8,7 +8,7 @@ import logging
 class UiStream(object):
     _reportUi = None
     _urlTempalte = "<a href='?{1}={2}'>{0}</a>"
-    _traceExp = re.compile(r"File \"(.*?)\", line (.*)?,")
+    _traceExp = None
 
     @classmethod
     def register(cls, wgt):
@@ -26,7 +26,13 @@ class UiStream(object):
         if cls.ui() == wgt:
             cls._reportUi = None
 
+    @classmethod
+    def _initExp(cls):
+        if not cls._traceExp:
+            cls._traceExp = re.compile(r"File \"(.*?)\", line (.*?),")
+
     def __init__(self):
+        self._initExp()
         self._testResult = None
         self._linkInfo = None
         self._processStackTraceLink = False

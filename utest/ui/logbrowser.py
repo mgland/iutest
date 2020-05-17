@@ -7,7 +7,8 @@ class LogBrowser(QtWidgets.QTextBrowser):
     def __init__(self, parent=None):
         QtWidgets.QTextBrowser.__init__(self, parent)
         fn = self.font()
-        fn.setPixelSize(fn.pixelSize() + 2)
+        pixelSize = max(12, fn.pixelSize() + 2)
+        fn.setPixelSize(pixelSize)
         fn.setFamily("Courier New")
         self.setFont(fn)
         self.setReadOnly(True)

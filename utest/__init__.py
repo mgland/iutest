@@ -27,8 +27,9 @@ def runUi(startDirOrModule=None, topDir=None):
         startDirOrModule (str): The directory or the module path to search for tests.
         topDir (str): The top directory that need to be put in sys.path in order for the tests work.
     """
-    with _qt.ApplicationContext():
+    with _qt.ApplicationContext() as ctx:
         manager = utestwindow.UTestWindow(startDirOrModule=startDirOrModule, topDir=topDir)
+        manager.setIsStandalone(ctx.isStandalone)
         manager.show()
 
 

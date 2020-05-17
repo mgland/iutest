@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 def _importFromPySide2():
     try:
         from PySide2 import QtCore, QtGui, QtWidgets
-        logger.info('Using PySide2.')
+        logger.debug('Using PySide2.')
         return (QtCore, QtGui, QtWidgets)
     except Exception:
         logger.debug('Unable to import PySide2.')
@@ -16,7 +16,7 @@ def _importFromPySide2():
 def _importFromPySide1():
     try:
         from PySide import QtCore, QtGui
-        logger.info('Using PySide.')
+        logger.debug('Using PySide.')
         return (QtCore, QtGui, QtGui)
     except Exception:
         logger.debug('Unable to import PySide.')
@@ -26,7 +26,7 @@ def _importFromPySide1():
 def _importFromPyQt5():
     try:
         from PyQt5 import QtCore, QtGui, QtWidgets
-        logger.info('Using PyQt5.')
+        logger.debug('Using PyQt5.')
         return (QtCore, QtGui, QtWidgets)
     except Exception:
         logger.debug('Unable to import PyQt5.')
@@ -36,7 +36,7 @@ def _importFromPyQt5():
 def _importFromPyQt4():
     try:
         from PyQt4 import QtCore, QtGui
-        logger.info('Using PyQt4.')
+        logger.debug('Using PyQt4.')
         return (QtCore, QtGui, QtGui)
     except Exception:
         logger.debug('Unable to import PyQt4.')
@@ -66,13 +66,17 @@ def findTopLevelWidgetByName(name):
 class ApplicationContext(object):
     """Enable widget works both in standalone mode or DCC embedded mode.
     """
+    def __init__(self):
+        self.isStandalone = False
+        
     def __enter__(self):
         self._application = QtWidgets.QApplication.instance()
-        self._isStandalone = False
+        self.isStandalone = False
         if not self._application:
             self._application = QtWidgets.QApplication(sys.argv)
-            self._isStandalone = True
+            self.isStandalone = True
+        return self
 
     def __exit__(self, *_, **__):
-        if self._isStandalone:
+        if self.isStandalone:
             sys.exit(self._application.exec_())

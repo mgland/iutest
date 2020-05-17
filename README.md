@@ -1,5 +1,5 @@
 # ![alt text][logo] UTest-0.1
-UTest is a python unittest ui based on nose2, with a Chinese Name '油条-0.1'
+UTest is a python unittest ui based on nose2, with a Chinese Name '油条'.
 
 [logo]: ./icons/utest.svg "UTest Logo"
 
@@ -10,6 +10,7 @@ import sys
 testerPath = 'E:/projects/utest'  # Change to your path!
 if testerPath not in sys.path:
     sys.path.append(testerPath)
+
 import utest
 utest.runUi()
 ```
@@ -20,6 +21,7 @@ import sys
 testerPath = 'E:/projects/utest'  # Change to your path!
 if testerPath not in sys.path:
     sys.path.append(testerPath)
+    
 import utest
 
 utest.runAllTests(startDirOrModule='pathToTestRootDir', topDir='pathToPythonTopDir', stopOnError=False)

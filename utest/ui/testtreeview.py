@@ -64,9 +64,14 @@ class TestTreeView(QtWidgets.QTreeWidget):
     _testItemIcons = []
     _allItemIconSet = []
 
+    class _TreeItemDelegate(QtWidgets.QItemDelegate):
+        def drawFocus(self, painter, styleOptionViewItem, rect):
+            pass
+
     def __init__(self, parent):
         QtWidgets.QTreeWidget.__init__(self, parent)
-
+        self.setItemDelegate(self._TreeItemDelegate(self))
+        self.setTextElideMode(QtCore.Qt.ElideLeft)
         self.setColumnCount(2)
         self._setHeaderStretch()
         self.setHeaderHidden(True)
@@ -74,6 +79,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
         self.setExpandsOnDoubleClick(False)
         self.setSelectionMode(self.ExtendedSelection)
         self.itemDoubleClicked.connect(self.onItemDoubleClicked)
+
 
         self._rootTestItem = None
         self._testItems = []
@@ -89,8 +95,13 @@ class TestTreeView(QtWidgets.QTreeWidget):
     def _setHeaderStretch(self):
         header = self.header()
         header.setStretchLastSection(False)
-        header.setSectionResizeMode(0, header.Stretch)
-        header.setSectionResizeMode(1, header.ResizeToContents)
+        if hasattr(header, 'setSectionResizeMode'):
+            header.setSectionResizeMode(0, header.Stretch)
+            header.setSectionResizeMode(1, header.ResizeToContents)
+        else:
+            header.setResizeMode(0, header.Stretch)
+            header.setResizeMode(1, header.ResizeToContents)
+
         header.resizeSection(1, 10)
 
     def onItemDoubleClicked(self, item, *_, **__):
@@ -299,7 +310,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
         for item in self.selectedItems():
             if item is self._rootTestItem:
                 continue
-            QtGui.QGuiApplication.clipboard().setText(self.testIdOfItem(item))
+            QtWidgets.QApplication.clipboard().setText(self.testIdOfItem(item))
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_C and (

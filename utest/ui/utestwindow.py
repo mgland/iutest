@@ -109,6 +109,33 @@ class UTestWindow(QtWidgets.QWidget):
         self._testManager.setBeforeTestStartHook(self._beforeRunningTests)
         self.reload(keepUiStates=False)
 
+    def setIsStandalone(self, isStandalone):
+        if isStandalone:
+            pal = self.palette()
+
+            pal.setColor(pal.Window, QtGui.QColor(68,68,68))
+            pal.setColor(pal.Background, QtGui.QColor(68,68,68))
+            pal.setColor(pal.WindowText, QtGui.QColor(200,200,200))
+            pal.setColor(pal.Foreground, QtGui.QColor(200,200,200))
+            pal.setColor(pal.Base, QtGui.QColor(46,46,46))
+            pal.setColor(pal.AlternateBase, QtGui.QColor(43,43,43))
+            pal.setColor(pal.ToolTipBase, QtGui.QColor(46,46,46))
+            pal.setColor(pal.ToolTipText, QtGui.QColor(200,200,200))
+            pal.setColor(pal.Text, QtGui.QColor(200,200,200))
+            pal.setColor(pal.Button, QtGui.QColor(93,93,93))
+            pal.setColor(pal.ButtonText, QtGui.QColor(238,238,238))
+            pal.setColor(pal.BrightText, QtGui.QColor(238,238,238))
+            
+            pal.setColor(pal.Light, QtGui.QColor(93,93,93))
+            pal.setColor(pal.Midlight, QtGui.QColor(50,50,50))
+            pal.setColor(pal.Dark, QtGui.QColor(43,43,43))
+            pal.setColor(pal.Mid, QtGui.QColor(46,46,46))
+            pal.setColor(pal.Shadow, QtGui.QColor(43,43,43))
+
+            pal.setColor(pal.Highlight, QtGui.QColor(82,133,166))
+            pal.setColor(pal.HighlightedText, QtGui.QColor(238,238,238))
+            self.setPalette(pal)
+            
     def _createSplitterContent(self):
         wgt = QtWidgets.QWidget(self)
         splitterLay = QtWidgets.QVBoxLayout(wgt)
@@ -465,7 +492,7 @@ class UTestWindow(QtWidgets.QWidget):
             QtCore.QEventLoop.ExcludeSocketNotifiers
             | QtCore.QEventLoop.ExcludeUserInputEvents
         )
-        QtGui.QGuiApplication.processEvents(eventFlags)
+        QtWidgets.QApplication.processEvents(eventFlags)
 
 
 if __name__ == "__main__":
