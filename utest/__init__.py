@@ -14,6 +14,7 @@ def _initNose2():
 
 _initNose2()
 
+from utest import qt as _qt
 from utest.core import testmanager
 from utest.core import reimportall
 from utest.ui import utestwindow
@@ -26,8 +27,9 @@ def runUi(startDirOrModule=None, topDir=None):
         startDirOrModule (str): The directory or the module path to search for tests.
         topDir (str): The top directory that need to be put in sys.path in order for the tests work.
     """
-    manager = utestwindow.UTestWindow(startDirOrModule=startDirOrModule, topDir=topDir)
-    manager.show()
+    with _qt.ApplicationContext():
+        manager = utestwindow.UTestWindow(startDirOrModule=startDirOrModule, topDir=topDir)
+        manager.show()
 
 
 def runAllTests(startDirOrModule=None, topDir=None, stopOnError=False):
