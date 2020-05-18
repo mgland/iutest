@@ -349,7 +349,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
         if isModule:
             headingCount = len(startDirOrModule) + 1
             heading = startDirOrModule + "."
-
+    
         for test in self._testManager.iterAllTestIds():
             if isModule and test.startswith(startDirOrModule):
                 test = test[headingCount:]

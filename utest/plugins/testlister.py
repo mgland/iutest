@@ -3,6 +3,7 @@ import logging
 import nose2  # This has to be imported this way.
 
 from utest.core import pathutils
+from utest.core import uistream
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +90,6 @@ class TestCollector(nose2.events.Plugin):
             try:
                 raiser()
             except Exception:
-                print(self._errorSeparator)
                 logger.exception(msg, modulename)
                 return False
 

@@ -12,7 +12,7 @@ from utest.core import iconutils
 from utest.core import appsettings
 from utest.core import constants
 from utest.core import testmanager
-from utest.core import appsettings
+from utest.core import uistream
 from utest.ui import logbrowser
 from utest.ui import rootpathedit
 from utest.ui import testtreeview
@@ -102,7 +102,6 @@ class UTestWindow(QtWidgets.QWidget):
 
         self._loadLastDirsFromSettings()
 
-        self._testManager.setBeforeTestStartHook(self._beforeRunningTests)
         self.reload(keepUiStates=False)
 
         self._restorePanelVisState()
@@ -462,6 +461,7 @@ class UTestWindow(QtWidgets.QWidget):
         self._testManager.runAllTests()
 
     def onRunTests(self, testIds):
+        self._beforeRunningTests()
         self._testManager.runTests(*testIds)
 
     def onRunSelected(self):
@@ -471,7 +471,10 @@ class UTestWindow(QtWidgets.QWidget):
         self._searchLE.clear()
 
     def reload(self, keepUiStates=True):
-        self._view.reload(keepUiStates=keepUiStates)
+        self._beforeTestCollection()
+        with uistream.LogCaptureContext(): # Report the possible error report to UI as well:
+            self._view.reload(keepUiStates=keepUiStates)
+
         if not self._testManager.startDirOrModule():
             self.updateButtonsEnabled()
             return
@@ -488,6 +491,9 @@ class UTestWindow(QtWidgets.QWidget):
         self._resetAllBtn.setEnabled(enabled)
         self._executeAllBtn.setEnabled(enabled)
         self._executeSelectedBtn.setEnabled(enabled)
+
+    def _beforeTestCollection(self):
+        self._logWgt.onTestStart()
 
     def _beforeRunningTests(self, tests):
         self._logWgt.onTestStart()

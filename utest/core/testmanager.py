@@ -13,7 +13,6 @@ class TestManager(object):
         self._startDirOrModule = ""
         self._topDir = ""
         self._stopOnError = False
-        self._beforeTestStartHook = None
         self.setStartDirOrModule(startDirOrModule)
         self.setTopDir(topDir)
         self._ui = ui
@@ -52,9 +51,6 @@ class TestManager(object):
     def setStopOnError(self, stop):
         self._stopOnError = stop
 
-    def setBeforeTestStartHook(self, func):
-        self._beforeTestStartHook = func
-
     def runTests(self, *tests):
         if not tests:
             logger.warning("No test to run.")
@@ -80,9 +76,6 @@ class TestManager(object):
         argv.extend(tests)
         argv.extend(["--fail-fast"] if self._stopOnError else [])
 
-        if self._beforeTestStartHook:
-            self._beforeTestStartHook(tests)
-        
         viewupdater.ViewUpdater.resetLastData()
         nose2.discover(
             argv=argv, exit=False, extraHooks=viewupdater.ViewUpdater.getHooks(self._ui)

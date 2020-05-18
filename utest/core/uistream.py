@@ -140,15 +140,38 @@ class StdErrCapturer(BaseCapturer):
 
 
 class LogHandler(logging.Handler):
-    def __init__(self):
+    def __init__(self, forcePlainOutput=False):
         logging.Handler.__init__(self)
+        self._forcePlainOutput = forcePlainOutput
         self._rootLogger = logging.getLogger()
 
     def emit(self, record):
-        writePlainTextToUiStream(self.format(record))
+        reportUi = UiStream.ui()
+        msg = self.format(record)
+        if self._forcePlainOutput:
+            reportUi.logInformation(msg)
+            return
+
+        if record.levelno == logging.WARNING:
+            reportUi.logWarning(msg)
+        elif record.levelno == logging.ERROR:
+            reportUi.logFailed(msg)
+        else:
+            reportUi.logInformation(msg)
 
     def start(self):
         self._rootLogger.addHandler(self)
 
     def stop(self):
         self._rootLogger.removeHandler(self)
+
+
+class LogCaptureContext(object):
+    def __init__(self, forcePlainOutput=False):
+        self._handler = LogHandler(forcePlainOutput)
+
+    def __enter__(self):
+        self._handler.start()
+
+    def __exit__(self, *_, **__):
+        self._handler.stop()

@@ -1,11 +1,12 @@
 import unittest
+import os
 from utest.plugins import testlister
 from utest.core import pathutils
 from nose2.tools import params
 
 class TestListerTestCase(unittest.TestCase):
     def test_listByDir(self):
-        startDir = pathutils.utestPackageDir()
+        startDir = os.path.join(pathutils.utestPackageDir(), 'tests')
         topDir = pathutils.utestRootDir()
         tests = list(testlister.iterAllTestPathsFromRootDir(startDir, topDir))
         self._checkListedTests(tests)
