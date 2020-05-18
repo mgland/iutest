@@ -144,12 +144,14 @@ class UTestWindow(QtWidgets.QWidget):
     def _makeLogTopLayout(self):
         _console = QtWidgets.QLabel("Console")
         self._clearLogOnRunBtn = uiutils.makeIconButton(self._clearLogOnRunIcon, self)
+        self._clearLogOnRunBtn.setToolTip("Clear the log browser automatically before every test run.")
         self._clearLogOnRunBtn.setCheckable(True)
         autoClear = bool(appsettings.get().simpleConfigValue(constants.CONFIG_KEY_AUTO_CLEAR_LOG_STATE))
         self._clearLogOnRunBtn.setChecked(autoClear)
         self._clearLogOnRunBtn.toggled.connect(self._onAutoClearButtonToggled)
 
         self._clearLogBtn = uiutils.makeIconButton(self._clearLogIcon, self)
+        self._clearLogBtn.setToolTip("Clear the log browser logging.")
         self._clearLogBtn.clicked.connect(self._logWgt.clear)
 
         self._logTopLayout.addWidget(_console, 0)
@@ -212,9 +214,10 @@ class UTestWindow(QtWidgets.QWidget):
     def _onConfigWindow(self):
         configwindow.ConfigWindow.show(self)
 
-    def _makeMenuToolButton(self, icon):
+    def _makeMenuToolButton(self, icon, toolTip):
         btn = QtWidgets.QToolButton(self)
         btn.setIcon(icon)
+        btn.setToolTip(toolTip)
         btn.setPopupMode(btn.InstantPopup)
         menu = QtWidgets.QMenu(btn)
         btn.setMenu(menu)
@@ -222,13 +225,15 @@ class UTestWindow(QtWidgets.QWidget):
 
     def _makeDirWidgets(self):
         lbl = QtWidgets.QLabel("Test Root")
+        lbl.setToolTip("Input a python module path or an absolute dir path in the lineEdit for the tests.")
         self._rootDirLE = rootpathedit.RootPathEdit(self)
         self._rootDirLE.rootPathChanged.connect(self.onRootPathEdited)
 
-        self._browseBtn, self._moreMenu = self._makeMenuToolButton(self._moreIcon)
+        self._browseBtn, self._moreMenu = self._makeMenuToolButton(self._moreIcon, "Click to access more features.")
         self._regenerateMenu()
 
         self._panelVisBtn = uiutils.makeIconButton(self._panelStateIconSet[-1], self)
+        self._panelVisBtn.setToolTip("Switch the test tree view and the log browser visibility.")
         self._panelVisBtn.clicked.connect(self._onPanelVisButtonClicked)
 
         self._dirLayout.addWidget(lbl)
@@ -240,26 +245,32 @@ class UTestWindow(QtWidgets.QWidget):
 
     def _makeTopWidgets(self):
         reimportBtn = uiutils.makeIconButton(self._reimportIcon, self)
+        reimportBtn.setToolTip("Reimport all changed python module, recollect tests and reload the test tree view below.")
         reimportBtn.clicked.connect(self.onReimportAndRefresh)
         self._topLayout.addWidget(reimportBtn)
 
         self._searchLE = QtWidgets.QLineEdit()
+        self._searchLE.setToolTip("Input keywords to filter the tests, separated by space.\n" \
+                                  "For normal keyword, the match operation is 'AND'\n" \
+                                  "For state keyword starting with ':', the match operation is 'OR'.")
         self._searchLE.setPlaceholderText("Input to filter")
         self._searchLE.textChanged.connect(self.onFilterTextChanged)
         self._topLayout.addWidget(self._searchLE)
 
         self._clearSearchBtn = uiutils.makeIconButton(self._clearIcon, self)
+        self._clearSearchBtn.setToolTip("Clear all filters.")
         self._clearSearchBtn.setEnabled(False)
         self._clearSearchBtn.clicked.connect(self.clearSearch)
         self._topLayout.addWidget(self._clearSearchBtn)
 
-        self._filterBtn, self._filterMenu = self._makeMenuToolButton(self._filterIcon)
+        self._filterBtn, self._filterMenu = self._makeMenuToolButton(self._filterIcon, "Click to apply more predefined filters.")
         for lbl in constants.KEYWORD_TEST_STATES:
             act = self._filterMenu.addAction(lbl)
             act.triggered.connect(self.onAddFilter)
         self._topLayout.addWidget(self._filterBtn)
 
         self._autoFilterBtn = uiutils.makeIconButton(self._autoFilterIcon, self)
+        self._autoFilterBtn.setToolTip("Apply a ':ran' filter automatically after every test run so that only the run tests shown in the view.")
         self._autoFilterBtn.setCheckable(True)
         autoFilter = bool(appsettings.get().simpleConfigValue(constants.CONFIG_KEY_AUTO_FILTERING_STATE))
         self._autoFilterBtn.setChecked(autoFilter)
@@ -279,6 +290,7 @@ class UTestWindow(QtWidgets.QWidget):
     def _makeBtmButtons(self):
         self._stopAtErrorBtn = uiutils.makeIconButton(self._stopAtErrorIcon, self)
         self._stopAtErrorBtn.toggled.connect(self._onStopOnErrorButtonToggled)
+        self._stopAtErrorBtn.setToolTip("Stop the tests running once it encounters a test error/failure.")
         self._stopAtErrorBtn.setCheckable(True)
         stopOnError = bool(appsettings.get().simpleConfigValue(constants.CONFIG_KEY_STOP_ON_ERROR))
         self._stopAtErrorBtn.setChecked(stopOnError)
@@ -286,15 +298,18 @@ class UTestWindow(QtWidgets.QWidget):
         self._btmLayout.addWidget(self._stopAtErrorBtn, 0)
 
         self._resetAllBtn = uiutils.makeIconButton(self._resetIcon, self)
+        self._resetAllBtn.setToolTip("Reset the test item states, icons and stats and collapse the tree view items in a certain level.")
         self._resetAllBtn.clicked.connect(self._view.resetAllItemsToNormal)
         self._btmLayout.addWidget(self._resetAllBtn, 1)
 
         self._executeSelectedBtn = QtWidgets.QPushButton("Run Selected Tests", self)
+        self._executeSelectedBtn.setToolTip("Run the selected tests in the view.")
         self._executeSelectedBtn.clicked.connect(self.onRunSelected)
         self._executeSelectedBtn.setIcon(self._runSelectedIcon)
         self._btmLayout.addWidget(self._executeSelectedBtn, 1)
 
         self._executeAllBtn = QtWidgets.QPushButton("Run All Tests", self)
+        self._executeAllBtn.setToolTip("Run all the tests, including those filtered from the view.")
         self._executeAllBtn.setIcon(self._runAllIcon)
         self._executeAllBtn.clicked.connect(self.onRunAll)
         self._btmLayout.addWidget(self._executeAllBtn, 1)
@@ -461,7 +476,7 @@ class UTestWindow(QtWidgets.QWidget):
         self._testManager.runAllTests()
 
     def onRunTests(self, testIds):
-        self._beforeRunningTests()
+        self._beforeRunningTests(testIds)
         self._testManager.runTests(*testIds)
 
     def onRunSelected(self):

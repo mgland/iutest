@@ -89,6 +89,8 @@ class TestTreeView(QtWidgets.QTreeWidget):
         self._testManager = None
         self._viewStates = ViewStates(self)
 
+        self.setToolTip("This view lists out the tests, double click on them to run them.")
+
     def setTestManager(self, manager):
         self._testManager = manager
 

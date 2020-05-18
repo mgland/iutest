@@ -30,6 +30,8 @@ class ConfigWindow(QtWidgets.QDialog):
         self._codeEditorLE.setText(editorSetting)
         self._codeEditorLE.editingFinished.connect(self._onCodeEditorEditFinished)
         self._codeEditorLE.setPlaceholderText("Example: pargram $file -argToLine $line")
+        self._codeEditorLE.setToolTip("Input the command to jump to the code at the line. \n" \
+                                      "$file is the placeholder for file path, $line is the line number.")
         _annoText = QtWidgets.QLabel("Default: {}".format(constants.CONFIG_KEY_CODE_EDITOR_DEFAULT))
         _annoText.setEnabled(False)
 
