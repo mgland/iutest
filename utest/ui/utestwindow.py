@@ -349,7 +349,9 @@ class UTestWindow(QtWidgets.QWidget):
             appsettings.get().saveSimpleConfig(constants.CONFIG_KEY_PANEL_VIS_STATE, state)
         
     def _restorePanelVisState(self):
-        state = appsettings.get().simpleConfigValue(constants.CONFIG_KEY_PANEL_VIS_STATE)
+        state = appsettings.get().simpleConfigValue(constants.CONFIG_KEY_PANEL_VIS_STATE,
+            constants.PANEL_VIS_STATE_BOTH_ON
+        )
         self._setPanelVisState(state, saveSettings=False)
 
     def _onPanelVisButtonClicked(self):

@@ -44,6 +44,7 @@ class ConfigWindow(QtWidgets.QDialog):
     def _onCodeEditorEditFinished(self):
         txt = self._codeEditorLE.text().strip()
         appsettings.get().saveSimpleConfig(constants.CONFIG_KEY_CODE_EDITOR, txt)
+        gotocode.CodeLineVisitor.initEditorSetting()
 
     @classmethod
     def _onDialogDeleted(cls, *_):
