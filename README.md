@@ -18,14 +18,14 @@ utest.runUi()
 ## To run tests without UI:
 ```python
 import sys
-testerPath = 'E:/projects/utest'  # Change to your path!
+testerPath = 'D:/CodingProjects/utest'  # Change to your path!
 if testerPath not in sys.path:
     sys.path.append(testerPath)
     
 import utest
 
 utest.runAllTests(startDirOrModule='pathToTestRootDir', topDir='pathToPythonTopDir', stopOnError=False)
-utest.runAllTests(startDirOrModule='package.module1.tests', topDir='pathToPythonTopDir', stopOnError=False)
+utest.runAllTests(startDirOrModule='utest.tests', stopOnError=False)
 
-utest.runTests('package.module1.tests.testmodule1', 'package.module1.tests.testmodule2')
+utest.runTests('utest.tests.test_dummytests', 'utest.tests.utests')
 ```
