@@ -79,6 +79,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
         self.setExpandsOnDoubleClick(False)
         self.setSelectionMode(self.ExtendedSelection)
         self.itemDoubleClicked.connect(self.onItemDoubleClicked)
+        self.setIndentation(10)
 
         self._rootTestItem = None
         self._testItems = []

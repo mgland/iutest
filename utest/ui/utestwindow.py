@@ -96,8 +96,10 @@ class UTestWindow(QtWidgets.QWidget):
         self.setWindowFlags(QtCore.Qt.Window)
         self.setWindowTitle(constants.APP_NAME)
 
-        self.resize(QtCore.QSize(850, 500))
-        self._splitter.setSizes([350, 500])
+        self.resize(QtCore.QSize(900, 500))
+        self._splitter.setSizes([230, 500])
+        self._splitter.setStretchFactor(0, 0)
+        self._splitter.setStretchFactor(1, 1)
 
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)  # for reimport convenience.
 
