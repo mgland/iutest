@@ -5,13 +5,15 @@ from utest.core import constants
 
 logger = logging.getLogger(__name__)
 
+
 class CodeLineVisitor(QtCore.QObject):
     _editorSetting = None
 
     @classmethod
     def initEditorSetting(cls):
-        cls._editorSetting = appsettings.get().simpleConfigValue(constants.CONFIG_KEY_CODE_EDITOR,
-            constants.CONFIG_KEY_CODE_EDITOR_DEFAULT)
+        cls._editorSetting = appsettings.get().simpleConfigValue(
+            constants.CONFIG_KEY_CODE_EDITOR, constants.CONFIG_KEY_CODE_EDITOR_DEFAULT
+        )
 
     @classmethod
     def config(cls):

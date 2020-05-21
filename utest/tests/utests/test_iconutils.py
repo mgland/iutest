@@ -4,9 +4,10 @@ import os
 from utest.core import iconutils
 from utest.core import constants
 
+
 class IconUtilsTestCase(unittest.TestCase):
     def setUp(self):
-        self._iconFile = 'testItem.svg'
+        self._iconFile = "testItem.svg"
 
     def test_iconPath(self):
         iconPath = iconutils.iconPath(self._iconFile)

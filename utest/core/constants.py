@@ -50,11 +50,7 @@ TEST_ICON_SUFFIXES = (
 PANEL_VIS_STATE_RIGHT_ON = 0
 PANEL_VIS_STATE_LEFT_ON = 1
 PANEL_VIS_STATE_BOTH_ON = 2
-PANEL_VIS_STATE_ICON_SUFFIXES = (
-    '_right',
-    '_left',
-    '_both',
-)
+PANEL_VIS_STATE_ICON_SUFFIXES = ("_right", "_left", "_both")
 
 
 # Config Keys --------------------------------------------
@@ -72,5 +68,6 @@ CONFIG_KEY_STOP_ON_ERROR = "stopOnError"
 CONFIG_KEY_CODE_EDITOR = "codeEditor"
 CODE_FILE_VAR = "$file"
 CODE_LINE_VAR = "$line"
-CONFIG_KEY_CODE_EDITOR_DEFAULT = "code --goto \"{}\":{}".format(
-    CODE_FILE_VAR, CODE_LINE_VAR)
+CONFIG_KEY_CODE_EDITOR_DEFAULT = 'code --goto "{}":{}'.format(
+    CODE_FILE_VAR, CODE_LINE_VAR
+)

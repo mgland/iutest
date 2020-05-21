@@ -5,6 +5,7 @@ from utest.qt import QtCore
 
 logger = logging.getLogger(__name__)
 
+
 def get():
     return AppSettings.get()
 
@@ -17,7 +18,7 @@ class SettingsGroupContext(object):
     def __enter__(self):
         self._settings.beginGroup(self._groupName)
         return self._settings
-    
+
     def __exit__(self, *_, **__):
         self._settings.endGroup()
 
@@ -30,7 +31,7 @@ class AppSettings(object):
         if not cls._instance:
             cls._instance = AppSettings()
         return cls._instance
-    
+
     @staticmethod
     def createIniSettings():
         return QtCore.QSettings(
@@ -65,7 +66,7 @@ class AppSettings(object):
 
         settingsObj = object.__getattribute__(self, "_qsettings")()
         return getattr(settingsObj, attr)
-    
+
     def testDirSettings(self):
         with SettingsGroupContext(constants.CONFIG_KEY_SAVED_TEST_DIR) as settings:
             logger.debug("Settings ini file:%s", settings.fileName())

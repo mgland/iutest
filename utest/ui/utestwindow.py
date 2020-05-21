@@ -43,7 +43,6 @@ class UTestWindow(QtWidgets.QWidget):
     _runSelectedIcon = None
     _panelStateIconSet = None
 
-
     def __init__(self, startDirOrModule=None, topDir=None, parent=None):
         parent = parent or dcc.findParentWindow()
         QtWidgets.QWidget.__init__(self, parent)
@@ -65,7 +64,7 @@ class UTestWindow(QtWidgets.QWidget):
 
         # left layout -----------------------------------
         self._leftWidget, leftLay = self._createSplitterContent()
-    
+
         self._topLayout = uiutils.makeMinorHorizontalLayout()
         self._makeTopWidgets()
         leftLay.addLayout(self._topLayout)
@@ -112,29 +111,29 @@ class UTestWindow(QtWidgets.QWidget):
         if isStandalone:
             pal = self.palette()
 
-            pal.setColor(pal.Window, QtGui.QColor(68,68,68))
-            pal.setColor(pal.Background, QtGui.QColor(68,68,68))
-            pal.setColor(pal.WindowText, QtGui.QColor(200,200,200))
-            pal.setColor(pal.Foreground, QtGui.QColor(200,200,200))
-            pal.setColor(pal.Base, QtGui.QColor(46,46,46))
-            pal.setColor(pal.AlternateBase, QtGui.QColor(43,43,43))
-            pal.setColor(pal.ToolTipBase, QtGui.QColor(46,46,46))
-            pal.setColor(pal.ToolTipText, QtGui.QColor(200,200,200))
-            pal.setColor(pal.Text, QtGui.QColor(200,200,200))
-            pal.setColor(pal.Button, QtGui.QColor(93,93,93))
-            pal.setColor(pal.ButtonText, QtGui.QColor(238,238,238))
-            pal.setColor(pal.BrightText, QtGui.QColor(238,238,238))
-            
-            pal.setColor(pal.Light, QtGui.QColor(93,93,93))
-            pal.setColor(pal.Midlight, QtGui.QColor(50,50,50))
-            pal.setColor(pal.Dark, QtGui.QColor(43,43,43))
-            pal.setColor(pal.Mid, QtGui.QColor(46,46,46))
-            pal.setColor(pal.Shadow, QtGui.QColor(43,43,43))
+            pal.setColor(pal.Window, QtGui.QColor(68, 68, 68))
+            pal.setColor(pal.Background, QtGui.QColor(68, 68, 68))
+            pal.setColor(pal.WindowText, QtGui.QColor(200, 200, 200))
+            pal.setColor(pal.Foreground, QtGui.QColor(200, 200, 200))
+            pal.setColor(pal.Base, QtGui.QColor(46, 46, 46))
+            pal.setColor(pal.AlternateBase, QtGui.QColor(43, 43, 43))
+            pal.setColor(pal.ToolTipBase, QtGui.QColor(46, 46, 46))
+            pal.setColor(pal.ToolTipText, QtGui.QColor(200, 200, 200))
+            pal.setColor(pal.Text, QtGui.QColor(200, 200, 200))
+            pal.setColor(pal.Button, QtGui.QColor(93, 93, 93))
+            pal.setColor(pal.ButtonText, QtGui.QColor(238, 238, 238))
+            pal.setColor(pal.BrightText, QtGui.QColor(238, 238, 238))
 
-            pal.setColor(pal.Highlight, QtGui.QColor(82,133,166))
-            pal.setColor(pal.HighlightedText, QtGui.QColor(238,238,238))
+            pal.setColor(pal.Light, QtGui.QColor(93, 93, 93))
+            pal.setColor(pal.Midlight, QtGui.QColor(50, 50, 50))
+            pal.setColor(pal.Dark, QtGui.QColor(43, 43, 43))
+            pal.setColor(pal.Mid, QtGui.QColor(46, 46, 46))
+            pal.setColor(pal.Shadow, QtGui.QColor(43, 43, 43))
+
+            pal.setColor(pal.Highlight, QtGui.QColor(82, 133, 166))
+            pal.setColor(pal.HighlightedText, QtGui.QColor(238, 238, 238))
             self.setPalette(pal)
-            
+
     def _createSplitterContent(self):
         wgt = QtWidgets.QWidget(self)
         splitterLay = QtWidgets.QVBoxLayout(wgt)
@@ -146,9 +145,15 @@ class UTestWindow(QtWidgets.QWidget):
     def _makeLogTopLayout(self):
         _console = QtWidgets.QLabel("Console")
         self._clearLogOnRunBtn = uiutils.makeIconButton(self._clearLogOnRunIcon, self)
-        self._clearLogOnRunBtn.setToolTip("Clear the log browser automatically before every test run.")
+        self._clearLogOnRunBtn.setToolTip(
+            "Clear the log browser automatically before every test run."
+        )
         self._clearLogOnRunBtn.setCheckable(True)
-        autoClear = bool(appsettings.get().simpleConfigValue(constants.CONFIG_KEY_AUTO_CLEAR_LOG_STATE))
+        autoClear = bool(
+            appsettings.get().simpleConfigValue(
+                constants.CONFIG_KEY_AUTO_CLEAR_LOG_STATE
+            )
+        )
         self._clearLogOnRunBtn.setChecked(autoClear)
         self._clearLogOnRunBtn.toggled.connect(self._onAutoClearButtonToggled)
 
@@ -171,9 +176,9 @@ class UTestWindow(QtWidgets.QWidget):
         if cls._panelStateIconSet:
             return
 
-        panelStatePaths = iconutils.iconPathSet('panelMode.svg', 
-                                    constants.PANEL_VIS_STATE_ICON_SUFFIXES,
-                                    includeInput=False)
+        panelStatePaths = iconutils.iconPathSet(
+            "panelMode.svg", constants.PANEL_VIS_STATE_ICON_SUFFIXES, includeInput=False
+        )
         cls._panelStateIconSet = [QtGui.QIcon(p) for p in panelStatePaths]
 
         cls._initSingleIcon("_utestIcon", "utest.svg")
@@ -229,15 +234,21 @@ class UTestWindow(QtWidgets.QWidget):
 
     def _makeDirWidgets(self):
         lbl = QtWidgets.QLabel("Test Root")
-        lbl.setToolTip("Input a python module path or an absolute dir path in the lineEdit for the tests.")
+        lbl.setToolTip(
+            "Input a python module path or an absolute dir path in the lineEdit for the tests."
+        )
         self._rootDirLE = rootpathedit.RootPathEdit(self)
         self._rootDirLE.rootPathChanged.connect(self.onRootPathEdited)
 
-        self._browseBtn, self._moreMenu = self._makeMenuToolButton(self._moreIcon, "Click to access more features.")
+        self._browseBtn, self._moreMenu = self._makeMenuToolButton(
+            self._moreIcon, "Click to access more features."
+        )
         self._regenerateMenu()
 
         self._panelVisBtn = uiutils.makeIconButton(self._panelStateIconSet[-1], self)
-        self._panelVisBtn.setToolTip("Switch the test tree view and the log browser visibility.")
+        self._panelVisBtn.setToolTip(
+            "Switch the test tree view and the log browser visibility."
+        )
         self._panelVisBtn.clicked.connect(self._onPanelVisButtonClicked)
 
         self._dirLayout.addWidget(lbl)
@@ -259,9 +270,11 @@ class UTestWindow(QtWidgets.QWidget):
         self._topLayout.addWidget(reloadUIBtn)
 
         self._searchLE = QtWidgets.QLineEdit()
-        self._searchLE.setToolTip("Input keywords to filter the tests, separated by space.\n" \
-                                  "For normal keyword, the match operation is 'AND'\n" \
-                                  "For state keyword starting with ':', the match operation is 'OR'.")
+        self._searchLE.setToolTip(
+            "Input keywords to filter the tests, separated by space.\n"
+            "For normal keyword, the match operation is 'AND'\n"
+            "For state keyword starting with ':', the match operation is 'OR'."
+        )
         self._searchLE.setPlaceholderText("Input to filter")
         self._searchLE.textChanged.connect(self.onFilterTextChanged)
         self._topLayout.addWidget(self._searchLE)
@@ -272,26 +285,38 @@ class UTestWindow(QtWidgets.QWidget):
         self._clearSearchBtn.clicked.connect(self.clearSearch)
         self._topLayout.addWidget(self._clearSearchBtn)
 
-        self._filterBtn, self._filterMenu = self._makeMenuToolButton(self._filterIcon, "Click to apply more predefined filters.")
+        self._filterBtn, self._filterMenu = self._makeMenuToolButton(
+            self._filterIcon, "Click to apply more predefined filters."
+        )
         for lbl in constants.KEYWORD_TEST_STATES:
             act = self._filterMenu.addAction(lbl)
             act.triggered.connect(self.onAddFilter)
         self._topLayout.addWidget(self._filterBtn)
 
         self._autoFilterBtn = uiutils.makeIconButton(self._autoFilterIcon, self)
-        self._autoFilterBtn.setToolTip("Apply a ':ran' filter automatically after every test run so that only the run tests shown in the view.")
+        self._autoFilterBtn.setToolTip(
+            "Apply a ':ran' filter automatically after every test run so that only the run tests shown in the view."
+        )
         self._autoFilterBtn.setCheckable(True)
-        autoFilter = bool(appsettings.get().simpleConfigValue(constants.CONFIG_KEY_AUTO_FILTERING_STATE))
+        autoFilter = bool(
+            appsettings.get().simpleConfigValue(
+                constants.CONFIG_KEY_AUTO_FILTERING_STATE
+            )
+        )
         self._autoFilterBtn.setChecked(autoFilter)
         self._autoFilterBtn.toggled.connect(self._onAutoFilterButtonToggled)
         self._topLayout.addWidget(self._autoFilterBtn)
 
     def _onAutoFilterButtonToggled(self, state):
-        appsettings.get().saveSimpleConfig(constants.CONFIG_KEY_AUTO_FILTERING_STATE, state)
+        appsettings.get().saveSimpleConfig(
+            constants.CONFIG_KEY_AUTO_FILTERING_STATE, state
+        )
 
     def _onAutoClearButtonToggled(self, state):
-        appsettings.get().saveSimpleConfig(constants.CONFIG_KEY_AUTO_CLEAR_LOG_STATE, state)
-    
+        appsettings.get().saveSimpleConfig(
+            constants.CONFIG_KEY_AUTO_CLEAR_LOG_STATE, state
+        )
+
     def _onStopOnErrorButtonToggled(self, stop):
         self._testManager.setStopOnError(stop)
         appsettings.get().saveSimpleConfig(constants.CONFIG_KEY_STOP_ON_ERROR, stop)
@@ -299,20 +324,30 @@ class UTestWindow(QtWidgets.QWidget):
     def _makeBtmButtons(self):
         self._stopAtErrorBtn = uiutils.makeIconButton(self._stopAtErrorIcon, self)
         self._stopAtErrorBtn.toggled.connect(self._onStopOnErrorButtonToggled)
-        self._stopAtErrorBtn.setToolTip("Stop the tests running once it encounters a test error/failure.")
+        self._stopAtErrorBtn.setToolTip(
+            "Stop the tests running once it encounters a test error/failure."
+        )
         self._stopAtErrorBtn.setCheckable(True)
-        stopOnError = bool(appsettings.get().simpleConfigValue(constants.CONFIG_KEY_STOP_ON_ERROR))
+        stopOnError = bool(
+            appsettings.get().simpleConfigValue(constants.CONFIG_KEY_STOP_ON_ERROR)
+        )
         self._stopAtErrorBtn.setChecked(stopOnError)
         self._testManager.setStopOnError(stopOnError)
         self._btmLayout.addWidget(self._stopAtErrorBtn, 0)
 
         self._resetAllBtn = uiutils.makeIconButton(self._resetIcon, self)
-        self._resetAllBtn.setToolTip("Reset the test item states, icons and stats and collapse the tree view items in a certain level.")
+        self._resetAllBtn.setToolTip(
+            "Reset the test item states, icons and stats and collapse the tree view items in a certain level."
+        )
         self._resetAllBtn.clicked.connect(self._view.resetAllItemsToNormal)
         self._btmLayout.addWidget(self._resetAllBtn, 1)
 
-        self._reimportAndRerunBtn = QtWidgets.QPushButton("Reload PY And ReRun Last Tests", self)
-        self._reimportAndRerunBtn.setToolTip("Reimport all changed python modules and rerun the last tests.")
+        self._reimportAndRerunBtn = QtWidgets.QPushButton(
+            "Reload PY And ReRun Last Tests", self
+        )
+        self._reimportAndRerunBtn.setToolTip(
+            "Reimport all changed python modules and rerun the last tests."
+        )
         self._reimportAndRerunBtn.clicked.connect(self.onReimportAndRerun)
         self._reimportAndRerunBtn.setIcon(self._reimportAndRunIcon)
         self._btmLayout.addWidget(self._reimportAndRerunBtn, 1)
@@ -324,7 +359,9 @@ class UTestWindow(QtWidgets.QWidget):
         self._btmLayout.addWidget(self._executeSelectedBtn, 1)
 
         self._executeAllBtn = QtWidgets.QPushButton("Run All Tests", self)
-        self._executeAllBtn.setToolTip("Run all the tests, including those filtered from the view.")
+        self._executeAllBtn.setToolTip(
+            "Run all the tests, including those filtered from the view."
+        )
         self._executeAllBtn.setIcon(self._runAllIcon)
         self._executeAllBtn.clicked.connect(self.onRunAll)
         self._btmLayout.addWidget(self._executeAllBtn, 1)
@@ -377,11 +414,13 @@ class UTestWindow(QtWidgets.QWidget):
         self._leftWidget.setVisible(state != constants.PANEL_VIS_STATE_RIGHT_ON)
         self._rightWidget.setVisible(state != constants.PANEL_VIS_STATE_LEFT_ON)
         if saveSettings:
-            appsettings.get().saveSimpleConfig(constants.CONFIG_KEY_PANEL_VIS_STATE, state)
-        
+            appsettings.get().saveSimpleConfig(
+                constants.CONFIG_KEY_PANEL_VIS_STATE, state
+            )
+
     def _restorePanelVisState(self):
-        state = appsettings.get().simpleConfigValue(constants.CONFIG_KEY_PANEL_VIS_STATE,
-            constants.PANEL_VIS_STATE_BOTH_ON
+        state = appsettings.get().simpleConfigValue(
+            constants.CONFIG_KEY_PANEL_VIS_STATE, constants.PANEL_VIS_STATE_BOTH_ON
         )
         self._setPanelVisState(state, saveSettings=False)
 
@@ -429,7 +468,7 @@ class UTestWindow(QtWidgets.QWidget):
         name = settings.simpleConfigValue(constants.CONFIG_KEY_LAST_SAVED_TEST_DIR)
         if not name:
             return
-            
+
         config = appsettings.get().testDirSettings()
         if name not in config or not config[name]:
             logger.error("The last setting name %s does not exist.", name)
@@ -452,8 +491,12 @@ class UTestWindow(QtWidgets.QWidget):
         topDir = self._testManager.topDir()
         with appsettings.SettingsGroupContext(constants.CONFIG_KEY_SAVED_TEST_DIR):
             with appsettings.SettingsGroupContext(name[0]) as settings:
-                settings.saveSimpleConfig(constants.CONFIG_KEY_TEST_TOP_DER, topDir, sync=False)
-                settings.saveSimpleConfig(constants.CONFIG_KEY_TEST_START_DER, startDir, sync=False)
+                settings.saveSimpleConfig(
+                    constants.CONFIG_KEY_TEST_TOP_DER, topDir, sync=False
+                )
+                settings.saveSimpleConfig(
+                    constants.CONFIG_KEY_TEST_START_DER, startDir, sync=False
+                )
 
         settings.saveSimpleConfig(constants.CONFIG_KEY_LAST_SAVED_TEST_DIR, name[0])
 
@@ -480,7 +523,9 @@ class UTestWindow(QtWidgets.QWidget):
         if answer != QtWidgets.QMessageBox.Yes:
             return
 
-        with appsettings.SettingsGroupContext(constants.CONFIG_KEY_SAVED_TEST_DIR) as settings:
+        with appsettings.SettingsGroupContext(
+            constants.CONFIG_KEY_SAVED_TEST_DIR
+        ) as settings:
             for n in removeNames:
                 settings.removeConfig(n)
                 logger.info("Remove the dir setting: %s", n)
@@ -511,7 +556,7 @@ class UTestWindow(QtWidgets.QWidget):
 
     def reload(self, keepUiStates=True):
         self._beforeTestCollection()
-        with uistream.LogCaptureContext(): # Report the possible error report to UI as well:
+        with uistream.LogCaptureContext():  # Report the possible error report to UI as well:
             self._view.reload(keepUiStates=keepUiStates)
 
         if not self._testManager.startDirOrModule():
@@ -525,10 +570,10 @@ class UTestWindow(QtWidgets.QWidget):
     def _applyCurrentFilter(self, removeStateFilters=True):
         searchText = self._searchLE.text()
         if removeStateFilters:
-            keywords = searchText.split(' ')
-            filterFunc = lambda x:not x.startswith(':')
+            keywords = searchText.split(" ")
+            filterFunc = lambda x: not x.startswith(":")
             keywords = filter(filterFunc, keywords)
-            searchText = ' '.join(keywords)
+            searchText = " ".join(keywords)
             self._searchLE.setText(searchText)
         else:
             self.onFilterTextChanged(searchText)

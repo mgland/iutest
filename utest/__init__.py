@@ -28,7 +28,9 @@ def runUi(startDirOrModule=None, topDir=None):
         topDir (str): The top directory that need to be put in sys.path in order for the tests work.
     """
     with _qt.ApplicationContext() as ctx:
-        manager = utestwindow.UTestWindow(startDirOrModule=startDirOrModule, topDir=topDir)
+        manager = utestwindow.UTestWindow(
+            startDirOrModule=startDirOrModule, topDir=topDir
+        )
         manager.setIsStandalone(ctx.isStandalone)
         manager.show()
 
@@ -41,7 +43,9 @@ def runAllTests(startDirOrModule=None, topDir=None, stopOnError=False):
         topDir (str): The top directory that need to be put in sys.path in order for the tests work.
         stopOnError (bool): Stop the tests running on the first error/failure.
     """
-    manager = testmanager.TestManager(None, startDirOrModule=startDirOrModule, topDir=topDir)
+    manager = testmanager.TestManager(
+        None, startDirOrModule=startDirOrModule, topDir=topDir
+    )
     manager.setStopOnError(stopOnError)
     manager.runAllTests()
 
@@ -56,9 +60,4 @@ def runTests(*tests):
     manager.runTests(*tests)
 
 
-__all__ = [
-    'reimportall',
-    'runUi',
-    'runAllTests',
-    'runTests',
-]
+__all__ = ["reimportall", "runUi", "runAllTests", "runTests"]

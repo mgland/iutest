@@ -23,7 +23,8 @@ class StatusLabel(QtWidgets.QLabel):
             == viewupdater.ViewUpdater.lastRunCount
         ):
             msgs.append(
-                "<font color=%s>ALL GOOD :)</font>" % uiconstants.LOG_COLOR_SUCCESS.name()
+                "<font color=%s>ALL GOOD :)</font>"
+                % uiconstants.LOG_COLOR_SUCCESS.name()
             )
         else:
             if viewupdater.ViewUpdater.lastFailedCount:

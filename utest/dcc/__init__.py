@@ -1,15 +1,17 @@
 import logging
 from utest import qt as _qt
 
-_APP_MODE_STANDALONE = 'standalone'
-_APP_MODE_MAYA = 'maya'
+_APP_MODE_STANDALONE = "standalone"
+_APP_MODE_MAYA = "maya"
 
 __appMode = None
+
+
 def appMode():
     global __appMode
     if __appMode is not None:
         return __appMode
-        
+
     __appMode = _APP_MODE_STANDALONE
     try:
         import maya
@@ -32,9 +34,11 @@ def isStandalone():
 def _dccModule():
     if isStandalone():
         from utest.dcc import standalone
+
         return standalone
     elif isInsideMaya():
         from utest.dcc import dcc_maya
+
         return dcc_maya
 
 

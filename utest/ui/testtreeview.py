@@ -80,7 +80,6 @@ class TestTreeView(QtWidgets.QTreeWidget):
         self.setSelectionMode(self.ExtendedSelection)
         self.itemDoubleClicked.connect(self.onItemDoubleClicked)
 
-
         self._rootTestItem = None
         self._testItems = []
         self._allItemsIdMap = {}
@@ -89,7 +88,9 @@ class TestTreeView(QtWidgets.QTreeWidget):
         self._testManager = None
         self._viewStates = ViewStates(self)
 
-        self.setToolTip("This view lists out the tests, double click on them to run them.")
+        self.setToolTip(
+            "This view lists out the tests, double click on them to run them."
+        )
 
     def setTestManager(self, manager):
         self._testManager = manager
@@ -97,7 +98,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
     def _setHeaderStretch(self):
         header = self.header()
         header.setStretchLastSection(False)
-        if hasattr(header, 'setSectionResizeMode'):
+        if hasattr(header, "setSectionResizeMode"):
             header.setSectionResizeMode(0, header.Stretch)
             header.setSectionResizeMode(1, header.ResizeToContents)
         else:
@@ -327,7 +328,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
     def reload(self, keepUiStates=True):
         if keepUiStates:
             self._viewStates.save()
-            
+
         self._testItems = []
         self._rootTestItem = None
         self._allItemsIdMap = {}
@@ -351,7 +352,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
         if isModule:
             headingCount = len(startDirOrModule) + 1
             heading = startDirOrModule + "."
-    
+
         for test in self._testManager.iterAllTestIds():
             if isModule and test.startswith(startDirOrModule):
                 test = test[headingCount:]

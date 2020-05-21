@@ -3,6 +3,7 @@ from utest.libs import reimport
 
 logger = logging.getLogger(__name__)
 
+
 def reimportAllChangedPythonModules():
     changed = reimport.modified()
     if changed:
@@ -11,7 +12,7 @@ def reimportAllChangedPythonModules():
             try:
                 reimport.reimport(module)
             except Exception:
-                logger.exception('Unable to reimport module %s', module)
+                logger.exception("Unable to reimport module %s", module)
     else:
         print("No changed modules to reimport :)")
     return changed

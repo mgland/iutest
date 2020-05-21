@@ -2,19 +2,22 @@ import unittest
 from nose2.tools import params
 
 import logging
+
 logger = logging.Logger(__name__)
+
 
 class DummyTests(unittest.TestCase):
     """Some dummy tests for the UTest UI manual tests.
     """
+
     def setUp(self):
-        print ("Call {}.setUp()".format(self.__class__.__name__))
+        print("Call {}.setUp()".format(self.__class__.__name__))
 
     def tearDown(self):
-        print ("Call {}.tearDown()".format(self.__class__.__name__))
+        print("Call {}.tearDown()".format(self.__class__.__name__))
 
     def test_passed(self):
-        logger.info('About to pass.')
+        logger.info("About to pass.")
         self.assertTrue(True)
 
     @unittest.skip("Test the skipped tests.")
@@ -22,23 +25,26 @@ class DummyTests(unittest.TestCase):
         pass
 
     def test_error(self):
-        logger.warning('About to have test error.')
+        logger.warning("About to have test error.")
         raise RuntimeError("A test error.")
 
     def test_failed(self):
-        self.assertTrue(False, 'False will never be True.')
+        self.assertTrue(False, "False will never be True.")
 
     @unittest.expectedFailure
     def test_expectedFailureButSuccess(self):
-        logger.warning('This should not pass.')
+        logger.warning("This should not pass.")
         self.assertTrue(True)
 
     @unittest.expectedFailure
     def test_expectedFailure(self):
-        logger.warning('This should not pass.')
+        logger.warning("This should not pass.")
         self.assertTrue(False)
 
-    @unittest.skipUnless(hasattr(unittest.TestCase, 'subTest'), 'Current TestCase version does not support subTest')
+    @unittest.skipUnless(
+        hasattr(unittest.TestCase, "subTest"),
+        "Current TestCase version does not support subTest",
+    )
     def test_subTests(self):
         for i in range(0, 6):
             with self.subTest(i=i):
@@ -46,5 +52,5 @@ class DummyTests(unittest.TestCase):
 
     @params((1, 2), (2, 3), (6, 5), (4, 6))
     def test_parameters(self, num1, num2):
-        logger.info('Test with %s < %s', num1, num2)
+        logger.info("Test with %s < %s", num1, num2)
         self.assertLess(num1, num2)

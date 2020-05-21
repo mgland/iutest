@@ -1,5 +1,5 @@
-
 from utest.qt import QtCore, QtGui, QtWidgets
+
 
 def makeMainLayout(hostWidget=None):
     _lay = QtWidgets.QVBoxLayout(hostWidget)

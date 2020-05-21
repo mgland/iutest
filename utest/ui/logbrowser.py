@@ -3,6 +3,7 @@ from utest.core import uistream
 from utest.qt import QtCore, QtGui, QtWidgets
 from utest.core import gotocode
 
+
 class LogBrowser(QtWidgets.QTextBrowser):
     def __init__(self, parent=None):
         QtWidgets.QTextBrowser.__init__(self, parent)
