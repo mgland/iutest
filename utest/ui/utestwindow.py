@@ -548,7 +548,9 @@ class UTestWindow(QtWidgets.QWidget):
         reimportall.reimportAllChangedPythonModules()
         lastRunIds = viewupdater.ViewUpdater.lastRunTestIds
         if not lastRunIds:
+            logger.warning("Didn't find the last run tests.")
             return
+
         self.onRunTests(lastRunIds)
 
     def clearSearch(self):
