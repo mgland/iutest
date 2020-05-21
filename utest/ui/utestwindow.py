@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 class UTestWindow(QtWidgets.QWidget):
     _utestIcon = None
     _reimportIcon = None
+    _reloadUiIcon = None
     _clearIcon = None
     _moreIcon = None
     _filterIcon = None
@@ -37,6 +38,7 @@ class UTestWindow(QtWidgets.QWidget):
     _clearLogOnRunIcon = None
     _clearLogIcon = None
     _stopAtErrorIcon = None
+    _reimportAndRunIcon = None
     _runAllIcon = None
     _runSelectedIcon = None
     _panelStateIconSet = None
@@ -176,6 +178,7 @@ class UTestWindow(QtWidgets.QWidget):
 
         cls._initSingleIcon("_utestIcon", "utest.svg")
         cls._initSingleIcon("_reimportIcon", "reimport.svg")
+        cls._initSingleIcon("_reloadUiIcon", "reloadUI.svg")
         cls._initSingleIcon("_clearIcon", "clear.svg")
         cls._initSingleIcon("_moreIcon", "more.svg")
         cls._initSingleIcon("_filterIcon", "stateFilter.svg")
@@ -184,6 +187,7 @@ class UTestWindow(QtWidgets.QWidget):
         cls._initSingleIcon("_clearLogIcon", "clearLog.svg")
         cls._initSingleIcon("_clearLogOnRunIcon", "clearLogOnRun.svg")
         cls._initSingleIcon("_stopAtErrorIcon", "stopAtError.svg")
+        cls._initSingleIcon("_reimportAndRunIcon", "reimportAndRerun.svg")
         cls._initSingleIcon("_runAllIcon", "runAll.svg")
         cls._initSingleIcon("_runSelectedIcon", "runSelected.svg")
 
@@ -245,9 +249,14 @@ class UTestWindow(QtWidgets.QWidget):
 
     def _makeTopWidgets(self):
         reimportBtn = uiutils.makeIconButton(self._reimportIcon, self)
-        reimportBtn.setToolTip("Reimport all changed python module, recollect tests and reload the test tree view below.")
-        reimportBtn.clicked.connect(self.onReimportAndRefresh)
+        reimportBtn.setToolTip("Reimport all changed python module.")
+        reimportBtn.clicked.connect(self.onReimportAll)
         self._topLayout.addWidget(reimportBtn)
+
+        reloadUIBtn = uiutils.makeIconButton(self._reloadUiIcon, self)
+        reloadUIBtn.setToolTip("Recollect tests and reload the test tree view below.")
+        reloadUIBtn.clicked.connect(self.onReloadUI)
+        self._topLayout.addWidget(reloadUIBtn)
 
         self._searchLE = QtWidgets.QLineEdit()
         self._searchLE.setToolTip("Input keywords to filter the tests, separated by space.\n" \
@@ -302,6 +311,12 @@ class UTestWindow(QtWidgets.QWidget):
         self._resetAllBtn.clicked.connect(self._view.resetAllItemsToNormal)
         self._btmLayout.addWidget(self._resetAllBtn, 1)
 
+        self._reimportAndRerunBtn = QtWidgets.QPushButton("Reload PY And ReRun Last Tests", self)
+        self._reimportAndRerunBtn.setToolTip("Reimport all changed python modules and rerun the last tests.")
+        self._reimportAndRerunBtn.clicked.connect(self.onReimportAndRerun)
+        self._reimportAndRerunBtn.setIcon(self._reimportAndRunIcon)
+        self._btmLayout.addWidget(self._reimportAndRerunBtn, 1)
+
         self._executeSelectedBtn = QtWidgets.QPushButton("Run Selected Tests", self)
         self._executeSelectedBtn.setToolTip("Run the selected tests in the view.")
         self._executeSelectedBtn.clicked.connect(self.onRunSelected)
@@ -314,10 +329,12 @@ class UTestWindow(QtWidgets.QWidget):
         self._executeAllBtn.clicked.connect(self.onRunAll)
         self._btmLayout.addWidget(self._executeAllBtn, 1)
 
-    def onReimportAndRefresh(self):
-        if reimportall.reimportAllChangedPythonModules():
-            self.reload(keepUiStates=True)
-            self._applyCurrentFilter()
+    def onReimportAll(self):
+        reimportall.reimportAllChangedPythonModules()
+
+    def onReloadUI(self):
+        self.reload(keepUiStates=True)
+        self._applyCurrentFilter(removeStateFilters=True)
 
     def onAddFilter(self):
         stateKeyword = self.sender().text()
@@ -482,6 +499,13 @@ class UTestWindow(QtWidgets.QWidget):
     def onRunSelected(self):
         self._view.runSelectedTests()
 
+    def onReimportAndRerun(self):
+        reimportall.reimportAllChangedPythonModules()
+        lastRunIds = viewupdater.ViewUpdater.lastRunTestIds
+        if not lastRunIds:
+            return
+        self.onRunTests(lastRunIds)
+
     def clearSearch(self):
         self._searchLE.clear()
 
@@ -498,8 +522,16 @@ class UTestWindow(QtWidgets.QWidget):
         self._statusLbl.reportTestCount(self._view.testCount())
         self._statusLbl.reportTestCount(self._view.testCount())
 
-    def _applyCurrentFilter(self):
-        self.onFilterTextChanged(self._searchLE.text())
+    def _applyCurrentFilter(self, removeStateFilters=True):
+        searchText = self._searchLE.text()
+        if removeStateFilters:
+            keywords = searchText.split(' ')
+            filterFunc = lambda x:not x.startswith(':')
+            keywords = filter(filterFunc, keywords)
+            searchText = ' '.join(keywords)
+            self._searchLE.setText(searchText)
+        else:
+            self.onFilterTextChanged(searchText)
 
     def updateButtonsEnabled(self):
         enabled = self._view.hasTests()
