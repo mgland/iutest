@@ -102,6 +102,8 @@ class UTestWindow(QtWidgets.QWidget):
         self._splitter.setStretchFactor(1, 1)
 
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)  # for reimport convenience.
+        self.setTabOrder(self._rootDirLE, self._searchLE)
+        self.setTabOrder(self._searchLE, self._view)
 
         self._loadLastDirsFromSettings()
 
@@ -345,7 +347,7 @@ class UTestWindow(QtWidgets.QWidget):
         self._btmLayout.addWidget(self._resetAllBtn, 1)
 
         self._reimportAndRerunBtn = QtWidgets.QPushButton(
-            "Reload PY And ReRun Last Tests", self
+            "&Reload PY And ReRun Last Tests", self
         )
         self._reimportAndRerunBtn.setToolTip(
             "Reimport all changed python modules and rerun the last tests."
@@ -354,13 +356,13 @@ class UTestWindow(QtWidgets.QWidget):
         self._reimportAndRerunBtn.setIcon(self._reimportAndRunIcon)
         self._btmLayout.addWidget(self._reimportAndRerunBtn, 1)
 
-        self._executeSelectedBtn = QtWidgets.QPushButton("Run Selected Tests", self)
+        self._executeSelectedBtn = QtWidgets.QPushButton("Run &Selected Tests", self)
         self._executeSelectedBtn.setToolTip("Run the selected tests in the view.")
         self._executeSelectedBtn.clicked.connect(self.onRunSelected)
         self._executeSelectedBtn.setIcon(self._runSelectedIcon)
         self._btmLayout.addWidget(self._executeSelectedBtn, 1)
 
-        self._executeAllBtn = QtWidgets.QPushButton("Run All Tests", self)
+        self._executeAllBtn = QtWidgets.QPushButton("Run &All Tests", self)
         self._executeAllBtn.setToolTip(
             "Run all the tests, including those filtered from the view."
         )
