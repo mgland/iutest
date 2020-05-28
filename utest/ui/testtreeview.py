@@ -141,14 +141,13 @@ class TestTreeView(QtWidgets.QTreeWidget):
             cls._testItemIcons,
         )
 
-    def setFilterKeywords(self, keywords):
+    def setFilterKeywords(self, keywords, ensureFirstMatchVisible=False):
         itemStates = {}
         if keywords:
-            needHighlight = len(keywords) > 3
             itemToFocus = None
             for item in self._testItems:
                 self._accumulateItemVisibility(item, keywords, itemStates)
-                if needHighlight and not itemToFocus and itemStates[item]:
+                if not itemToFocus:
                     itemToFocus = item
 
             # self._debugItemVisStates(itemStates)
@@ -158,9 +157,8 @@ class TestTreeView(QtWidgets.QTreeWidget):
                     self._rootTestItem.child(index), itemStates, state=None
                 )
 
-            if itemToFocus:
-                self.setCurrentItem(itemToFocus)
-                self.scrollToItem(itemToFocus)
+            if itemToFocus and ensureFirstMatchVisible:
+                self.focusItem(itemToFocus)
         else:
             for index in range(self._rootTestItem.childCount()):
                 self._recursivelySetItemVisibility(
@@ -217,6 +215,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
             itemStates[item] = state
         else:
             state = self._itemMatchs(item, keywords)
+
             itemStates[item] = itemStates[item] or state
             state = itemStates[item]
 

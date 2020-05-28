@@ -373,7 +373,7 @@ class UTestWindow(QtWidgets.QWidget):
 
     def onReloadUI(self):
         self.reload(keepUiStates=True)
-        self._applyCurrentFilter(removeStateFilters=True)
+        self._applyCurrentFilter(removeStateFilters=True, keepUiStates=True)
 
     def onAddFilter(self):
         stateKeyword = self.sender().text()
@@ -579,7 +579,7 @@ class UTestWindow(QtWidgets.QWidget):
         self._statusLbl.reportTestCount(self._view.testCount())
         self._statusLbl.reportTestCount(self._view.testCount())
 
-    def _applyCurrentFilter(self, removeStateFilters=True):
+    def _applyCurrentFilter(self, removeStateFilters=True, keepUiStates=True):
         searchText = self._searchLE.text()
         if removeStateFilters:
             keywords = searchText.split(" ")
@@ -587,8 +587,8 @@ class UTestWindow(QtWidgets.QWidget):
             keywords = filter(filterFunc, keywords)
             searchText = " ".join(keywords)
             self._searchLE.setText(searchText)
-        else:
-            self.onFilterTextChanged(searchText)
+        
+        self._applyFilterText(searchText, keepUiStates=keepUiStates)
 
     def updateButtonsEnabled(self):
         enabled = self._view.hasTests()
@@ -604,10 +604,13 @@ class UTestWindow(QtWidgets.QWidget):
         self._view.resetTestItemsById(tests)
 
     def onFilterTextChanged(self, txt):
+        self._applyFilterText(txt, keepUiStates=False)
+
+    def _applyFilterText(self, txt, keepUiStates=True):
         lowerTxt = txt.strip().lower()
         keywords = lowerTxt.split(" ")
         self._clearSearchBtn.setEnabled(bool(keywords))
-        self._view.setFilterKeywords(keywords)
+        self._view.setFilterKeywords(keywords, ensureFirstMatchVisible=not keepUiStates)
 
     def onSingleTestStartToRun(self, testId, startTime):
         self._view.onSingleTestStartToRun(testId, startTime)
