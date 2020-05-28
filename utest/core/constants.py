@@ -55,9 +55,11 @@ PANEL_VIS_STATE_ICON_SUFFIXES = ("_right", "_left", "_both")
 
 # Config Keys --------------------------------------------
 CONFIG_KEY_SAVED_TEST_DIR = "testDirs"
-CONFIG_KEY_LAST_SAVED_TEST_DIR = "lastTestDirs"
 CONFIG_KEY_TEST_TOP_DER = "topDir"
 CONFIG_KEY_TEST_START_DER = "testRootDir"
+
+CONFIG_KEY_LAST_TEST_ROOT_DIR = "lastTestRootDir"
+CONFIG_KEY_LAST_TOP_DIR = "lastTopDir"
 
 CONFIG_KEY_PANEL_VIS_STATE = "panelVisState"
 CONFIG_KEY_AUTO_FILTERING_STATE = "autoFiltering"

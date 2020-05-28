@@ -387,6 +387,12 @@ class UTestWindow(QtWidgets.QWidget):
         parts.insert(0, stateKeyword)
         self._searchLE.setText(" ".join(parts))
 
+    def _saveLastTestDir(self, startDir, topDir):
+        settings = appsettings.get()
+        settings.saveSimpleConfig(constants.CONFIG_KEY_LAST_TEST_ROOT_DIR, startDir, sync=False)
+        settings.saveSimpleConfig(constants.CONFIG_KEY_LAST_TOP_DIR, topDir, sync=True)
+        logger.info('Save the last test root: %s', startDir)
+
     def onSavedDirPairLoad(self):
         act = self.sender()
         _topDir, _startDirOrModule = act.toolTip().split("\n")
@@ -394,10 +400,7 @@ class UTestWindow(QtWidgets.QWidget):
         self._testManager.setStartDirOrModule(_startDirOrModule)
 
         configName = act.text()
-
-        settings = appsettings.get()
-        settings.saveSimpleConfig(constants.CONFIG_KEY_LAST_SAVED_TEST_DIR, configName)
-
+        self._saveLastTestDir(_startDirOrModule, _topDir)
         self._updateWindowTitle(configName)
         self._updateDirUI()
         self._searchLE.clear()
@@ -409,6 +412,8 @@ class UTestWindow(QtWidgets.QWidget):
         self._updateDirUI()
         self._searchLE.clear()
         self.reload(keepUiStates=False)
+        if not testlister.gotErrorOnLastList():
+            self._saveLastTestDir(startDir, topDir)
 
     def _setPanelVisState(self, state, saveSettings=True):
         state = min(constants.PANEL_VIS_STATE_BOTH_ON, max(0, state))
@@ -465,21 +470,25 @@ class UTestWindow(QtWidgets.QWidget):
     def _updateWindowTitle(self, configName):
         self.setWindowTitle("{} - {}".format(constants.APP_NAME, configName))
 
+    def _configNameFromStartAndTopDir(self, startDir, topDir):
+        config = appsettings.get().testDirSettings()
+        for name in config:
+            _topDir, _startDirOrModule = config[name]
+            if _topDir == topDir and _startDirOrModule == startDir:
+                return name
+        return startDir
+
     def _loadLastDirsFromSettings(self):
         settings = appsettings.get()
-        name = settings.simpleConfigValue(constants.CONFIG_KEY_LAST_SAVED_TEST_DIR)
-        if not name:
+        startDirOrModule = settings.simpleConfigValue(constants.CONFIG_KEY_LAST_TEST_ROOT_DIR)
+        if not startDirOrModule:
             return
 
-        config = appsettings.get().testDirSettings()
-        if name not in config or not config[name]:
-            logger.error("The last setting name %s does not exist.", name)
-            return
+        topDir = settings.simpleConfigValue(constants.CONFIG_KEY_LAST_TOP_DIR)
 
-        _topDir, _startDirOrModule = config[name]
-        self._testManager.setDirs(_startDirOrModule, _topDir)
+        self._testManager.setDirs(startDirOrModule, topDir)
         self._updateDirUI()
-        self._updateWindowTitle(name)
+        self._updateWindowTitle(self._configNameFromStartAndTopDir(startDirOrModule, topDir))
 
     def _onSaveCurrentDirSettings(self):
         startDir = self._testManager.startDirOrModule()
@@ -500,8 +509,7 @@ class UTestWindow(QtWidgets.QWidget):
                     constants.CONFIG_KEY_TEST_START_DER, startDir, sync=False
                 )
 
-        settings.saveSimpleConfig(constants.CONFIG_KEY_LAST_SAVED_TEST_DIR, name[0])
-
+        self._saveLastTestDir(startDir, topDir)
         self._deferredRegenerateMenu()
         self._updateWindowTitle(name[0])
 

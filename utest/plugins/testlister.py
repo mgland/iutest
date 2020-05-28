@@ -8,6 +8,10 @@ from utest.core import uistream
 logger = logging.getLogger(__name__)
 
 
+def gotErrorOnLastList():
+    return TestCollector.gotError
+    
+
 def iterAllTestPathsFromRootDir(startDirOrModuleName, topDir=None):
     argv = [
         "nose2",
@@ -26,6 +30,7 @@ def iterAllTestPathsFromRootDir(startDirOrModuleName, topDir=None):
     else:
         argv.append(startDirOrModuleName)
 
+    TestCollector.gotError = False
     nose2.discover(argv=argv, exit=False)
     for tid in TestCollector.iterTestIds():
         yield tid
@@ -44,6 +49,7 @@ class TestCollector(nose2.events.Plugin):
     """A nose2 plug to collect the tests without running them.
     """
 
+    gotError = False
     commandLineSwitch = (None, "list-tests", "List test but not running them.")
     _mpmode = False
     _importFailureModule = "ModuleImportFailure"
@@ -110,6 +116,7 @@ class TestCollector(nose2.events.Plugin):
                 self._importFailureModule,
                 "Unable to import the module %s",
             ):
+                TestCollector.gotError = True
                 continue
 
             if not self._checkError(
@@ -118,6 +125,7 @@ class TestCollector(nose2.events.Plugin):
                 self._loadTestsFailure,
                 "Unable to load tests from directory %s",
             ):
+                TestCollector.gotError = True
                 continue
 
             _, testIdUsed = parseParameterizedTestId(testId)
