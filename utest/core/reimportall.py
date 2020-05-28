@@ -8,12 +8,24 @@ def reimportAllChangedPythonModules():
     changed = reimport.modified()
     if changed:
         print("Reimporting: {}".format(changed))
+        successCount = 0
+        failedCount = 0
         for module in changed:
             try:
                 reimport.reimport(module)
             except Exception:
                 logger.exception("Unable to reimport module %s", module)
-        print ("{} modules reimported.".format(len(changed)))
+                failedCount += 1
+            else:
+                successCount += 1
+        if not failedCount:
+            print ("{} modules reimported.".format(successCount))
+        else:
+            if not successCount:
+                print ("All {} modules failed to reimport.".format(failedCount))
+            else:
+                print ("{} modules reimported, {} modules failed to reimport.".format(successCount, failedCount))
+
     else:
-        print("No changed modules to reimport :)")
+        print("No modules need to reimport :)")
     return changed
