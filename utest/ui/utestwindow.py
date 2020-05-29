@@ -346,15 +346,13 @@ class UTestWindow(QtWidgets.QWidget):
         self._resetAllBtn.clicked.connect(self._view.resetAllItemsToNormal)
         self._btmLayout.addWidget(self._resetAllBtn, 1)
 
-        self._reimportAndRerunBtn = QtWidgets.QPushButton(
-            "&Reload PY And ReRun Last Tests", self
-        )
-        self._reimportAndRerunBtn.setToolTip(
-            "Reimport all changed python modules and rerun the last tests."
-        )
-        self._reimportAndRerunBtn.clicked.connect(self.onReimportAndRerun)
-        self._reimportAndRerunBtn.setIcon(self._reimportAndRunIcon)
-        self._btmLayout.addWidget(self._reimportAndRerunBtn, 1)
+        self._runSetupOnlyBtn = QtWidgets.QPushButton("Run setUp( ) Only", self)
+        self._runSetupOnlyBtn.clicked.connect(self.onRunTestSetUpOnly)
+        self._btmLayout.addWidget(self._runSetupOnlyBtn, 1)
+
+        self._runNoTearDownBtn = QtWidgets.QPushButton("Run without tearDown( )", self)
+        self._runNoTearDownBtn.clicked.connect(self.onRunTestNoTearDown)
+        self._btmLayout.addWidget(self._runNoTearDownBtn, 1)        
 
         self._executeSelectedBtn = QtWidgets.QPushButton("Run &Selected Tests", self)
         self._executeSelectedBtn.setToolTip("Run the selected tests in the view.")
@@ -369,6 +367,16 @@ class UTestWindow(QtWidgets.QWidget):
         self._executeAllBtn.setIcon(self._runAllIcon)
         self._executeAllBtn.clicked.connect(self.onRunAll)
         self._btmLayout.addWidget(self._executeAllBtn, 1)
+
+        self._reimportAndRerunBtn = QtWidgets.QPushButton(
+            "&Reload PY And ReRun Last Tests", self
+        )
+        self._reimportAndRerunBtn.setToolTip(
+            "Reimport all changed python modules and rerun the last tests."
+        )
+        self._reimportAndRerunBtn.clicked.connect(self.onReimportAndRerun)
+        self._reimportAndRerunBtn.setIcon(self._reimportAndRunIcon)
+        self._btmLayout.addWidget(self._reimportAndRerunBtn, 1)
 
     def onReimportAll(self):
         reimportall.reimportAllChangedPythonModules()
@@ -564,6 +572,19 @@ class UTestWindow(QtWidgets.QWidget):
             return
 
         self.onRunTests(lastRunIds)
+
+    def onRunTestSetUpOnly(self):
+        self._runPartialTest(constants.RUN_TEST_SETUP_ONLY)
+
+    def onRunTestNoTearDown(self):
+        self._runPartialTest(constants.RUN_TEST_NO_TEAR_DOWN)
+
+    def _runPartialTest(self, partialMode):
+        testId = self._view.firstSelectedTestOrTestCase()
+        if not testId:
+            logger.error('You need to select testCase or test item.')
+            return
+        self._testManager.runTestPartial(testId, partialMode)
 
     def clearSearch(self):
         self._searchLE.clear()

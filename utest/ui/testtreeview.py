@@ -225,8 +225,11 @@ class TestTreeView(QtWidgets.QTreeWidget):
         for item in sorted(states.keys()):
             print(self.testIdOfItem(item), states[item])
 
+    def _categoryOfItem(self, item):
+        return item.data(0, QtCore.Qt.UserRole)
+
     def _setItemIconState(self, item, state):
-        category = item.data(0, QtCore.Qt.UserRole)
+        category = self._categoryOfItem(item)
         icons = self._allItemIconSet[category]
         item.setData(0, QtCore.Qt.UserRole + 1, state)
         item.setIcon(0, icons[state])
@@ -470,3 +473,10 @@ class TestTreeView(QtWidgets.QTreeWidget):
             testsToRun.append(key)
 
         self.runTests.emit(testsToRun)
+
+    def firstSelectedTestOrTestCase(self):
+        supportCategories = (constants.ITEM_CATEGORY_CASE, constants.ITEM_CATEGORY_TEST)
+        for item in self.selectedItems():
+            if self._categoryOfItem(item) in supportCategories:
+                return self.testIdOfItem(item)
+        return None
