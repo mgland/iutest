@@ -39,6 +39,7 @@ class UTestWindow(QtWidgets.QWidget):
     _clearLogIcon = None
     _stopAtErrorIcon = None
     _reimportAndRunIcon = None
+    _runPartialIcon = None
     _runAllIcon = None
     _runSelectedIcon = None
     _panelStateIconSet = None
@@ -197,6 +198,7 @@ class UTestWindow(QtWidgets.QWidget):
         cls._initSingleIcon("_clearLogOnRunIcon", "clearLogOnRun.svg")
         cls._initSingleIcon("_stopAtErrorIcon", "stopAtError.svg")
         cls._initSingleIcon("_reimportAndRunIcon", "reimportAndRerun.svg")
+        cls._initSingleIcon("_runPartialIcon", "run_partial.svg")
         cls._initSingleIcon("_runAllIcon", "runAll.svg")
         cls._initSingleIcon("_runSelectedIcon", "runSelected.svg")
 
@@ -346,13 +348,19 @@ class UTestWindow(QtWidgets.QWidget):
         self._resetAllBtn.clicked.connect(self._view.resetAllItemsToNormal)
         self._btmLayout.addWidget(self._resetAllBtn, 1)
 
-        self._runSetupOnlyBtn = QtWidgets.QPushButton("Run setUp( ) Only", self)
-        self._runSetupOnlyBtn.clicked.connect(self.onRunTestSetUpOnly)
-        self._btmLayout.addWidget(self._runSetupOnlyBtn, 1)
-
-        self._runNoTearDownBtn = QtWidgets.QPushButton("Run without tearDown( )", self)
-        self._runNoTearDownBtn.clicked.connect(self.onRunTestNoTearDown)
-        self._btmLayout.addWidget(self._runNoTearDownBtn, 1)        
+        self._runPartialBtn = QtWidgets.QToolButton(self)
+        self._runPartialBtn.setIcon(self._runPartialIcon)
+        self._runPartialBtn.setText("Run Partial")
+        self._runPartialBtn.setAutoRaise(True)
+        self._runPartialBtn.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
+        self._runPartialBtn.setPopupMode(self._runPartialBtn.InstantPopup)
+        self._btmLayout.addWidget(self._runPartialBtn, 0)
+        menu = QtWidgets.QMenu(self._runPartialBtn)
+        act = menu.addAction("Run setUp( ) Only")
+        act.triggered.connect(self.onRunTestSetUpOnly)
+        act = menu.addAction("Run without tearDown( )")
+        act.triggered.connect(self.onRunTestNoTearDown)
+        self._runPartialBtn.setMenu(menu)
 
         self._executeSelectedBtn = QtWidgets.QPushButton("Run &Selected Tests", self)
         self._executeSelectedBtn.setToolTip("Run the selected tests in the view.")
