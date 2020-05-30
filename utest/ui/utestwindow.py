@@ -606,6 +606,7 @@ class UTestWindow(QtWidgets.QWidget):
             logger.error('You need to select testCase or test item.')
             return
         self._testManager.runTestPartial(testId, partialMode)
+        self._refreshReimportRerunButtonState()
 
     def clearSearch(self):
         self._searchLE.clear()
