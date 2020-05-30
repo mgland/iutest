@@ -45,6 +45,9 @@ class AppSettings(object):
         self._settings = self.createIniSettings()
 
     def saveSimpleConfig(self, key, value, sync=True):
+        if isinstance(value, bool):
+            value = 1 if value else 0
+
         self._qsettings().setValue(key, value)
         if sync:
             self._qsettings().sync()
@@ -80,3 +83,6 @@ class AppSettings(object):
                     )
 
         return data
+
+    def __repr__(self):
+        return "AppSettings({})".format(self._qsettings().fileName())
