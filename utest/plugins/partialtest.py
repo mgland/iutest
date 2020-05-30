@@ -50,8 +50,8 @@ class PartialTestRunner(nose2.events.Plugin):
     
     def _runPartialTest(self, test):
         if self.runMode == constants.RUN_TEST_SETUP_ONLY:
-            logger.info('Run %s.setUp() only.', test.__class__.__name__)
             test.setUp()
+            logger.info('Run %s.setUp() only.', test.__class__.__name__)
         else:
             with _NoTearDown(test):
                 test.run(self.session.testResult)
