@@ -57,10 +57,7 @@ class TestManager(object):
             logger.warning("No test to run.")
             return
 
-        argv = [
-            "nose2",
-            "-v",
-        ]
+        argv = ["nose2", "-v"]
         for plugin in plugins:
             argv.append("--plugin")
             argv.append(plugin)
@@ -89,10 +86,7 @@ class TestManager(object):
             "nose2.plugins.loader.eggdiscovery",
             "utest.plugins.removeduplicated",
         ]
-        excludePlugins = [
-            "utest.plugins.testlister",
-            "utest.plugins.partialtest",
-        ]
+        excludePlugins = ["utest.plugins.testlister", "utest.plugins.partialtest"]
         self._runTest(plugins, excludePlugins, [], *tests)
 
     def iterAllTestIds(self):
@@ -122,11 +116,7 @@ class TestManager(object):
             "utest.plugins.removeduplicated",
             "utest.plugins.partialtest",
         ]
-        excludePlugins = [
-            "utest.plugins.testlister",
-            "nose2.plugins.result",
-        ]
+        excludePlugins = ["utest.plugins.testlister", "nose2.plugins.result"]
         extraArgs = ["--partial-test"]
         partialtest.PartialTestRunner.setRunMode(partialMode)
         self._runTest(plugins, excludePlugins, extraArgs, testId)
-

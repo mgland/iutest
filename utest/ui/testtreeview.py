@@ -64,7 +64,11 @@ class TestTreeView(QtWidgets.QTreeWidget):
     _testItemIcons = []
     _allItemIconSet = []
 
-    supportPartialCategories = (constants.ITEM_CATEGORY_CASE, constants.ITEM_CATEGORY_TEST)
+    supportPartialCategories = (
+        constants.ITEM_CATEGORY_CASE,
+        constants.ITEM_CATEGORY_TEST,
+    )
+
     class _TreeItemDelegate(QtWidgets.QItemDelegate):
         def drawFocus(self, painter, styleOptionViewItem, rect):
             pass
@@ -489,4 +493,3 @@ class TestTreeView(QtWidgets.QTreeWidget):
             if self._categoryOfItem(item) in self.supportPartialCategories:
                 return True
         return False
-        

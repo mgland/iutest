@@ -116,7 +116,7 @@ class UTestWindow(QtWidgets.QWidget):
     def initUiStyleForStandalone(self, isStandalone):
         if not isStandalone:
             return
-            
+
         pal = self.palette()
 
         pal.setColor(pal.Window, QtGui.QColor(68, 68, 68))
@@ -410,9 +410,11 @@ class UTestWindow(QtWidgets.QWidget):
 
     def _saveLastTestDir(self, startDir, topDir):
         settings = appsettings.get()
-        settings.saveSimpleConfig(constants.CONFIG_KEY_LAST_TEST_ROOT_DIR, startDir, sync=False)
+        settings.saveSimpleConfig(
+            constants.CONFIG_KEY_LAST_TEST_ROOT_DIR, startDir, sync=False
+        )
         settings.saveSimpleConfig(constants.CONFIG_KEY_LAST_TOP_DIR, topDir, sync=True)
-        logger.info('Save the last test root: %s', startDir)
+        logger.info("Save the last test root: %s", startDir)
 
     def _loadSavedDirPair(self):
         act = self.sender()
@@ -501,7 +503,9 @@ class UTestWindow(QtWidgets.QWidget):
 
     def _loadLastDirsFromSettings(self):
         settings = appsettings.get()
-        startDirOrModule = settings.simpleConfigValue(constants.CONFIG_KEY_LAST_TEST_ROOT_DIR)
+        startDirOrModule = settings.simpleConfigValue(
+            constants.CONFIG_KEY_LAST_TEST_ROOT_DIR
+        )
         if not startDirOrModule:
             return
 
@@ -509,7 +513,9 @@ class UTestWindow(QtWidgets.QWidget):
 
         self._testManager.setDirs(startDirOrModule, topDir)
         self._updateDirUI()
-        self._updateWindowTitle(self._configNameFromStartAndTopDir(startDirOrModule, topDir))
+        self._updateWindowTitle(
+            self._configNameFromStartAndTopDir(startDirOrModule, topDir)
+        )
 
     def _onSaveCurrentDirSettings(self):
         startDir = self._testManager.startDirOrModule()
@@ -587,8 +593,10 @@ class UTestWindow(QtWidgets.QWidget):
         self._runTests(self._view.selectedTestIds())
 
     def _updateReimportRerunButtonEnabled(self):
-        self._reimportAndRerunBtn.setEnabled(bool(viewupdater.ViewUpdater.lastRunTestIds))
-        
+        self._reimportAndRerunBtn.setEnabled(
+            bool(viewupdater.ViewUpdater.lastRunTestIds)
+        )
+
     def _reimportPyAndRerun(self):
         reimportall.reimportAllChangedPythonModules()
         lastRunIds = viewupdater.ViewUpdater.lastRunTestIds
@@ -607,7 +615,7 @@ class UTestWindow(QtWidgets.QWidget):
     def _runPartialTest(self, partialMode):
         testId = self._view.firstSelectedTestOrTestCase()
         if not testId:
-            logger.error('You need to select testCase or test item.')
+            logger.error("You need to select testCase or test item.")
             return
         self._testManager.runTestPartial(testId, partialMode)
         self._updateReimportRerunButtonEnabled()
@@ -636,7 +644,7 @@ class UTestWindow(QtWidgets.QWidget):
             keywords = filter(filterFunc, keywords)
             searchText = " ".join(keywords)
             self._searchLE.setText(searchText)
-        
+
         self._applyFilterTextWithState(searchText, keepUiStates=keepUiStates)
 
     def _updateRunButtonsEnabled(self):

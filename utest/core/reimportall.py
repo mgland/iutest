@@ -19,12 +19,16 @@ def reimportAllChangedPythonModules():
             else:
                 successCount += 1
         if not failedCount:
-            print ("{} modules reimported.".format(successCount))
+            print("{} modules reimported.".format(successCount))
         else:
             if not successCount:
-                print ("All {} modules failed to reimport.".format(failedCount))
+                print("All {} modules failed to reimport.".format(failedCount))
             else:
-                print ("{} modules reimported, {} modules failed to reimport.".format(successCount, failedCount))
+                print(
+                    "{} modules reimported, {} modules failed to reimport.".format(
+                        successCount, failedCount
+                    )
+                )
 
     else:
         print("No modules need to reimport :)")

@@ -11,9 +11,9 @@ class _NoTearDown(object):
     def __init__(self, test):
         self._test = test
         self._originalTearDown = test.tearDown
-    
+
     def _dummyTearDown(self):
-        logger.info('Skipped %s.tearDown().', self._test.__class__.__name__)
+        logger.info("Skipped %s.tearDown().", self._test.__class__.__name__)
 
     def __enter__(self):
         self._test.tearDown = self._dummyTearDown
@@ -30,28 +30,32 @@ class PartialTestRunner(nose2.events.Plugin):
     runMode = constants.RUN_TEST_SETUP_ONLY
 
     lastRunTest = None
+
     @classmethod
     def setRunMode(cls, mode):
         """Set run mode to either TEST_SETUP_ONLY or TEST_NO_TEAR_DOWN
         """
-        cls.runMode = min(constants.RUN_TEST_NO_TEAR_DOWN, max(constants.RUN_TEST_SETUP_ONLY, int(mode)))
-    
+        cls.runMode = min(
+            constants.RUN_TEST_NO_TEAR_DOWN,
+            max(constants.RUN_TEST_SETUP_ONLY, int(mode)),
+        )
+
     def registerInSubprocess(self, event):
         event.pluginClasses.append(self.__class__)
 
     def startTestRun(self, event):
-        PartialTestRunner.lastRunTest = None 
+        PartialTestRunner.lastRunTest = None
         event.executeTests = self.runPartialTest
 
     def startSubprocess(self, event):
-        PartialTestRunner.lastRunTest = None 
+        PartialTestRunner.lastRunTest = None
         event.executeTests = self.runPartialTest
         event.StopTestRunEvent = None
-    
+
     def _runPartialTest(self, test):
         if self.runMode == constants.RUN_TEST_SETUP_ONLY:
             test.setUp()
-            logger.info('Run %s.setUp() only.', test.__class__.__name__)
+            logger.info("Run %s.setUp() only.", test.__class__.__name__)
         else:
             with _NoTearDown(test):
                 test.run(self.session.testResult)
@@ -61,13 +65,13 @@ class PartialTestRunner(nose2.events.Plugin):
     def stopTestRun(self, event):
         if self.lastRunTest:
             event.result.shouldStop = True
-        
+
     def runPartialTest(self, suite, result):
         """Collect tests, but don't run them"""
         for test in suite:
             if isinstance(test, unittest.BaseTestSuite):
                 self.runPartialTest(test, result)
                 continue
-            
+
             self._runPartialTest(test)
             return

@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 def gotErrorOnLastList():
     return TestCollector.gotError
-    
+
 
 def iterAllTestPathsFromRootDir(startDirOrModuleName, topDir=None):
     argv = [
