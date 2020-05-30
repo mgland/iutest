@@ -64,6 +64,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
     _testItemIcons = []
     _allItemIconSet = []
 
+    supportPartialCategories = (constants.ITEM_CATEGORY_CASE, constants.ITEM_CATEGORY_TEST)
     class _TreeItemDelegate(QtWidgets.QItemDelegate):
         def drawFocus(self, painter, styleOptionViewItem, rect):
             pass
@@ -475,8 +476,17 @@ class TestTreeView(QtWidgets.QTreeWidget):
         self.runTests.emit(testsToRun)
 
     def firstSelectedTestOrTestCase(self):
-        supportCategories = (constants.ITEM_CATEGORY_CASE, constants.ITEM_CATEGORY_TEST)
         for item in self.selectedItems():
-            if self._categoryOfItem(item) in supportCategories:
+            if self._categoryOfItem(item) in self.supportPartialCategories:
                 return self.testIdOfItem(item)
         return None
+
+    def hasSelectedTests(self, hasSelectedTestOrCase=False):
+        if not hasSelectedTestOrCase:
+            return bool(self.selectionModel().hasSelection())
+
+        for item in self.selectedItems():
+            if self._categoryOfItem(item) in self.supportPartialCategories:
+                return True
+        return False
+        

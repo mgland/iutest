@@ -74,6 +74,7 @@ class UTestWindow(QtWidgets.QWidget):
         self._view.setTestManager(self._testManager)
         self._view.runAllTest.connect(self.onRunAll)
         self._view.runTests.connect(self.onRunTests)
+        self._view.itemSelectionChanged.connect(self.onSelectionChanged)
 
         leftLay.addWidget(self._view)
 
@@ -109,6 +110,7 @@ class UTestWindow(QtWidgets.QWidget):
         self._loadLastDirsFromSettings()
 
         self.reload(keepUiStates=False)
+        self._refreshReimportRerunButtonState()
 
         self._restorePanelVisState()
 
@@ -564,14 +566,25 @@ class UTestWindow(QtWidgets.QWidget):
         self._view.resetAllItemsToNormal()
         self._searchLE.clear()
         self._testManager.runAllTests()
+        self._refreshReimportRerunButtonState()
 
     def onRunTests(self, testIds):
         self._beforeRunningTests(testIds)
         self._testManager.runTests(*testIds)
+        self._refreshReimportRerunButtonState()
+
+    def onSelectionChanged(self):
+        hasSel = self._view.hasSelectedTests()
+        self._executeSelectedBtn.setEnabled(hasSel)
+        hasSelForPartialRun = self._view.hasSelectedTests(hasSelectedTestOrCase=True)
+        self._runPartialBtn.setEnabled(hasSelForPartialRun)
 
     def onRunSelected(self):
         self._view.runSelectedTests()
 
+    def _refreshReimportRerunButtonState(self):
+        self._reimportAndRerunBtn.setEnabled(bool(viewupdater.ViewUpdater.lastRunTestIds))
+        
     def onReimportAndRerun(self):
         reimportall.reimportAllChangedPythonModules()
         lastRunIds = viewupdater.ViewUpdater.lastRunTestIds
@@ -609,6 +622,8 @@ class UTestWindow(QtWidgets.QWidget):
         self.updateButtonsEnabled()
         self._statusLbl.reportTestCount(self._view.testCount())
         self._statusLbl.reportTestCount(self._view.testCount())
+        self.onSelectionChanged()
+        self._executeAllBtn.setEnabled(self._view.hasTests())
 
     def _applyCurrentFilter(self, removeStateFilters=True, keepUiStates=True):
         searchText = self._searchLE.text()
