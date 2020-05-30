@@ -454,12 +454,12 @@ class TestTreeView(QtWidgets.QTreeWidget):
     def hasTests(self):
         return bool(self._testItems)
 
-    def runSelectedTests(self):
+    def selectedTestIds(self):
         itemsByModulePath = {}
         for item in self.selectedItems():
             if item is self._rootTestItem:
                 self.runAllTest.emit()
-                return
+                return None
 
             itemsByModulePath[self.testIdOfItem(item)] = item
 
@@ -473,7 +473,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
             logger.debug("Running test: %s", key)
             testsToRun.append(key)
 
-        self.runTests.emit(testsToRun)
+        return tuple(testsToRun)
 
     def firstSelectedTestOrTestCase(self):
         for item in self.selectedItems():

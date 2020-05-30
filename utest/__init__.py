@@ -31,7 +31,7 @@ def runUi(startDirOrModule=None, topDir=None):
         manager = utestwindow.UTestWindow(
             startDirOrModule=startDirOrModule, topDir=topDir
         )
-        manager.setIsStandalone(ctx.isStandalone)
+        manager.initUiStyleForStandalone(ctx.isStandalone)
         manager.show()
 
 

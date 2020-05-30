@@ -49,7 +49,7 @@ class UTestWindow(QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self, parent)
 
         self._initIcons()
-        self.setWindowIcon(self._utestIcon)
+
         self._testManager = testmanager.TestManager(self, startDirOrModule, topDir)
 
         self._mainLay = uiutils.makeMainLayout(self)
@@ -66,80 +66,81 @@ class UTestWindow(QtWidgets.QWidget):
         # left layout -----------------------------------
         self._leftWidget, leftLay = self._createSplitterContent()
 
-        self._topLayout = uiutils.makeMinorHorizontalLayout()
-        self._makeTopWidgets()
-        leftLay.addLayout(self._topLayout)
+        _topLayout = uiutils.makeMinorHorizontalLayout()
+        self._makeTopWidgets(_topLayout)
+        leftLay.addLayout(_topLayout)
 
         self._view = testtreeview.TestTreeView(self)
         self._view.setTestManager(self._testManager)
-        self._view.runAllTest.connect(self.onRunAll)
-        self._view.runTests.connect(self.onRunTests)
-        self._view.itemSelectionChanged.connect(self.onSelectionChanged)
+        self._view.runAllTest.connect(self._runAllTests)
+        self._view.runTests.connect(self._runTests)
+        self._view.itemSelectionChanged.connect(self._viewSelectionChanged)
 
         leftLay.addWidget(self._view)
 
         # right layout -----------------------------------
         self._rightWidget, rightLay = self._createSplitterContent()
-        self._logTopLayout = uiutils.makeMinorHorizontalLayout()
+        _logTopLayout = uiutils.makeMinorHorizontalLayout()
         self._logWgt = logbrowser.LogBrowser(self)
-        self._makeLogTopLayout()
-        rightLay.addLayout(self._logTopLayout, 0)
+        self._makeLogTopLayout(_logTopLayout)
+        rightLay.addLayout(_logTopLayout, 0)
         rightLay.addWidget(self._logWgt, 1)
 
-        # bottom layout -----------------------------------
-        self._btmLayout = uiutils.makeMinorHorizontalLayout()
-        self._makeBtmButtons()
-        self._mainLay.addLayout(self._btmLayout)
+        self._splitter.setSizes([230, 500])
+        self._splitter.setStretchFactor(0, 0)
+        self._splitter.setStretchFactor(1, 1)
+
+        # bottom -----------------------------------
+        _btmLayout = uiutils.makeMinorHorizontalLayout()
+        self._makeBtmButtons(_btmLayout)
+        self._mainLay.addLayout(_btmLayout)
 
         # bottom -----------------------------------
         self._statusLbl = statuslabel.StatusLabel(self)
         self._mainLay.addWidget(self._statusLbl)
 
-        self.setWindowFlags(QtCore.Qt.Window)
-        self.setWindowTitle(constants.APP_NAME)
-
         self.resize(QtCore.QSize(900, 500))
-        self._splitter.setSizes([230, 500])
-        self._splitter.setStretchFactor(0, 0)
-        self._splitter.setStretchFactor(1, 1)
-
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)  # for reimport convenience.
         self.setTabOrder(self._rootDirLE, self._searchLE)
         self.setTabOrder(self._searchLE, self._view)
+        self.setWindowIcon(self._utestIcon)
+        self.setWindowFlags(QtCore.Qt.Window)
+        self.setWindowTitle(constants.APP_NAME)
 
         self._loadLastDirsFromSettings()
 
         self.reload(keepUiStates=False)
-        self._refreshReimportRerunButtonState()
-
+        self._updateReimportRerunButtonEnabled()
         self._restorePanelVisState()
 
-    def setIsStandalone(self, isStandalone):
-        if isStandalone:
-            pal = self.palette()
+    def initUiStyleForStandalone(self, isStandalone):
+        if not isStandalone:
+            return
+            
+        pal = self.palette()
 
-            pal.setColor(pal.Window, QtGui.QColor(68, 68, 68))
-            pal.setColor(pal.Background, QtGui.QColor(68, 68, 68))
-            pal.setColor(pal.WindowText, QtGui.QColor(200, 200, 200))
-            pal.setColor(pal.Foreground, QtGui.QColor(200, 200, 200))
-            pal.setColor(pal.Base, QtGui.QColor(46, 46, 46))
-            pal.setColor(pal.AlternateBase, QtGui.QColor(43, 43, 43))
-            pal.setColor(pal.ToolTipBase, QtGui.QColor(46, 46, 46))
-            pal.setColor(pal.ToolTipText, QtGui.QColor(200, 200, 200))
-            pal.setColor(pal.Text, QtGui.QColor(200, 200, 200))
-            pal.setColor(pal.Button, QtGui.QColor(93, 93, 93))
-            pal.setColor(pal.ButtonText, QtGui.QColor(238, 238, 238))
-            pal.setColor(pal.BrightText, QtGui.QColor(238, 238, 238))
+        pal.setColor(pal.Window, QtGui.QColor(68, 68, 68))
+        pal.setColor(pal.Background, QtGui.QColor(68, 68, 68))
+        pal.setColor(pal.WindowText, QtGui.QColor(200, 200, 200))
+        pal.setColor(pal.Foreground, QtGui.QColor(200, 200, 200))
+        pal.setColor(pal.Base, QtGui.QColor(46, 46, 46))
+        pal.setColor(pal.AlternateBase, QtGui.QColor(43, 43, 43))
+        pal.setColor(pal.ToolTipBase, QtGui.QColor(46, 46, 46))
+        pal.setColor(pal.ToolTipText, QtGui.QColor(200, 200, 200))
+        pal.setColor(pal.Text, QtGui.QColor(200, 200, 200))
+        pal.setColor(pal.Button, QtGui.QColor(93, 93, 93))
+        pal.setColor(pal.ButtonText, QtGui.QColor(238, 238, 238))
+        pal.setColor(pal.BrightText, QtGui.QColor(238, 238, 238))
 
-            pal.setColor(pal.Light, QtGui.QColor(93, 93, 93))
-            pal.setColor(pal.Midlight, QtGui.QColor(50, 50, 50))
-            pal.setColor(pal.Dark, QtGui.QColor(43, 43, 43))
-            pal.setColor(pal.Mid, QtGui.QColor(46, 46, 46))
-            pal.setColor(pal.Shadow, QtGui.QColor(43, 43, 43))
+        pal.setColor(pal.Light, QtGui.QColor(93, 93, 93))
+        pal.setColor(pal.Midlight, QtGui.QColor(50, 50, 50))
+        pal.setColor(pal.Dark, QtGui.QColor(43, 43, 43))
+        pal.setColor(pal.Mid, QtGui.QColor(46, 46, 46))
+        pal.setColor(pal.Shadow, QtGui.QColor(43, 43, 43))
 
-            pal.setColor(pal.Highlight, QtGui.QColor(82, 133, 166))
-            pal.setColor(pal.HighlightedText, QtGui.QColor(238, 238, 238))
-            self.setPalette(pal)
+        pal.setColor(pal.Highlight, QtGui.QColor(82, 133, 166))
+        pal.setColor(pal.HighlightedText, QtGui.QColor(238, 238, 238))
+        self.setPalette(pal)
 
     def _createSplitterContent(self):
         wgt = QtWidgets.QWidget(self)
@@ -149,7 +150,7 @@ class UTestWindow(QtWidgets.QWidget):
         self._splitter.addWidget(wgt)
         return wgt, splitterLay
 
-    def _makeLogTopLayout(self):
+    def _makeLogTopLayout(self, layout):
         _console = QtWidgets.QLabel("Console")
         self._clearLogOnRunBtn = uiutils.makeIconButton(self._clearLogOnRunIcon, self)
         self._clearLogOnRunBtn.setToolTip(
@@ -168,10 +169,10 @@ class UTestWindow(QtWidgets.QWidget):
         self._clearLogBtn.setToolTip("Clear the log browser logging.")
         self._clearLogBtn.clicked.connect(self._logWgt.clear)
 
-        self._logTopLayout.addWidget(_console, 0)
-        self._logTopLayout.addStretch(1)
-        self._logTopLayout.addWidget(self._clearLogOnRunBtn, 0)
-        self._logTopLayout.addWidget(self._clearLogBtn, 0)
+        layout.addWidget(_console, 0)
+        layout.addStretch(1)
+        layout.addWidget(self._clearLogOnRunBtn, 0)
+        layout.addWidget(self._clearLogBtn, 0)
 
     @classmethod
     def _initSingleIcon(cls, iconVarName, iconFileName):
@@ -204,7 +205,7 @@ class UTestWindow(QtWidgets.QWidget):
         cls._initSingleIcon("_runAllIcon", "runAll.svg")
         cls._initSingleIcon("_runSelectedIcon", "runSelected.svg")
 
-    def _regenerateMenu(self):
+    def _regenerateMoreFeatureMenu(self):
         self._moreMenu.clear()
 
         act = self._moreMenu.addAction("Browse Test Root Dir ...")
@@ -222,13 +223,13 @@ class UTestWindow(QtWidgets.QWidget):
         config = appsettings.get().testDirSettings()
         for key, pair in config.items():
             act = self._moreMenu.addAction(key)
-            act.triggered.connect(self.onSavedDirPairLoad)
+            act.triggered.connect(self._loadSavedDirPair)
             act.setToolTip("\n".join(pair))
         self._moreMenu.addSeparator()
         act = self._moreMenu.addAction("Config..")
-        act.triggered.connect(self._onConfigWindow)
+        act.triggered.connect(self._showConfigWindow)
 
-    def _onConfigWindow(self):
+    def _showConfigWindow(self):
         configwindow.ConfigWindow.show(self)
 
     def _makeMenuToolButton(self, icon, toolTip):
@@ -246,12 +247,12 @@ class UTestWindow(QtWidgets.QWidget):
             "Input a python module path or an absolute dir path in the lineEdit for the tests."
         )
         self._rootDirLE = rootpathedit.RootPathEdit(self)
-        self._rootDirLE.rootPathChanged.connect(self.onRootPathEdited)
+        self._rootDirLE.rootPathChanged.connect(self._switchToTestRootPath)
 
         self._browseBtn, self._moreMenu = self._makeMenuToolButton(
             self._moreIcon, "Click to access more features."
         )
-        self._regenerateMenu()
+        self._regenerateMoreFeatureMenu()
 
         self._panelVisBtn = uiutils.makeIconButton(self._panelStateIconSet[-1], self)
         self._panelVisBtn.setToolTip(
@@ -266,16 +267,16 @@ class UTestWindow(QtWidgets.QWidget):
 
         self._updateDirUI()
 
-    def _makeTopWidgets(self):
+    def _makeTopWidgets(self, layout):
         reimportBtn = uiutils.makeIconButton(self._reimportIcon, self)
         reimportBtn.setToolTip("Reimport all changed python module.")
-        reimportBtn.clicked.connect(self.onReimportAll)
-        self._topLayout.addWidget(reimportBtn)
+        reimportBtn.clicked.connect(self._reimportAllChangedModules)
+        layout.addWidget(reimportBtn)
 
         reloadUIBtn = uiutils.makeIconButton(self._reloadUiIcon, self)
         reloadUIBtn.setToolTip("Recollect tests and reload the test tree view below.")
-        reloadUIBtn.clicked.connect(self.onReloadUI)
-        self._topLayout.addWidget(reloadUIBtn)
+        reloadUIBtn.clicked.connect(self._onReloadUiButtonClicked)
+        layout.addWidget(reloadUIBtn)
 
         self._searchLE = QtWidgets.QLineEdit()
         self._searchLE.setToolTip(
@@ -284,22 +285,22 @@ class UTestWindow(QtWidgets.QWidget):
             "For state keyword starting with ':', the match operation is 'OR'."
         )
         self._searchLE.setPlaceholderText("Input to filter")
-        self._searchLE.textChanged.connect(self.onFilterTextChanged)
-        self._topLayout.addWidget(self._searchLE)
+        self._searchLE.textChanged.connect(self._applyFilterText)
+        layout.addWidget(self._searchLE)
 
-        self._clearSearchBtn = uiutils.makeIconButton(self._clearIcon, self)
-        self._clearSearchBtn.setToolTip("Clear all filters.")
-        self._clearSearchBtn.setEnabled(False)
-        self._clearSearchBtn.clicked.connect(self.clearSearch)
-        self._topLayout.addWidget(self._clearSearchBtn)
+        self._clearFilterBtn = uiutils.makeIconButton(self._clearIcon, self)
+        self._clearFilterBtn.setToolTip("Clear all filters.")
+        self._clearFilterBtn.setEnabled(False)
+        self._clearFilterBtn.clicked.connect(self._clearFilter)
+        layout.addWidget(self._clearFilterBtn)
 
         self._filterBtn, self._filterMenu = self._makeMenuToolButton(
             self._filterIcon, "Click to apply more predefined filters."
         )
         for lbl in constants.KEYWORD_TEST_STATES:
             act = self._filterMenu.addAction(lbl)
-            act.triggered.connect(self.onAddFilter)
-        self._topLayout.addWidget(self._filterBtn)
+            act.triggered.connect(self._addStateFilter)
+        layout.addWidget(self._filterBtn)
 
         self._autoFilterBtn = uiutils.makeIconButton(self._autoFilterIcon, self)
         self._autoFilterBtn.setToolTip(
@@ -313,7 +314,7 @@ class UTestWindow(QtWidgets.QWidget):
         )
         self._autoFilterBtn.setChecked(autoFilter)
         self._autoFilterBtn.toggled.connect(self._onAutoFilterButtonToggled)
-        self._topLayout.addWidget(self._autoFilterBtn)
+        layout.addWidget(self._autoFilterBtn)
 
     def _onAutoFilterButtonToggled(self, state):
         appsettings.get().saveSimpleConfig(
@@ -329,7 +330,7 @@ class UTestWindow(QtWidgets.QWidget):
         self._testManager.setStopOnError(stop)
         appsettings.get().saveSimpleConfig(constants.CONFIG_KEY_STOP_ON_ERROR, stop)
 
-    def _makeBtmButtons(self):
+    def _makeBtmButtons(self, _btmLayout):
         self._stopAtErrorBtn = uiutils.makeIconButton(self._stopAtErrorIcon, self)
         self._stopAtErrorBtn.toggled.connect(self._onStopOnErrorButtonToggled)
         self._stopAtErrorBtn.setToolTip(
@@ -341,14 +342,14 @@ class UTestWindow(QtWidgets.QWidget):
         )
         self._stopAtErrorBtn.setChecked(stopOnError)
         self._testManager.setStopOnError(stopOnError)
-        self._btmLayout.addWidget(self._stopAtErrorBtn, 0)
+        _btmLayout.addWidget(self._stopAtErrorBtn, 0)
 
         self._resetAllBtn = uiutils.makeIconButton(self._resetIcon, self)
         self._resetAllBtn.setToolTip(
             "Reset the test item states, icons and stats and collapse the tree view items in a certain level."
         )
         self._resetAllBtn.clicked.connect(self._view.resetAllItemsToNormal)
-        self._btmLayout.addWidget(self._resetAllBtn, 1)
+        _btmLayout.addWidget(self._resetAllBtn, 1)
 
         self._runPartialBtn = QtWidgets.QToolButton(self)
         self._runPartialBtn.setIcon(self._runPartialIcon)
@@ -356,46 +357,46 @@ class UTestWindow(QtWidgets.QWidget):
         self._runPartialBtn.setAutoRaise(True)
         self._runPartialBtn.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
         self._runPartialBtn.setPopupMode(self._runPartialBtn.InstantPopup)
-        self._btmLayout.addWidget(self._runPartialBtn, 0)
+        _btmLayout.addWidget(self._runPartialBtn, 0)
         menu = QtWidgets.QMenu(self._runPartialBtn)
         act = menu.addAction("Run setUp( ) Only")
-        act.triggered.connect(self.onRunTestSetUpOnly)
+        act.triggered.connect(self._runTestSetupOnly)
         act = menu.addAction("Run without tearDown( )")
-        act.triggered.connect(self.onRunTestNoTearDown)
+        act.triggered.connect(self._runTestWithoutTearDown)
         self._runPartialBtn.setMenu(menu)
 
-        self._executeSelectedBtn = QtWidgets.QPushButton("Run &Selected Tests", self)
-        self._executeSelectedBtn.setToolTip("Run the selected tests in the view.")
-        self._executeSelectedBtn.clicked.connect(self.onRunSelected)
-        self._executeSelectedBtn.setIcon(self._runSelectedIcon)
-        self._btmLayout.addWidget(self._executeSelectedBtn, 1)
+        self._runSelectedBtn = QtWidgets.QPushButton("Run &Selected Tests", self)
+        self._runSelectedBtn.setToolTip("Run the selected tests in the view.")
+        self._runSelectedBtn.clicked.connect(self._runViewSelectedTests)
+        self._runSelectedBtn.setIcon(self._runSelectedIcon)
+        _btmLayout.addWidget(self._runSelectedBtn, 1)
 
-        self._executeAllBtn = QtWidgets.QPushButton("Run &All Tests", self)
-        self._executeAllBtn.setToolTip(
+        self._runAllBtn = QtWidgets.QPushButton("Run &All Tests", self)
+        self._runAllBtn.setToolTip(
             "Run all the tests, including those filtered from the view."
         )
-        self._executeAllBtn.setIcon(self._runAllIcon)
-        self._executeAllBtn.clicked.connect(self.onRunAll)
-        self._btmLayout.addWidget(self._executeAllBtn, 1)
+        self._runAllBtn.setIcon(self._runAllIcon)
+        self._runAllBtn.clicked.connect(self._runAllTests)
+        _btmLayout.addWidget(self._runAllBtn, 1)
 
         self._reimportAndRerunBtn = QtWidgets.QPushButton(
-            "&Reload PY And ReRun Last Tests", self
+            "&Reload PY && Rerun Last Tests", self
         )
         self._reimportAndRerunBtn.setToolTip(
             "Reimport all changed python modules and rerun the last tests."
         )
-        self._reimportAndRerunBtn.clicked.connect(self.onReimportAndRerun)
+        self._reimportAndRerunBtn.clicked.connect(self._reimportPyAndRerun)
         self._reimportAndRerunBtn.setIcon(self._reimportAndRunIcon)
-        self._btmLayout.addWidget(self._reimportAndRerunBtn, 1)
+        _btmLayout.addWidget(self._reimportAndRerunBtn, 1)
 
-    def onReimportAll(self):
+    def _reimportAllChangedModules(self):
         reimportall.reimportAllChangedPythonModules()
 
-    def onReloadUI(self):
+    def _onReloadUiButtonClicked(self):
         self.reload(keepUiStates=True)
         self._applyCurrentFilter(removeStateFilters=True, keepUiStates=True)
 
-    def onAddFilter(self):
+    def _addStateFilter(self):
         stateKeyword = self.sender().text()
         search = self._searchLE.text().strip()
         if not search:
@@ -413,7 +414,7 @@ class UTestWindow(QtWidgets.QWidget):
         settings.saveSimpleConfig(constants.CONFIG_KEY_LAST_TOP_DIR, topDir, sync=True)
         logger.info('Save the last test root: %s', startDir)
 
-    def onSavedDirPairLoad(self):
+    def _loadSavedDirPair(self):
         act = self.sender()
         _topDir, _startDirOrModule = act.toolTip().split("\n")
         self._testManager.setTopDir(_topDir)
@@ -426,7 +427,7 @@ class UTestWindow(QtWidgets.QWidget):
         self._searchLE.clear()
         self.reload()
 
-    def onRootPathEdited(self, startDir, topDir):
+    def _switchToTestRootPath(self, startDir, topDir):
         self._testManager.setDirs(startDir, topDir)
         self._updateWindowTitle(startDir)
         self._updateDirUI()
@@ -534,7 +535,7 @@ class UTestWindow(QtWidgets.QWidget):
         self._updateWindowTitle(name[0])
 
     def _deferredRegenerateMenu(self):
-        QtCore.QTimer.singleShot(0, self._regenerateMenu)
+        QtCore.QTimer.singleShot(0, self._regenerateMoreFeatureMenu)
 
     def _onDeleteCurrentDirSettings(self):
         config = appsettings.get().testDirSettings()
@@ -562,42 +563,45 @@ class UTestWindow(QtWidgets.QWidget):
 
         self._deferredRegenerateMenu()
 
-    def onRunAll(self):
+    def _runAllTests(self):
         self._view.resetAllItemsToNormal()
         self._searchLE.clear()
         self._testManager.runAllTests()
-        self._refreshReimportRerunButtonState()
+        self._updateReimportRerunButtonEnabled()
 
-    def onRunTests(self, testIds):
+    def _runTests(self, testIds):
+        if not testIds:
+            return
+
         self._beforeRunningTests(testIds)
         self._testManager.runTests(*testIds)
-        self._refreshReimportRerunButtonState()
+        self._updateReimportRerunButtonEnabled()
 
-    def onSelectionChanged(self):
+    def _viewSelectionChanged(self):
         hasSel = self._view.hasSelectedTests()
-        self._executeSelectedBtn.setEnabled(hasSel)
+        self._runSelectedBtn.setEnabled(hasSel)
         hasSelForPartialRun = self._view.hasSelectedTests(hasSelectedTestOrCase=True)
         self._runPartialBtn.setEnabled(hasSelForPartialRun)
 
-    def onRunSelected(self):
-        self._view.runSelectedTests()
+    def _runViewSelectedTests(self):
+        self._runTests(self._view.selectedTestIds())
 
-    def _refreshReimportRerunButtonState(self):
+    def _updateReimportRerunButtonEnabled(self):
         self._reimportAndRerunBtn.setEnabled(bool(viewupdater.ViewUpdater.lastRunTestIds))
         
-    def onReimportAndRerun(self):
+    def _reimportPyAndRerun(self):
         reimportall.reimportAllChangedPythonModules()
         lastRunIds = viewupdater.ViewUpdater.lastRunTestIds
         if not lastRunIds:
             logger.warning("Didn't find the last run tests.")
             return
 
-        self.onRunTests(lastRunIds)
+        self._runTests(lastRunIds)
 
-    def onRunTestSetUpOnly(self):
+    def _runTestSetupOnly(self):
         self._runPartialTest(constants.RUN_TEST_SETUP_ONLY)
 
-    def onRunTestNoTearDown(self):
+    def _runTestWithoutTearDown(self):
         self._runPartialTest(constants.RUN_TEST_NO_TEAR_DOWN)
 
     def _runPartialTest(self, partialMode):
@@ -606,9 +610,9 @@ class UTestWindow(QtWidgets.QWidget):
             logger.error('You need to select testCase or test item.')
             return
         self._testManager.runTestPartial(testId, partialMode)
-        self._refreshReimportRerunButtonState()
+        self._updateReimportRerunButtonEnabled()
 
-    def clearSearch(self):
+    def _clearFilter(self):
         self._searchLE.clear()
 
     def reload(self, keepUiStates=True):
@@ -616,15 +620,13 @@ class UTestWindow(QtWidgets.QWidget):
         with uistream.LogCaptureContext():  # Report the possible error report to UI as well:
             self._view.reload(keepUiStates=keepUiStates)
 
+        self._updateRunButtonsEnabled()
+
         if not self._testManager.startDirOrModule():
-            self.updateButtonsEnabled()
             return
 
-        self.updateButtonsEnabled()
         self._statusLbl.reportTestCount(self._view.testCount())
         self._statusLbl.reportTestCount(self._view.testCount())
-        self.onSelectionChanged()
-        self._executeAllBtn.setEnabled(self._view.hasTests())
 
     def _applyCurrentFilter(self, removeStateFilters=True, keepUiStates=True):
         searchText = self._searchLE.text()
@@ -635,13 +637,14 @@ class UTestWindow(QtWidgets.QWidget):
             searchText = " ".join(keywords)
             self._searchLE.setText(searchText)
         
-        self._applyFilterText(searchText, keepUiStates=keepUiStates)
+        self._applyFilterTextWithState(searchText, keepUiStates=keepUiStates)
 
-    def updateButtonsEnabled(self):
+    def _updateRunButtonsEnabled(self):
         enabled = self._view.hasTests()
         self._resetAllBtn.setEnabled(enabled)
-        self._executeAllBtn.setEnabled(enabled)
-        self._executeSelectedBtn.setEnabled(enabled)
+        self._runAllBtn.setEnabled(enabled)
+        self._viewSelectionChanged()
+        self._updateReimportRerunButtonEnabled()
 
     def _beforeTestCollection(self):
         self._logWgt.onTestStart()
@@ -650,15 +653,16 @@ class UTestWindow(QtWidgets.QWidget):
         self._logWgt.onTestStart()
         self._view.resetTestItemsById(tests)
 
-    def onFilterTextChanged(self, txt):
-        self._applyFilterText(txt, keepUiStates=False)
+    def _applyFilterText(self, txt):
+        self._applyFilterTextWithState(txt, keepUiStates=False)
 
-    def _applyFilterText(self, txt, keepUiStates=True):
+    def _applyFilterTextWithState(self, txt, keepUiStates=True):
         lowerTxt = txt.strip().lower()
         keywords = lowerTxt.split(" ")
-        self._clearSearchBtn.setEnabled(bool(keywords))
+        self._clearFilterBtn.setEnabled(bool(keywords))
         self._view.setFilterKeywords(keywords, ensureFirstMatchVisible=not keepUiStates)
 
+    # These below are to be called by hooks -------------------------------------------------
     def onSingleTestStartToRun(self, testId, startTime):
         self._view.onSingleTestStartToRun(testId, startTime)
 
