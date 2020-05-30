@@ -58,11 +58,12 @@ class PartialTestRunner(nose2.events.Plugin):
 
         PartialTestRunner.lastRunTest = test
 
+    def stopTestRun(self, event):
+        if self.lastRunTest:
+            event.result.shouldStop = True
+        
     def runPartialTest(self, suite, result):
         """Collect tests, but don't run them"""
-        if self.lastRunTest:
-            return
-
         for test in suite:
             if isinstance(test, unittest.BaseTestSuite):
                 self.runPartialTest(test, result)
