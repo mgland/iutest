@@ -92,7 +92,7 @@ class UTestWindow(QtWidgets.QWidget):
 
         # bottom -----------------------------------
         _btmLayout = uiutils.makeMinorHorizontalLayout()
-        self._makeBtmButtons(_btmLayout)
+        self._makeRunButtons(_btmLayout)
         self._mainLay.addLayout(_btmLayout)
 
         # bottom -----------------------------------
@@ -330,7 +330,7 @@ class UTestWindow(QtWidgets.QWidget):
         self._testManager.setStopOnError(stop)
         appsettings.get().saveSimpleConfig(constants.CONFIG_KEY_STOP_ON_ERROR, stop)
 
-    def _makeBtmButtons(self, _btmLayout):
+    def _makeRunButtons(self, _btmLayout):
         self._stopAtErrorBtn = uiutils.makeIconButton(self._stopAtErrorIcon, self)
         self._stopAtErrorBtn.toggled.connect(self._onStopOnErrorButtonToggled)
         self._stopAtErrorBtn.setToolTip(
@@ -351,27 +351,13 @@ class UTestWindow(QtWidgets.QWidget):
         self._resetAllBtn.clicked.connect(self._view.resetAllItemsToNormal)
         _btmLayout.addWidget(self._resetAllBtn, 1)
 
-        self._runPartialBtn = QtWidgets.QToolButton(self)
-        self._runPartialBtn.setIcon(self._runPartialIcon)
-        self._runPartialBtn.setText("Run Partial")
-        self._runPartialBtn.setAutoRaise(True)
-        self._runPartialBtn.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-        self._runPartialBtn.setPopupMode(self._runPartialBtn.InstantPopup)
-        _btmLayout.addWidget(self._runPartialBtn, 0)
-        menu = QtWidgets.QMenu(self._runPartialBtn)
-        act = menu.addAction("Run setUp( ) Only")
-        act.triggered.connect(self._runTestSetupOnly)
-        act = menu.addAction("Run without tearDown( )")
-        act.triggered.connect(self._runTestWithoutTearDown)
-        self._runPartialBtn.setMenu(menu)
-
-        self._runSelectedBtn = QtWidgets.QPushButton("Run &Selected Tests", self)
+        self._runSelectedBtn = QtWidgets.QPushButton("Run &Selected", self)
         self._runSelectedBtn.setToolTip("Run the selected tests in the view.")
         self._runSelectedBtn.clicked.connect(self._runViewSelectedTests)
         self._runSelectedBtn.setIcon(self._runSelectedIcon)
         _btmLayout.addWidget(self._runSelectedBtn, 1)
 
-        self._runAllBtn = QtWidgets.QPushButton("Run &All Tests", self)
+        self._runAllBtn = QtWidgets.QPushButton("Run &All", self)
         self._runAllBtn.setToolTip(
             "Run all the tests, including those filtered from the view."
         )
@@ -380,7 +366,7 @@ class UTestWindow(QtWidgets.QWidget):
         _btmLayout.addWidget(self._runAllBtn, 1)
 
         self._reimportAndRerunBtn = QtWidgets.QPushButton(
-            "&Reload PY && Rerun Last Tests", self
+            "&Reload && Rerun", self
         )
         self._reimportAndRerunBtn.setToolTip(
             "Reimport all changed python modules and rerun the last tests."
@@ -388,6 +374,26 @@ class UTestWindow(QtWidgets.QWidget):
         self._reimportAndRerunBtn.clicked.connect(self._reimportPyAndRerun)
         self._reimportAndRerunBtn.setIcon(self._reimportAndRunIcon)
         _btmLayout.addWidget(self._reimportAndRerunBtn, 1)
+
+        _runMoreBtn = self._makeRunMoreButton()
+        _btmLayout.addWidget(_runMoreBtn, 0)
+
+    def _makeRunMoreButton(self):
+        _runMoreBtn = QtWidgets.QToolButton(self)
+        _runMoreBtn.setIcon(self._runPartialIcon)
+        _runMoreBtn.setAutoRaise(True)
+        _runMoreBtn.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
+        _runMoreBtn.setPopupMode(_runMoreBtn.InstantPopup)
+        self._runSetupAct = QtWidgets.QAction("Run setUp( ) Only", self)
+        self._runSetupAct.triggered.connect(self._runTestSetupOnly)
+        self._runNoTearDown = QtWidgets.QAction("Run without tearDown( )", self)
+        self._runNoTearDown.triggered.connect(self._runTestWithoutTearDown)
+
+        menu = QtWidgets.QMenu(_runMoreBtn)
+        menu.addAction(self._runSetupAct)
+        menu.addAction(self._runNoTearDown)
+        _runMoreBtn.setMenu(menu)
+        return _runMoreBtn
 
     def _reimportAllChangedModules(self):
         reimportall.reimportAllChangedPythonModules()
@@ -587,7 +593,8 @@ class UTestWindow(QtWidgets.QWidget):
         hasSel = self._view.hasSelectedTests()
         self._runSelectedBtn.setEnabled(hasSel)
         hasSelForPartialRun = self._view.hasSelectedTests(hasSelectedTestOrCase=True)
-        self._runPartialBtn.setEnabled(hasSelForPartialRun)
+        self._runSetupAct.setEnabled(hasSelForPartialRun)
+        self._runNoTearDown.setEnabled(hasSelForPartialRun)
 
     def _runViewSelectedTests(self):
         self._runTests(self._view.selectedTestIds())
