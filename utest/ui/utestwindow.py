@@ -103,6 +103,7 @@ class UTestWindow(QtWidgets.QWidget):
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)  # for reimport convenience.
         self.setTabOrder(self._rootDirLE, self._searchLE)
         self.setTabOrder(self._searchLE, self._view)
+        self.setTabOrder(self._view, self._logWgt)
         self.setWindowIcon(self._utestIcon)
         self.setWindowFlags(QtCore.Qt.Window)
         self.setWindowTitle(constants.APP_NAME)
