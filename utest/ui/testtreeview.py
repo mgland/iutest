@@ -6,6 +6,7 @@ from utest.core import constants
 from utest.core import pathutils
 from utest.plugins import testlister
 from utest.plugins import viewupdater
+from utest.core import gotocode
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +78,8 @@ class TestTreeView(QtWidgets.QTreeWidget):
 
     def __init__(self, parent):
         QtWidgets.QTreeWidget.__init__(self, parent)
+        self._codeVisitor = gotocode.CodeLineVisitor(self)
+
         self.setItemDelegate(self._TreeItemDelegate(self))
         self.setTextElideMode(QtCore.Qt.ElideLeft)
         self.setColumnCount(2)
@@ -558,15 +561,17 @@ class TestTreeView(QtWidgets.QTreeWidget):
 
     def _atGoToCode(self):
         firstSelectedModulePath = self._firstSelectedModulePath()
-        print (firstSelectedModulePath)
+        path = testlister.filePathFromModulePath(firstSelectedModulePath)
+        if path:
+            self._codeVisitor.goTo(path)
 
     def contextMenuEvent(self, event):
         gotTests = self.hasTests()
         hasSelection = False
         hasSelectedTestOrCase = False
         if gotTests:
-            hasSelection = self.hasSelectedTests(hasSelectedTestOrCase=True)
-            hasSelectedTestOrCase = self.hasSelectedTests(hasSelectedTestOrCase=False)
+            hasSelection = self.hasSelectedTests(hasSelectedTestOrCase=False)
+            hasSelectedTestOrCase = self.hasSelectedTests(hasSelectedTestOrCase=True)
         
         self._runSelectedAct.setEnabled(hasSelection)
         self._runSetupOnlyAct.setEnabled(hasSelectedTestOrCase)

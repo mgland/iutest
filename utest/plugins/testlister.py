@@ -8,6 +8,22 @@ from utest.core import uistream
 logger = logging.getLogger(__name__)
 
 
+def filePathFromModulePath(modulePath):
+    """Get the python file path from a module path.
+    Args:
+        modulePath (str): the python module path.
+    Return:
+        str: The python file path.
+    """
+    try:
+        module, _ = nose2.util.try_import_module_from_name(modulePath.split('.'))
+    except Exception:
+        logger.exception('Unable to get file path from %s', modulePath)
+        return None
+
+    return module.__file__
+
+
 def gotErrorOnLastList():
     return TestCollector.gotError
 
