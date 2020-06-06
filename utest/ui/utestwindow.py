@@ -74,6 +74,8 @@ class UTestWindow(QtWidgets.QWidget):
         self._view.setTestManager(self._testManager)
         self._view.runAllTest.connect(self._runAllTests)
         self._view.runTests.connect(self._runTests)
+        self._view.runSetupOnly.connect(self._runTestSetupOnly)
+        self._view.runWithoutTearDown.connect(self._runTestWithoutTearDown)
         self._view.itemSelectionChanged.connect(self._viewSelectionChanged)
 
         leftLay.addWidget(self._view)

@@ -56,6 +56,8 @@ class ViewStates(object):
 class TestTreeView(QtWidgets.QTreeWidget):
     runAllTest = Signal()
     runTests = Signal(list)
+    runSetupOnly = Signal(str)
+    runWithoutTearDown = Signal(str)
 
     _testAllIcons = []
     _testPackageIcons = []
@@ -94,8 +96,11 @@ class TestTreeView(QtWidgets.QTreeWidget):
         self._testManager = None
         self._viewStates = ViewStates(self)
 
+        self._contextMenu = QtWidgets.QMenu(self)
+        self._makeContextMenu()
+
         self.setToolTip(
-            "This view lists out the tests, double click on them to run them."
+            "This view lists out the tests, <b>double click</b> on them to run them, <b>Ctrl+C</b> to copy the python module path."
         )
 
     def setTestManager(self, manager):
@@ -317,11 +322,20 @@ class TestTreeView(QtWidgets.QTreeWidget):
             for i in range(childCount):
                 item.child(i).setExpanded(False)
 
-    def copyFirstSelectedTestId(self):
+    def _firstSelectedModulePath(self):
         for item in self.selectedItems():
             if item is self._rootTestItem:
                 continue
-            QtWidgets.QApplication.clipboard().setText(self.testIdOfItem(item))
+            return self.testIdOfItem(item)
+        return None
+
+    def copyFirstSelectedTestId(self):
+        firstSelectedModulePath = self._firstSelectedModulePath()
+        if firstSelectedModulePath:
+            QtWidgets.QApplication.clipboard().setText(firstSelectedModulePath)
+            logger.info('Module Path copied to clipboard: %s', firstSelectedModulePath)
+        else:
+            logger.info('No item selected to copy the module path.')
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_C and (
@@ -493,3 +507,71 @@ class TestTreeView(QtWidgets.QTreeWidget):
             if self._categoryOfItem(item) in self.supportPartialCategories:
                 return True
         return False
+
+    def _makeContextMenu(self):
+        self._runSetupOnlyAct = QtWidgets.QAction("Run setUp( ) Only", self)
+        self._runSetupOnlyAct.triggered.connect(self._atRunSetupOnly)
+        
+        self._runWithoutTearDownAct = QtWidgets.QAction("Run Without tearDown( )", self)
+        self._runWithoutTearDownAct.triggered.connect(self._atRunWithoutTearDown)
+        
+        self._runSelectedAct = QtWidgets.QAction("Run Selected", self)
+        self._runSelectedAct.triggered.connect(self._atRunSelected)
+        
+        self._runAllAct = QtWidgets.QAction("Run All", self)
+        self._runAllAct.triggered.connect(self._atRunAll)
+        
+        self._copyPathAct = QtWidgets.QAction("Copy Selected Path", self)
+        self._copyPathAct.triggered.connect(self.copyFirstSelectedTestId)
+        
+        self._goToCodeAct = QtWidgets.QAction("Go To Code", self)
+        self._goToCodeAct.triggered.connect(self._atGoToCode)
+
+        self._contextMenu.addAction(self._runAllAct)
+        self._contextMenu.addAction(self._runSelectedAct)
+        self._contextMenu.addSeparator()
+
+        self._contextMenu.addAction(self._runSetupOnlyAct)
+        self._contextMenu.addAction(self._runWithoutTearDownAct)
+        self._contextMenu.addSeparator()
+
+        self._contextMenu.addAction(self._copyPathAct)
+        self._contextMenu.addAction(self._goToCodeAct)
+    
+    def _atRunSetupOnly(self):
+        testId = self.firstSelectedTestOrTestCase()
+        if testId:
+            self.runSetupOnly.emit(testId)
+            
+    def _atRunWithoutTearDown(self):
+        testId = self.firstSelectedTestOrTestCase()
+        if testId:
+            self.runWithoutTearDown.emit(testId)
+
+    def _atRunSelected(self):
+        testIds = self.selectedTestIds()
+        if testIds:
+            self.runTests.emit(testIds)
+
+    def _atRunAll(self):
+        self.runAllTest.emit()
+
+    def _atGoToCode(self):
+        firstSelectedModulePath = self._firstSelectedModulePath()
+        print (firstSelectedModulePath)
+
+    def contextMenuEvent(self, event):
+        gotTests = self.hasTests()
+        hasSelection = False
+        hasSelectedTestOrCase = False
+        if gotTests:
+            hasSelection = self.hasSelectedTests(hasSelectedTestOrCase=True)
+            hasSelectedTestOrCase = self.hasSelectedTests(hasSelectedTestOrCase=False)
+        
+        self._runSelectedAct.setEnabled(hasSelection)
+        self._runSetupOnlyAct.setEnabled(hasSelectedTestOrCase)
+        self._runWithoutTearDownAct.setEnabled(hasSelectedTestOrCase)
+        self._copyPathAct.setEnabled(hasSelection)
+        self._goToCodeAct.setEnabled(hasSelection)
+
+        self._contextMenu.exec_(event.globalPos())
