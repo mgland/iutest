@@ -71,3 +71,7 @@ class StatusLabel(QtWidgets.QLabel):
 
     def reportTestCount(self, testCount):
         self.setText("{} tests.".format(testCount))
+
+    def startCollectingTests(self):
+        self.setText("Loading tests...")
+        self.repaint()

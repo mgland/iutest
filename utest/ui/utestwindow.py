@@ -95,7 +95,6 @@ class UTestWindow(QtWidgets.QWidget):
         self._makeRunButtons(_btmLayout)
         self._mainLay.addLayout(_btmLayout)
 
-        # bottom -----------------------------------
         self._statusLbl = statuslabel.StatusLabel(self)
         self._mainLay.addWidget(self._statusLbl)
 
@@ -109,10 +108,13 @@ class UTestWindow(QtWidgets.QWidget):
         self.setWindowTitle(constants.APP_NAME)
 
         self._loadLastDirsFromSettings()
+        self._restorePanelVisState()
 
+        QtCore.QTimer.singleShot(0, self._initialLoad)
+
+    def _initialLoad(self):
         self.reload(keepUiStates=False)
         self._updateReimportRerunButtonEnabled()
-        self._restorePanelVisState()
 
     def initUiStyleForStandalone(self, isStandalone):
         if not isStandalone:
@@ -642,7 +644,6 @@ class UTestWindow(QtWidgets.QWidget):
             return
 
         self._statusLbl.reportTestCount(self._view.testCount())
-        self._statusLbl.reportTestCount(self._view.testCount())
 
     def _applyCurrentFilter(self, removeStateFilters=True, keepUiStates=True):
         searchText = self._searchLE.text()
@@ -664,6 +665,7 @@ class UTestWindow(QtWidgets.QWidget):
 
     def _beforeTestCollection(self):
         self._logWgt.onTestStart()
+        self._statusLbl.startCollectingTests()
 
     def _beforeRunningTests(self, tests):
         self._logWgt.onTestStart()
