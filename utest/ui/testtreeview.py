@@ -7,6 +7,7 @@ from utest.core import pathutils
 from utest.plugins import testlister
 from utest.plugins import viewupdater
 from utest.core import gotocode
+from utest.core import importutils
 
 logger = logging.getLogger(__name__)
 
@@ -495,19 +496,26 @@ class TestTreeView(QtWidgets.QTreeWidget):
         return tuple(testsToRun)
 
     def firstSelectedTestOrTestCase(self):
-        for item in self.selectedItems():
-            if self._categoryOfItem(item) in self.supportPartialCategories:
-                return self.testIdOfItem(item)
+        for item in self.iterSelectedItemsOfCategories(*self.supportPartialCategories):
+            return self.testIdOfItem(item)
         return None
 
     def hasSelectedTests(self, hasSelectedTestOrCase=False):
         if not hasSelectedTestOrCase:
             return bool(self.selectionModel().hasSelection())
 
+        return self.hasSelectionOfCategories(*self.supportPartialCategories)
+    
+    def hasSelectionOfCategories(self, *categories):
         for item in self.selectedItems():
-            if self._categoryOfItem(item) in self.supportPartialCategories:
+            if self._categoryOfItem(item) in categories:
                 return True
         return False
+
+    def iterSelectedItemsOfCategories(self, *categories):
+        for item in self.selectedItems():
+            if self._categoryOfItem(item) in categories:
+                yield item
 
     def _makeContextMenu(self):
         self._runSetupOnlyAct = QtWidgets.QAction("Run setUp( ) Only", self)
@@ -528,6 +536,9 @@ class TestTreeView(QtWidgets.QTreeWidget):
         self._goToCodeAct = QtWidgets.QAction("Go To Code", self)
         self._goToCodeAct.triggered.connect(self._atGoToCode)
 
+        self._reloadModulesAct = QtWidgets.QAction("Reload Selected Modules", self)
+        self._reloadModulesAct.triggered.connect(self._atReloadSelectedModules)
+
         self._contextMenu.addAction(self._runAllAct)
         self._contextMenu.addAction(self._runSelectedAct)
         self._contextMenu.addSeparator()
@@ -538,7 +549,15 @@ class TestTreeView(QtWidgets.QTreeWidget):
 
         self._contextMenu.addAction(self._copyPathAct)
         self._contextMenu.addAction(self._goToCodeAct)
+
+        self._contextMenu.addSeparator()
+        self._contextMenu.addAction(self._reloadModulesAct)
     
+    def _atReloadSelectedModules(self):
+        for moduleItem in self.iterSelectedItemsOfCategories(constants.ITEM_CATEGORY_MODULE):
+            dotPath = self.testIdOfItem(moduleItem)
+            importutils.reimportByDotPath(dotPath)
+
     def _atRunSetupOnly(self):
         testId = self.firstSelectedTestOrTestCase()
         if testId:
@@ -567,14 +586,17 @@ class TestTreeView(QtWidgets.QTreeWidget):
         gotTests = self.hasTests()
         hasSelection = False
         hasSelectedTestOrCase = False
+        hasModuleSelection = False
         if gotTests:
             hasSelection = self.hasSelectedTests(hasSelectedTestOrCase=False)
             hasSelectedTestOrCase = self.hasSelectedTests(hasSelectedTestOrCase=True)
+            hasModuleSelection = self.hasSelectionOfCategories(constants.ITEM_CATEGORY_MODULE)
         
         self._runSelectedAct.setEnabled(hasSelection)
         self._runSetupOnlyAct.setEnabled(hasSelectedTestOrCase)
         self._runWithoutTearDownAct.setEnabled(hasSelectedTestOrCase)
         self._copyPathAct.setEnabled(hasSelection)
         self._goToCodeAct.setEnabled(hasSelection)
+        self._reloadModulesAct.setEnabled(hasModuleSelection)
 
         self._contextMenu.exec_(event.globalPos())

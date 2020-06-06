@@ -5,7 +5,7 @@ import collections
 import weakref
 
 from utest import dcc
-from utest.core import reimportall
+from utest.core import importutils
 from utest.qt import QtCore, QtGui, QtWidgets
 from utest.core import pathutils
 from utest.core import iconutils
@@ -401,7 +401,7 @@ class UTestWindow(QtWidgets.QWidget):
         return _runMoreBtn
 
     def _reimportAllChangedModules(self):
-        reimportall.reimportAllChangedPythonModules()
+        importutils.reimportAllChangedPythonModules()
 
     def _onReloadUiButtonClicked(self):
         self.reload(keepUiStates=True)
@@ -610,7 +610,7 @@ class UTestWindow(QtWidgets.QWidget):
         )
 
     def _reimportPyAndRerun(self):
-        reimportall.reimportAllChangedPythonModules()
+        importutils.reimportAllChangedPythonModules()
         lastRunIds = viewupdater.ViewUpdater.lastRunTestIds
         if not lastRunIds:
             logger.warning("Didn't find the last run tests.")

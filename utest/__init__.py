@@ -16,7 +16,7 @@ _initNose2()
 
 from utest import qt as _qt
 from utest.core import testmanager
-from utest.core import reimportall
+from utest.core import importutils
 from utest.ui import utestwindow
 
 
@@ -60,4 +60,4 @@ def runTests(*tests):
     manager.runTests(*tests)
 
 
-__all__ = ["reimportall", "runUi", "runAllTests", "runTests"]
+__all__ = ["importutils", "runUi", "runAllTests", "runTests"]

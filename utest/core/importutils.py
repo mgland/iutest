@@ -1,7 +1,17 @@
 import logging
 from utest.libs import reimport
+from utest.core import pathutils
 
 logger = logging.getLogger(__name__)
+
+
+def reimportByDotPath(dotPath):
+    try:
+        mod = pathutils.objectFromDotPath(dotPath)
+        reimport.reimport(mod)
+        logger.info('Reimported module: %s', dotPath)
+    except:
+        logger.exception('Error reloading module: %s', dotPath)
 
 
 def reimportAllChangedPythonModules():
