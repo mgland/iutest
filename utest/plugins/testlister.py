@@ -1,6 +1,7 @@
 import unittest
 import logging
 import nose2  # This has to be imported this way.
+import inspect
 
 from utest.core import pathutils
 from utest.core import uistream
@@ -8,21 +9,20 @@ from utest.core import uistream
 logger = logging.getLogger(__name__)
 
 
-def filePathFromModulePath(modulePath):
+def sourcePathAndLineFromModulePath(dotPath):
     """Get the python file path from a module path.
     Args:
-        modulePath (str): the python module path.
+        dotPath (str): the python module path.
     Return:
         str: The python file path.
     """
     try:
-        module, _ = nose2.util.try_import_module_from_name(modulePath.split('.'))
+        obj = pathutils.objectFromDotPath(dotPath)
+        return pathutils.sourceFileAndLineFromObject(obj)
     except Exception:
-        logger.exception('Unable to get file path from %s', modulePath)
-        return None
-
-    return module.__file__
-
+        logger.error('Unable to retrieve source file from %s', obj)
+    return None, None
+    
 
 def gotErrorOnLastList():
     return TestCollector.gotError

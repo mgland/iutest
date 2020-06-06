@@ -327,8 +327,6 @@ class TestTreeView(QtWidgets.QTreeWidget):
 
     def _firstSelectedModulePath(self):
         for item in self.selectedItems():
-            if item is self._rootTestItem:
-                continue
             return self.testIdOfItem(item)
         return None
 
@@ -561,9 +559,9 @@ class TestTreeView(QtWidgets.QTreeWidget):
 
     def _atGoToCode(self):
         firstSelectedModulePath = self._firstSelectedModulePath()
-        path = testlister.filePathFromModulePath(firstSelectedModulePath)
-        if path:
-            self._codeVisitor.goTo(path)
+        sourceFile, line = testlister.sourcePathAndLineFromModulePath(firstSelectedModulePath)
+        if sourceFile:
+            self._codeVisitor.goTo(sourceFile, line)
 
     def contextMenuEvent(self, event):
         gotTests = self.hasTests()

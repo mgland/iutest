@@ -28,6 +28,6 @@ class CodeLineVisitor(QtCore.QObject):
     def goTo(self, filePath, lineNumber=0):
         cmd = self.config()
         cmd = cmd.replace(constants.CODE_FILE_VAR, filePath)
-        cmd = cmd.replace(constants.CODE_LINE_VAR, lineNumber)
+        cmd = cmd.replace(constants.CODE_LINE_VAR, str(lineNumber))
         logger.debug(cmd)
         self._process.start(cmd)

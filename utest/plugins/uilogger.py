@@ -98,15 +98,11 @@ class TestUiLoggerPlugin(resultPlugin.ResultReporter):
         try:
             testMethodName = event.test.id().split(".")[-1]
             test = getattr(event.test, testMethodName)
-            sourceFile = inspect.getsourcefile(event.test.__class__)
+            sourceFile, line = pathutils.sourceFileAndLineFromObject(test)
             if not sourceFile:  # os.path.isfile(sourceFile)
                 return None
-
-            try:
-                line = inspect.getsourcelines(test)[-1]
-            except:
-                line = 0
-            return (testMethodName, sourceFile, line)
+                
+            return testMethodName, sourceFile, line
         except:
             logger.debug("Unable retrieve test information for quick navigation.")
         return None
