@@ -103,7 +103,6 @@ class ApplicationContext(object):
 
     def __enter__(self):
         self._application = QtWidgets.QApplication.instance()
-        self.isStandalone = False
         if not self._application:
             self._application = QtWidgets.QApplication(sys.argv)
             self.isStandalone = True

@@ -448,7 +448,7 @@ class UTestWindow(QtWidgets.QWidget):
             self._saveLastTestDir(startDir, topDir)
 
     def _setPanelVisState(self, state, saveSettings=True):
-        state = min(constants.PANEL_VIS_STATE_BOTH_ON, max(0, state))
+        state = min(constants.PANEL_VIS_STATE_BOTH_ON, max(0, int(state)))
         self._panelVisBtn.setIcon(self._panelStateIconSet[state])
         self._leftWidget.setVisible(state != constants.PANEL_VIS_STATE_RIGHT_ON)
         self._rightWidget.setVisible(state != constants.PANEL_VIS_STATE_LEFT_ON)
@@ -458,9 +458,9 @@ class UTestWindow(QtWidgets.QWidget):
             )
 
     def _restorePanelVisState(self):
-        state = appsettings.get().simpleConfigValue(
+        state = int(appsettings.get().simpleConfigValue(
             constants.CONFIG_KEY_PANEL_VIS_STATE, constants.PANEL_VIS_STATE_BOTH_ON
-        )
+        ))
         self._setPanelVisState(state, saveSettings=False)
 
     def _onPanelVisButtonClicked(self):
