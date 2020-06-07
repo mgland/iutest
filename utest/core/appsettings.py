@@ -60,7 +60,10 @@ class AppSettings(object):
         return str(self.simpleConfigValue(key, defaultValue=defaultValue))
 
     def simpleConfigBoolValue(self, key, defaultValue=False):
-        return bool(self.simpleConfigValue(key, defaultValue=defaultValue))
+        value = self.simpleConfigValue(key, defaultValue=defaultValue)
+        if value == "0":
+            value = False
+        return bool(value)
 
     def simpleConfigIntValue(self, key, defaultValue=0):
         return int(self.simpleConfigValue(key, defaultValue=defaultValue))

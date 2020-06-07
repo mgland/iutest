@@ -1,6 +1,6 @@
 import logging
 
-from utest.qt import QtCore, QtGui, QtWidgets, Signal, variantToPyValue
+from utest.qt import QtCore, QtGui, QtWidgets, Signal, variantToPyValue, iconFromPath
 from utest.core import iconutils
 from utest.core import constants
 from utest.core import pathutils
@@ -135,7 +135,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
         iconPaths = iconutils.iconPathSet(iconFileName, constants.TEST_ICON_SUFFIXES)
         icons = []
         for path in iconPaths:
-            icons.append(QtGui.QIcon(path))
+            icons.append(iconFromPath(path))
         setattr(cls, iconVarName, icons)
 
     @classmethod
@@ -309,7 +309,8 @@ class TestTreeView(QtWidgets.QTreeWidget):
         updatedIds.add(cId)
         state = constants.TEST_ICON_STATE_NORMAL
         for i in range(item.childCount()):
-            state = max(state, item.child(i).data(0, QtCore.Qt.UserRole + 1))
+            state = variantToPyValue(item.child(i).data(0, QtCore.Qt.UserRole + 1))
+            state = max(state, state)
         self._setItemIconState(item, state)
 
         if item is self._rootTestItem:
@@ -593,7 +594,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
             self._codeVisitor.goTo(sourceFile, line)
 
     def _setSelectedItemsLevel(self):
-        level = self.sender().data()
+        level = variantToPyValue(self.sender().data())
         loggingutils.setLoggingLevel(level, *self.selectedTestIds())
 
     def contextMenuEvent(self, event):

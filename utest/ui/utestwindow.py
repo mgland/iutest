@@ -6,7 +6,7 @@ import weakref
 
 from utest import dcc
 from utest.core import importutils
-from utest.qt import QtCore, QtGui, QtWidgets
+from utest.qt import QtCore, QtGui, QtWidgets, iconFromPath
 from utest.core import pathutils
 from utest.core import iconutils
 from utest.core import appsettings
@@ -151,7 +151,7 @@ class UTestWindow(QtWidgets.QWidget):
     @classmethod
     def _initSingleIcon(cls, iconVarName, iconFileName):
         iconPath = iconutils.iconPath(iconFileName)
-        setattr(cls, iconVarName, QtGui.QIcon(iconPath))
+        setattr(cls, iconVarName, iconFromPath(iconPath))
 
     @classmethod
     def _initIcons(cls):
@@ -161,7 +161,7 @@ class UTestWindow(QtWidgets.QWidget):
         panelStatePaths = iconutils.iconPathSet(
             "panelMode.svg", constants.PANEL_VIS_STATE_ICON_SUFFIXES, includeInput=False
         )
-        cls._panelStateIconSet = [QtGui.QIcon(p) for p in panelStatePaths]
+        cls._panelStateIconSet = [iconFromPath(p) for p in panelStatePaths]
 
         cls._initSingleIcon("_utestIcon", "utest.svg")
         cls._initSingleIcon("_reimportIcon", "reimport.svg")

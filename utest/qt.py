@@ -8,18 +8,20 @@ class _QtModuleImporter(object):
     QtCore = None
     QtGui = None
     QtWidgets = None
-    Variant = None
+    QtSvg = None
 
+    Variant = None
     Signal = None
 
     @classmethod
     def _importFromPySide2(cls):
         try:
-            from PySide2 import QtCore, QtGui, QtWidgets
+            from PySide2 import QtCore, QtGui, QtWidgets, QtSvg
 
             logger.debug("Using PySide2.")
             cls.QtCore = QtCore
             cls.QtGui = QtGui
+            cls.QtSvg = QtSvg
             cls.QtWidgets = QtWidgets
             cls.Signal = QtCore.Signal
         except Exception:
@@ -28,12 +30,13 @@ class _QtModuleImporter(object):
     @classmethod
     def _importFromPySide1(cls):
         try:
-            from PySide import QtCore, QtGui
+            from PySide import QtCore, QtGui, QtSvg
 
             logger.debug("Using PySide.")
             cls.QtCore = QtCore
             cls.QtGui = QtGui
             cls.QtWidgets = QtGui
+            cls.QtSvg = QtSvg
             cls.Signal = QtCore.Signal
         except Exception:
             logger.debug("Unable to import PySide.")
@@ -41,26 +44,29 @@ class _QtModuleImporter(object):
     @classmethod
     def _importFromPyQt5(cls):
         try:
-            from PyQt5 import QtCore, QtGui, QtWidgets
+            from PyQt5 import QtCore, QtGui, QtWidgets, QtSvg
 
             logger.debug("Using PyQt5.")
             cls.QtCore = QtCore
             cls.QtGui = QtGui
             cls.QtWidgets = QtWidgets
+            cls.QtSvg = QtSvg
             cls.Signal = QtCore.pyqtSignal
+            cls.Variant = QtCore.QVariant
         except Exception:
             logger.debug("Unable to import PyQt5.")
 
     @classmethod
     def _importFromPyQt4(cls):
         try:
-            from PyQt4 import QtCore, QtGui
+            from PyQt4 import QtCore, QtGui, QtSvg
 
             logger.debug("Using PyQt4.")
             cls._isPyQt = True
             cls.QtCore = QtCore
             cls.QtGui = QtGui
             cls.QtWidgets = QtGui
+            cls.QtSvg = QtSvg
             cls.Signal = QtCore.pyqtSignal
             cls.Variant = QtCore.QVariant
         except Exception:
@@ -86,6 +92,7 @@ _QtModuleImporter.importModules()
 QtCore = _QtModuleImporter.QtCore
 QtGui = _QtModuleImporter.QtGui
 QtWidgets = _QtModuleImporter.QtWidgets
+QtSvg = _QtModuleImporter.QtSvg
 Signal = _QtModuleImporter.Signal
 
 
@@ -100,6 +107,19 @@ def variantToPyValue(value):
     if _QtModuleImporter.Variant and isinstance(value, _QtModuleImporter.Variant):
         return value.toPyObject()
     return value
+
+
+def iconFromPath(filePath):
+    if QtGui != QtWidgets:
+        return QtGui.QIcon(filePath)
+
+    renderer = QtSvg.QSvgRenderer(filePath)
+    pixmap = QtGui.QPixmap(renderer.defaultSize())
+    pixmap.fill(QtCore.Qt.transparent)
+    painter = QtGui.QPainter(pixmap)
+    renderer.render(painter)
+    painter.end()
+    return QtGui.QIcon(pixmap)
 
 
 def setDarkStyle():
@@ -119,7 +139,7 @@ def setDarkStyle():
     palette.setColor(palette.WindowText, QtGui.QColor(200, 200, 200))
     palette.setColor(palette.Base, QtGui.QColor(46, 46, 46))
     palette.setColor(palette.AlternateBase, QtGui.QColor(43, 43, 43))
-    palette.setColor(palette.ToolTipBase, QtCore.Qt.white)
+    palette.setColor(palette.ToolTipBase, QtGui.QColor(46, 46, 46))
     palette.setColor(palette.ToolTipText, QtCore.Qt.white)
     palette.setColor(palette.Text, QtGui.QColor(200, 200, 200))
     palette.setColor(palette.Disabled, palette.Text, QtGui.QColor(120, 120, 120))
