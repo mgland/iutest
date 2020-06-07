@@ -1,7 +1,7 @@
 import collections
 import logging
 from utest.core import constants
-from utest.qt import QtCore
+from utest.qt import QtCore, variantToPyValue
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,17 @@ class AppSettings(object):
             self._qsettings().sync()
 
     def simpleConfigValue(self, key, defaultValue=None):
-        return self._qsettings().value(key, defaultValue)
+        value = self._qsettings().value(key, defaultValue)
+        return variantToPyValue(value)
+
+    def simpleConfigStrValue(self, key, defaultValue=""):
+        return str(self.simpleConfigValue(key, defaultValue=defaultValue))
+
+    def simpleConfigBoolValue(self, key, defaultValue=False):
+        return bool(self.simpleConfigValue(key, defaultValue=defaultValue))
+
+    def simpleConfigIntValue(self, key, defaultValue=0):
+        return int(self.simpleConfigValue(key, defaultValue=defaultValue))
 
     def removeConfig(self, key):
         self._qsettings().remove(key)
@@ -78,8 +88,12 @@ class AppSettings(object):
             for n in names:
                 with SettingsGroupContext(n):
                     data[n] = (
-                        settings.simpleConfigValue(constants.CONFIG_KEY_TEST_TOP_DER),
-                        settings.simpleConfigValue(constants.CONFIG_KEY_TEST_START_DER),
+                        settings.simpleConfigStrValue(
+                            constants.CONFIG_KEY_TEST_TOP_DER
+                        ),
+                        settings.simpleConfigStrValue(
+                            constants.CONFIG_KEY_TEST_START_DER
+                        ),
                     )
 
         return data

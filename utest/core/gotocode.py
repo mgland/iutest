@@ -11,7 +11,7 @@ class CodeLineVisitor(QtCore.QObject):
 
     @classmethod
     def initEditorSetting(cls):
-        cls._editorSetting = appsettings.get().simpleConfigValue(
+        cls._editorSetting = appsettings.get().simpleConfigStrValue(
             constants.CONFIG_KEY_CODE_EDITOR, constants.CONFIG_KEY_CODE_EDITOR_DEFAULT
         )
 

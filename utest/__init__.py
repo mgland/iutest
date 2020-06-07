@@ -1,6 +1,9 @@
 import inspect
 import os
 import sys
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def _initNose2():
@@ -20,7 +23,7 @@ from utest.core import importutils
 from utest.ui import utestwindow
 
 
-def runUi(startDirOrModule=None, topDir=None, exit=False):
+def runUi(startDirOrModule=None, topDir=None, exit_=False):
     """Load the UTest UI
 
     Args:
@@ -28,11 +31,17 @@ def runUi(startDirOrModule=None, topDir=None, exit=False):
         topDir (str): The top directory that need to be put in sys.path in order for the tests work.
         exit (bool): Whether we exit python console after the UTest window closed.
     """
-    with _qt.ApplicationContext(exit=exit):
-        manager = utestwindow.UTestWindow(
-            startDirOrModule=startDirOrModule, topDir=topDir
-        )
-        manager.show()
+    with _qt.ApplicationContext(exit_=exit_) as ctx:
+        if ctx.isStandalone:
+            logging.basicConfig()
+        try:
+            manager = utestwindow.UTestWindow(
+                startDirOrModule=startDirOrModule, topDir=topDir
+            )
+            manager.show()
+        except Exception:
+            ctx.setHasError(True)
+            logger.exception("Error loading UTest window.")
 
 
 def runAllTests(startDirOrModule=None, topDir=None, stopOnError=False):

@@ -133,10 +133,8 @@ class UTestWindow(QtWidgets.QWidget):
             "Clear the log browser automatically before every test run."
         )
         self._clearLogOnRunBtn.setCheckable(True)
-        autoClear = bool(
-            appsettings.get().simpleConfigValue(
-                constants.CONFIG_KEY_AUTO_CLEAR_LOG_STATE
-            )
+        autoClear = appsettings.get().simpleConfigBoolValue(
+            constants.CONFIG_KEY_AUTO_CLEAR_LOG_STATE
         )
         self._clearLogOnRunBtn.setChecked(autoClear)
         self._clearLogOnRunBtn.toggled.connect(self._onAutoClearButtonToggled)
@@ -283,10 +281,8 @@ class UTestWindow(QtWidgets.QWidget):
             "Apply a ':ran' filter automatically after every test run so that only the run tests shown in the view."
         )
         self._autoFilterBtn.setCheckable(True)
-        autoFilter = bool(
-            appsettings.get().simpleConfigValue(
-                constants.CONFIG_KEY_AUTO_FILTERING_STATE
-            )
+        autoFilter = appsettings.get().simpleConfigBoolValue(
+            constants.CONFIG_KEY_AUTO_FILTERING_STATE
         )
         self._autoFilterBtn.setChecked(autoFilter)
         self._autoFilterBtn.toggled.connect(self._onAutoFilterButtonToggled)
@@ -313,8 +309,8 @@ class UTestWindow(QtWidgets.QWidget):
             "Stop the tests running once it encounters a test error/failure."
         )
         self._stopAtErrorBtn.setCheckable(True)
-        stopOnError = bool(
-            appsettings.get().simpleConfigValue(constants.CONFIG_KEY_STOP_ON_ERROR)
+        stopOnError = appsettings.get().simpleConfigBoolValue(
+            constants.CONFIG_KEY_STOP_ON_ERROR
         )
         self._stopAtErrorBtn.setChecked(stopOnError)
         self._testManager.setStopOnError(stopOnError)
@@ -429,10 +425,8 @@ class UTestWindow(QtWidgets.QWidget):
             )
 
     def _restorePanelVisState(self):
-        state = int(
-            appsettings.get().simpleConfigValue(
-                constants.CONFIG_KEY_PANEL_VIS_STATE, constants.PANEL_VIS_STATE_BOTH_ON
-            )
+        state = appsettings.get().simpleConfigIntValue(
+            constants.CONFIG_KEY_PANEL_VIS_STATE, constants.PANEL_VIS_STATE_BOTH_ON
         )
         self._setPanelVisState(state, saveSettings=False)
 
@@ -485,13 +479,13 @@ class UTestWindow(QtWidgets.QWidget):
 
     def _loadLastDirsFromSettings(self):
         settings = appsettings.get()
-        startDirOrModule = settings.simpleConfigValue(
+        startDirOrModule = settings.simpleConfigStrValue(
             constants.CONFIG_KEY_LAST_TEST_ROOT_DIR
         )
         if not startDirOrModule:
             return
 
-        topDir = settings.simpleConfigValue(constants.CONFIG_KEY_LAST_TOP_DIR)
+        topDir = settings.simpleConfigStrValue(constants.CONFIG_KEY_LAST_TOP_DIR)
 
         self._testManager.setDirs(startDirOrModule, topDir)
         self._updateDirUI()

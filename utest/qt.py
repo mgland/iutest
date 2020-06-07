@@ -8,6 +8,7 @@ class _QtModuleImporter(object):
     QtCore = None
     QtGui = None
     QtWidgets = None
+    Variant = None
 
     Signal = None
 
@@ -61,6 +62,7 @@ class _QtModuleImporter(object):
             cls.QtGui = QtGui
             cls.QtWidgets = QtGui
             cls.Signal = QtCore.pyqtSignal
+            cls.Variant = QtCore.QVariant
         except Exception:
             logger.debug("Unable to import PyQt4.")
 
@@ -94,9 +96,15 @@ def findTopLevelWidgetByName(name):
     return None
 
 
+def variantToPyValue(value):
+    if _QtModuleImporter.Variant and isinstance(value, _QtModuleImporter.Variant):
+        return value.toPyObject()
+    return value
+
+
 def setDarkStyle():
     presetStyles = ()
-    if hasattr(QtGui, 'QStyleFactory'):
+    if hasattr(QtGui, "QStyleFactory"):
         presetStyles = QtGui.QStyleFactory.keys()
     else:
         presetStyles = QtWidgets.QStyleFactory.keys()
@@ -129,10 +137,14 @@ class ApplicationContext(object):
     """Enable widget works both in standalone mode or DCC embedded mode.
     """
 
-    def __init__(self, darkStyle=True, exit=False):
+    def __init__(self, darkStyle=True, exit_=False):
         self.isStandalone = False
-        self._exit = exit
+        self._exit = exit_
         self._darkStyle = darkStyle
+        self._hadError = False
+
+    def setHasError(self, hasError):
+        self._hadError = hasError
 
     def __enter__(self):
         self._application = QtWidgets.QApplication.instance()
@@ -145,6 +157,9 @@ class ApplicationContext(object):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        if self._hadError:
+            return
+
         if self.isStandalone:
             if self._exit:
                 sys.exit(self._application.exec_())

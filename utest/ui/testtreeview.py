@@ -1,6 +1,6 @@
 import logging
 
-from utest.qt import QtCore, QtGui, QtWidgets, Signal
+from utest.qt import QtCore, QtGui, QtWidgets, Signal, variantToPyValue
 from utest.core import iconutils
 from utest.core import constants
 from utest.core import pathutils
@@ -195,7 +195,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
             self._recursivelySetItemVisibility(item.child(index), itemStates, state)
 
     def _itemMatchs(self, item, keywords):
-        state = item.data(0, QtCore.Qt.UserRole + 1)
+        state = variantToPyValue(item.data(0, QtCore.Qt.UserRole + 1))
         stateMatch = False
         txtMatch = True
         lbl = self.testIdOfItem(item).lower()
@@ -240,10 +240,10 @@ class TestTreeView(QtWidgets.QTreeWidget):
 
     def _debugItemVisStates(self, states):
         for tid in sorted(states.keys()):
-            print(tid, states[item])
+            print(tid, states[tid])
 
     def _categoryOfItem(self, item):
-        return item.data(0, QtCore.Qt.UserRole)
+        return variantToPyValue(item.data(0, QtCore.Qt.UserRole))
 
     def _setItemIconState(self, item, state):
         category = self._categoryOfItem(item)
@@ -271,7 +271,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
 
     def _resetItem(self, item, applyToAllChildren=False):
         item.setText(1, "")
-        if item.data(1, QtCore.Qt.UserRole):
+        if variantToPyValue(item.data(1, QtCore.Qt.UserRole)):
             item.setData(1, QtCore.Qt.UserRole, 0)
 
         if applyToAllChildren:
@@ -430,7 +430,9 @@ class TestTreeView(QtWidgets.QTreeWidget):
         if item:
             self.focusItem(item)
             self._setTestIconStateToAncestors(item, constants.TEST_ICON_STATE_RUNNING)
-            if not isParameterized or not item.data(1, QtCore.Qt.UserRole):
+            if not isParameterized or not variantToPyValue(
+                item.data(1, QtCore.Qt.UserRole)
+            ):
                 item.setData(1, QtCore.Qt.UserRole, startTime)
                 item.setText(1, "running...")
 
@@ -438,7 +440,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
         _, testId = testlister.parseParameterizedTestId(testId)
         item = self._findItemById(testId)
         if item:
-            startTime = item.data(1, QtCore.Qt.UserRole)
+            startTime = variantToPyValue(item.data(1, QtCore.Qt.UserRole))
             item.setData(1, QtCore.Qt.UserRole + 1, endTime)
             rep = "%.3f s" % (endTime - startTime)
             item.setText(1, rep)
@@ -449,8 +451,8 @@ class TestTreeView(QtWidgets.QTreeWidget):
         if item:
             # For parameterized test, some might succeed but others might failed, we make sure
             # we set failed for this situation.
-            if state == constants.TEST_ICON_STATE_SKIPPED or state > item.data(
-                0, QtCore.Qt.UserRole + 1
+            if state == constants.TEST_ICON_STATE_SKIPPED or state > variantToPyValue(
+                item.data(0, QtCore.Qt.UserRole + 1)
             ):
                 self._setItemIconState(item, state)
 
