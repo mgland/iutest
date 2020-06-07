@@ -20,18 +20,18 @@ from utest.core import importutils
 from utest.ui import utestwindow
 
 
-def runUi(startDirOrModule=None, topDir=None):
+def runUi(startDirOrModule=None, topDir=None, exit=False):
     """Load the UTest UI
 
     Args:
         startDirOrModule (str): The directory or the module path to search for tests.
         topDir (str): The top directory that need to be put in sys.path in order for the tests work.
+        exit (bool): Whether we exit python console after the UTest window closed.
     """
-    with _qt.ApplicationContext() as ctx:
+    with _qt.ApplicationContext(exit=exit):
         manager = utestwindow.UTestWindow(
             startDirOrModule=startDirOrModule, topDir=topDir
         )
-        manager.initUiStyleForStandalone(ctx.isStandalone)
         manager.show()
 
 
