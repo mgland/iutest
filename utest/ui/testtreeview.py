@@ -8,6 +8,7 @@ from utest.plugins import testlister
 from utest.plugins import viewupdater
 from utest.core import gotocode
 from utest.core import importutils
+from utest.core import loggingutils
 
 logger = logging.getLogger(__name__)
 
@@ -475,13 +476,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
         return bool(self._testItems)
 
     def selectedTestIds(self):
-        itemsByModulePath = {}
-        for item in self.selectedItems():
-            if item is self._rootTestItem:
-                self.runAllTest.emit()
-                return None
-
-            itemsByModulePath[self.testIdOfItem(item)] = item
+        itemsByModulePath = {self.testIdOfItem(item) : item for item in self.selectedItems()}
 
         lastKey = None
         testsToRun = []
@@ -552,6 +547,11 @@ class TestTreeView(QtWidgets.QTreeWidget):
 
         self._contextMenu.addSeparator()
         self._contextMenu.addAction(self._reloadModulesAct)
+
+        self._logLevelMenu = QtWidgets.QMenu("Set Logging Level")
+        self._contextMenu.addMenu(self._logLevelMenu)
+        self._logLevelActionGrp = QtWidgets.QActionGroup(self._logLevelMenu)
+        self._logLevelActionGrp.setExclusive(True)
     
     def _atReloadSelectedModules(self):
         for moduleItem in self.iterSelectedItemsOfCategories(constants.ITEM_CATEGORY_MODULE):
@@ -582,6 +582,10 @@ class TestTreeView(QtWidgets.QTreeWidget):
         if sourceFile:
             self._codeVisitor.goTo(sourceFile, line)
 
+    def _setSelectedItemsLevel(self):
+        level = self.sender().data()
+        loggingutils.setLoggingLevel(level, *self.selectedTestIds())
+
     def contextMenuEvent(self, event):
         gotTests = self.hasTests()
         hasSelection = False
@@ -598,5 +602,17 @@ class TestTreeView(QtWidgets.QTreeWidget):
         self._copyPathAct.setEnabled(hasSelection)
         self._goToCodeAct.setEnabled(hasSelection)
         self._reloadModulesAct.setEnabled(hasModuleSelection)
+
+        self._logLevelMenu.clear()
+        levels = loggingutils.loggingLevels(*self.selectedTestIds())
+        currentLevel = levels[0] if len(levels) == 1 else None
+        for level in loggingutils.allLoggingLevel():
+            act = self._logLevelMenu.addAction(logging.getLevelName(level))
+            act.setCheckable(True)
+            act.setChecked(level == currentLevel)
+            self._logLevelActionGrp.addAction(act)
+            self._logLevelMenu.addAction(act)
+            act.setData(level)
+            act.triggered.connect(self._setSelectedItemsLevel)
 
         self._contextMenu.exec_(event.globalPos())
