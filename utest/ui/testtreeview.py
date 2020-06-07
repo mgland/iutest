@@ -336,9 +336,9 @@ class TestTreeView(QtWidgets.QTreeWidget):
         firstSelectedModulePath = self._firstSelectedModulePath()
         if firstSelectedModulePath:
             QtWidgets.QApplication.clipboard().setText(firstSelectedModulePath)
-            logger.info('Module Path copied to clipboard: %s', firstSelectedModulePath)
+            logger.info("Module Path copied to clipboard: %s", firstSelectedModulePath)
         else:
-            logger.info('No item selected to copy the module path.')
+            logger.info("No item selected to copy the module path.")
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_C and (
@@ -476,7 +476,9 @@ class TestTreeView(QtWidgets.QTreeWidget):
         return bool(self._testItems)
 
     def selectedTestIds(self):
-        itemsByModulePath = {self.testIdOfItem(item) : item for item in self.selectedItems()}
+        itemsByModulePath = {
+            self.testIdOfItem(item): item for item in self.selectedItems()
+        }
 
         lastKey = None
         testsToRun = []
@@ -500,7 +502,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
             return bool(self.selectionModel().hasSelection())
 
         return self.hasSelectionOfCategories(*self.supportPartialCategories)
-    
+
     def hasSelectionOfCategories(self, *categories):
         for item in self.selectedItems():
             if self._categoryOfItem(item) in categories:
@@ -515,19 +517,19 @@ class TestTreeView(QtWidgets.QTreeWidget):
     def _makeContextMenu(self):
         self._runSetupOnlyAct = QtWidgets.QAction("Run setUp( ) Only", self)
         self._runSetupOnlyAct.triggered.connect(self._atRunSetupOnly)
-        
+
         self._runWithoutTearDownAct = QtWidgets.QAction("Run Without tearDown( )", self)
         self._runWithoutTearDownAct.triggered.connect(self._atRunWithoutTearDown)
-        
+
         self._runSelectedAct = QtWidgets.QAction("Run Selected", self)
         self._runSelectedAct.triggered.connect(self._atRunSelected)
-        
+
         self._runAllAct = QtWidgets.QAction("Run All", self)
         self._runAllAct.triggered.connect(self._atRunAll)
-        
+
         self._copyPathAct = QtWidgets.QAction("Copy Selected Path", self)
         self._copyPathAct.triggered.connect(self.copyFirstSelectedTestId)
-        
+
         self._goToCodeAct = QtWidgets.QAction("Go To Code", self)
         self._goToCodeAct.triggered.connect(self._atGoToCode)
 
@@ -552,9 +554,11 @@ class TestTreeView(QtWidgets.QTreeWidget):
         self._contextMenu.addMenu(self._logLevelMenu)
         self._logLevelActionGrp = QtWidgets.QActionGroup(self._logLevelMenu)
         self._logLevelActionGrp.setExclusive(True)
-    
+
     def _atReloadSelectedModules(self):
-        for moduleItem in self.iterSelectedItemsOfCategories(constants.ITEM_CATEGORY_MODULE):
+        for moduleItem in self.iterSelectedItemsOfCategories(
+            constants.ITEM_CATEGORY_MODULE
+        ):
             dotPath = self.testIdOfItem(moduleItem)
             importutils.reimportByDotPath(dotPath)
 
@@ -562,7 +566,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
         testId = self.firstSelectedTestOrTestCase()
         if testId:
             self.runSetupOnly.emit(testId)
-            
+
     def _atRunWithoutTearDown(self):
         testId = self.firstSelectedTestOrTestCase()
         if testId:
@@ -578,7 +582,9 @@ class TestTreeView(QtWidgets.QTreeWidget):
 
     def _atGoToCode(self):
         firstSelectedModulePath = self._firstSelectedModulePath()
-        sourceFile, line = testlister.sourcePathAndLineFromModulePath(firstSelectedModulePath)
+        sourceFile, line = testlister.sourcePathAndLineFromModulePath(
+            firstSelectedModulePath
+        )
         if sourceFile:
             self._codeVisitor.goTo(sourceFile, line)
 
@@ -594,8 +600,10 @@ class TestTreeView(QtWidgets.QTreeWidget):
         if gotTests:
             hasSelection = self.hasSelectedTests(hasSelectedTestOrCase=False)
             hasSelectedTestOrCase = self.hasSelectedTests(hasSelectedTestOrCase=True)
-            hasModuleSelection = self.hasSelectionOfCategories(constants.ITEM_CATEGORY_MODULE)
-        
+            hasModuleSelection = self.hasSelectionOfCategories(
+                constants.ITEM_CATEGORY_MODULE
+            )
+
         self._runSelectedAct.setEnabled(hasSelection)
         self._runSetupOnlyAct.setEnabled(hasSelectedTestOrCase)
         self._runWithoutTearDownAct.setEnabled(hasSelectedTestOrCase)

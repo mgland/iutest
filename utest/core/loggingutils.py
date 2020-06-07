@@ -2,16 +2,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def allLoggingLevel():
     return (
-            logging.NOTSET, 
-            logging.DEBUG, 
-            logging.INFO, 
-            logging.WARNING, 
-            logging.ERROR, 
-            logging.FATAL, 
+        logging.NOTSET,
+        logging.DEBUG,
+        logging.INFO,
+        logging.WARNING,
+        logging.ERROR,
+        logging.FATAL,
     )
-    
+
 
 def loggingLevels(*dotPaths):
     return [logging.getLogger(dotPath).level for dotPath in dotPaths]

@@ -20,9 +20,9 @@ def sourcePathAndLineFromModulePath(dotPath):
         obj = pathutils.objectFromDotPath(dotPath)
         return pathutils.sourceFileAndLineFromObject(obj)
     except Exception:
-        logger.error('Unable to retrieve source file from %s', obj)
+        logger.error("Unable to retrieve source file from %s", obj)
     return None, None
-    
+
 
 def gotErrorOnLastList():
     return TestCollector.gotError

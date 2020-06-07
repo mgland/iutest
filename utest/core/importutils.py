@@ -9,9 +9,9 @@ def reimportByDotPath(dotPath):
     try:
         mod = pathutils.objectFromDotPath(dotPath)
         reimport.reimport(mod)
-        logger.info('Reimported module: %s', dotPath)
+        logger.info("Reimported module: %s", dotPath)
     except:
-        logger.exception('Error reloading module: %s', dotPath)
+        logger.exception("Error reloading module: %s", dotPath)
 
 
 def reimportAllChangedPythonModules():

@@ -370,9 +370,7 @@ class UTestWindow(QtWidgets.QWidget):
         self._runAllBtn.clicked.connect(self._runAllTests)
         _btmLayout.addWidget(self._runAllBtn, 1)
 
-        self._reimportAndRerunBtn = QtWidgets.QPushButton(
-            "&Reload && Rerun", self
-        )
+        self._reimportAndRerunBtn = QtWidgets.QPushButton("&Reload && Rerun", self)
         self._reimportAndRerunBtn.setToolTip(
             "Reimport all changed python modules and rerun the last tests."
         )

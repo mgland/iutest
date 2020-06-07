@@ -101,7 +101,7 @@ class TestUiLoggerPlugin(resultPlugin.ResultReporter):
             sourceFile, line = pathutils.sourceFileAndLineFromObject(test)
             if not sourceFile:  # os.path.isfile(sourceFile)
                 return None
-                
+
             return testMethodName, sourceFile, line
         except:
             logger.debug("Unable retrieve test information for quick navigation.")

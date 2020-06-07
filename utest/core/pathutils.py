@@ -5,6 +5,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def utestPackageDir():
     filePath = os.path.abspath(inspect.getfile(inspect.currentframe()))
     return os.path.dirname(os.path.dirname(filePath))
@@ -19,7 +20,7 @@ def isPath(path):
 
 
 def objectFromDotPath(dotPath):
-    _, obj =  nose2.util.object_from_name(dotPath)
+    _, obj = nose2.util.object_from_name(dotPath)
     return obj
 
 
@@ -32,5 +33,5 @@ def sourceFileAndLineFromObject(obj):
         line = inspect.getsourcelines(obj)[-1]
     except:
         line = 0
-    
+
     return sourceFile, line
