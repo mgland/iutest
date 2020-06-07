@@ -182,8 +182,9 @@ class TestTreeView(QtWidgets.QTreeWidget):
 
     def _recursivelySetItemVisibility(self, item, itemStates, state=None):
         visible = state
+        stateKey = self.testIdOfItem(item)
         if state is None:
-            visible = itemStates.get(item, True)
+            visible = itemStates.get(stateKey, True)
 
         if not visible:
             item.setHidden(True)
@@ -225,20 +226,21 @@ class TestTreeView(QtWidgets.QTreeWidget):
         if item is self._rootTestItem:
             return
 
-        itemStates.setdefault(item, state)
+        stateKey = self.testIdOfItem(item)
+        itemStates.setdefault(stateKey, state)
         if state:
-            itemStates[item] = state
+            itemStates[stateKey] = state
         else:
             state = self._itemMatchs(item, keywords)
 
-            itemStates[item] = itemStates[item] or state
-            state = itemStates[item]
+            itemStates[stateKey] = itemStates[stateKey] or state
+            state = itemStates[stateKey]
 
         self._accumulateItemVisibility(item.parent(), keywords, itemStates, state=state)
 
     def _debugItemVisStates(self, states):
-        for item in sorted(states.keys()):
-            print(self.testIdOfItem(item), states[item])
+        for tid in sorted(states.keys()):
+            print(tid, states[item])
 
     def _categoryOfItem(self, item):
         return item.data(0, QtCore.Qt.UserRole)
