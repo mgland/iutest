@@ -4,8 +4,8 @@ from utest.qt import QtCore, QtGui, QtWidgets, Signal, variantToPyValue, iconFro
 from utest.core import iconutils
 from utest.core import constants
 from utest.core import pathutils
-from utest.plugins import testlister
-from utest.plugins import viewupdater
+from utest.plugins.nose2plugins import testlister
+from utest.plugins.nose2plugins import viewupdater
 from utest.core import gotocode
 from utest.core import importutils
 from utest.core import loggingutils

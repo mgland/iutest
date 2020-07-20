@@ -1,7 +1,7 @@
 import logging
 from nose2 import result
 from utest.core import constants
-from utest.plugins import testlister
+from utest.plugins.nose2plugins import testlister
 
 logger = logging.getLogger(__name__)
 

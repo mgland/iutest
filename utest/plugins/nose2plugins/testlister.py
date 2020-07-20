@@ -32,12 +32,12 @@ def iterAllTestPathsFromRootDir(startDirOrModuleName, topDir=None):
     argv = [
         "nose2",
         "--plugin",
-        "utest.plugins.testlister",
+        "utest.plugins.nose2plugins.testlister",
         "--list-tests",
         "--plugin",
-        "nose2.plugins.loader.eggdiscovery",
+        "nose2.plugins.nose2plugins.loader.eggdiscovery",
         "--plugin",
-        "utest.plugins.removeduplicated",
+        "utest.plugins.nose2plugins.removeduplicated",
         "--exclude-plugin",
         "nose2.plugins.result",
     ]

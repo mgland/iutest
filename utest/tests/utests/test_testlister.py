@@ -1,6 +1,6 @@
 import unittest
 import os
-from utest.plugins import testlister
+from utest.plugins.nose2plugins import testlister
 from utest.core import pathutils
 from nose2.tools import params
 

@@ -20,8 +20,8 @@ from utest.ui import statuslabel
 from utest.ui import uiutils
 from utest.ui import configwindow
 from utest.libs import nose2
-from utest.plugins import testlister
-from utest.plugins import viewupdater
+from utest.plugins.nose2plugins import testlister
+from utest.plugins.nose2plugins import viewupdater
 
 logger = logging.getLogger(__name__)
 
@@ -594,7 +594,7 @@ class UTestWindow(QtWidgets.QWidget):
         if not testId:
             logger.error("You need to select testCase or test item.")
             return
-        self._testManager.runTestPartial(testId, partialMode)
+        self._testManager.runSingleTestPartially(testId, partialMode)
         self._updateReimportRerunButtonEnabled()
 
     def _clearFilter(self):

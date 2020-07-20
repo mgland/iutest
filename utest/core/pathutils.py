@@ -1,6 +1,5 @@
 import os
 import inspect
-import nose2
 import logging
 
 logger = logging.getLogger(__name__)
@@ -20,6 +19,7 @@ def isPath(path):
 
 
 def objectFromDotPath(dotPath):
+    import nose2
     _, obj = nose2.util.object_from_name(dotPath)
     return obj
 

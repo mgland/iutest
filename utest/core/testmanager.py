@@ -1,10 +1,7 @@
 import logging
 
-from utest.libs import nose2
 from utest.core import pathutils
-from utest.plugins import viewupdater
-from utest.plugins import testlister
-from utest.plugins import partialtest
+from utest.core.testrunners import registry
 
 logger = logging.getLogger(__name__)
 
@@ -14,9 +11,11 @@ class TestManager(object):
         self._startDirOrModule = ""
         self._topDir = ""
         self._stopOnError = False
+        self._ui = ui
+        self._runnerMode = registry.RUNNER_NOSE2
+        self._runners = {}
         self.setStartDirOrModule(startDirOrModule)
         self.setTopDir(topDir)
-        self._ui = ui
 
     def setStartDirOrModule(self, startDirOrModule):
         self._startDirOrModule = startDirOrModule or ""
@@ -51,49 +50,51 @@ class TestManager(object):
 
     def setStopOnError(self, stop):
         self._stopOnError = stop
+    
+    def stopOnError(self):
+        return self._stopOnError
 
-    def _runTest(self, plugins, excludePlugins, extraArgs, *tests):
-        if not tests:
-            logger.warning("No test to run.")
-            return
+    def setRunnerMode(self, runnerMode):
+        """Switch to different runner for listing or running the tests.
+        Args:
+            runnerMode (int): One of RUNNER_* int constant defined in registry.
+        """
+        self._initialRunner(runnerMode)
+        self._runnerMode = runnerMode
 
-        argv = ["nose2", "-v"]
-        for plugin in plugins:
-            argv.append("--plugin")
-            argv.append(plugin)
+    def ui(self):
+        return self._ui
 
-        for plugin in excludePlugins:
-            argv.append("--exclude-plugin")
-            argv.append(plugin)
+    def _initialRunner(self, runnerMode):
+        if runnerMode in self._runners:
+            return True
 
-        argv.extend(extraArgs)
+        if runnerMode in registry.RUNNER_REGISTRY:
+            logger.error("The runner mode %s is invalid.", runnerMode)
+            return False
 
-        # Add start and top dir to avoid potential module name conflict:
-        if pathutils.isPath(self._startDirOrModule):
-            argv.extend(["-s", self._startDirOrModule, "-t", self._topDir])
+        runnerModulePath = registry.RUNNER_REGISTRY[runnerMode]
+        runnerClass = pathutils.objectFromDotPath(runnerModulePath)
+        self._runners[runnerMode] = runnerClass(self._startDirOrModule, self._topDir, self._ui)
+        return True
 
-        argv.extend(tests)
-        argv.extend(["--fail-fast"] if self._stopOnError else [])
+    def getRunner(self):
+        if not self._initialRunner(self._runnerMode):
+            logger.error("Unable initialise the runner of mode %s", self._runnerMode)
+            return None
 
-        viewupdater.ViewUpdater.resetLastData()
-        nose2.discover(
-            argv=argv, exit=False, extraHooks=viewupdater.ViewUpdater.getHooks(self._ui)
-        )
+        return self._runners[self._runnerMode]
 
     def runTests(self, *tests):
-        plugins = [
-            "utest.plugins.uilogger",
-            "nose2.plugins.loader.eggdiscovery",
-            "utest.plugins.removeduplicated",
-        ]
-        excludePlugins = ["utest.plugins.testlister", "utest.plugins.partialtest"]
-        self._runTest(plugins, excludePlugins, [], *tests)
+        runner = self.getRunner()
+        if runner:
+            runner.runTests(*tests)
 
     def iterAllTestIds(self):
-        for tid in testlister.iterAllTestPathsFromRootDir(
-            self._startDirOrModule, self._topDir
-        ):
-            yield tid
+        runner = self.getRunner()
+        if runner:
+            for testId in runner.iterAllTestIds():
+                yield testId
 
     def runAllTests(self):
         tests = list(self.iterAllTestIds())
@@ -103,20 +104,13 @@ class TestManager(object):
 
         self.runTests(*tests)
 
-    def runTestPartial(self, testId, partialMode):
+    def runSingleTestPartially(self, testId, partialMode):
         """Run partial steps of test, like running setUp only, or setUp and test but without teardown.
         Args:
             testId (str): id of test, the python module.
             partialMode (int): the test run mode, available values are:
                 constants.RUN_TEST_SETUP_ONLY | constants.RUN_TEST_NO_TEAR_DOWN
         """
-        plugins = [
-            "utest.plugins.uilogger",
-            "nose2.plugins.loader.eggdiscovery",
-            "utest.plugins.removeduplicated",
-            "utest.plugins.partialtest",
-        ]
-        excludePlugins = ["utest.plugins.testlister", "nose2.plugins.result"]
-        extraArgs = ["--partial-test"]
-        partialtest.PartialTestRunner.setRunMode(partialMode)
-        self._runTest(plugins, excludePlugins, extraArgs, testId)
+        runner = self.getRunner()
+        if runner:
+            runner.runSingleTestPartially(testId, partialMode)

@@ -1,5 +1,5 @@
 from utest.qt import QtWidgets, QtCore
-from utest.plugins import viewupdater
+from utest.plugins.nose2plugins import viewupdater
 from utest.ui import uiconstants
 
 
