@@ -69,13 +69,13 @@ class TestManager(object):
         if runnerMode in self._runners:
             return True
 
-        if runnerMode in registry.RUNNER_REGISTRY:
+        if runnerMode not in registry.RUNNER_REGISTRY:
             logger.error("The runner mode %s is invalid.", runnerMode)
             return False
 
         runnerModulePath = registry.RUNNER_REGISTRY[runnerMode]
         runnerClass = pathutils.objectFromDotPath(runnerModulePath)
-        self._runners[runnerMode] = runnerClass(self._startDirOrModule, self._topDir, self._ui)
+        self._runners[runnerMode] = runnerClass(self)
         return True
 
     def getRunner(self):

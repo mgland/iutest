@@ -35,7 +35,7 @@ def iterAllTestPathsFromRootDir(startDirOrModuleName, topDir=None):
         "utest.plugins.nose2plugins.testlister",
         "--list-tests",
         "--plugin",
-        "nose2.plugins.nose2plugins.loader.eggdiscovery",
+        "nose2.plugins.loader.eggdiscovery",
         "--plugin",
         "utest.plugins.nose2plugins.removeduplicated",
         "--exclude-plugin",

@@ -16,7 +16,7 @@ class Nose2TestRunner(base.BaseTestRunner):
     def runTests(self, *testIds):
         plugins = [
             "utest.plugins.nose2plugins.uilogger",
-            "nose2.plugins.nose2plugins.loader.eggdiscovery",
+            "nose2.plugins.loader.eggdiscovery",
             "utest.plugins.nose2plugins.removeduplicated",
         ]
         excludePlugins = [
@@ -64,13 +64,13 @@ class Nose2TestRunner(base.BaseTestRunner):
         """
         plugins = [
             "utest.plugins.nose2plugins.uilogger",
-            "nose2.plugins.nose2plugins.loader.eggdiscovery",
+            "nose2.plugins.loader.eggdiscovery",
             "utest.plugins.nose2plugins.removeduplicated",
             "utest.plugins.nose2plugins.partialtest",
         ]
         excludePlugins = [
             "utest.plugins.nose2plugins.testlister", 
-            "nose2.plugins.nose2plugins.result"
+            "nose2.plugins.result"
         ]
         extraArgs = ["--partial-test"]
         partialtest.PartialTestRunner.setRunMode(partialMode)
