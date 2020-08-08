@@ -19,7 +19,6 @@ from iutest.ui import testtreeview
 from iutest.ui import statuslabel
 from iutest.ui import uiutils
 from iutest.ui import configwindow
-from iutest.libs import nose2
 from iutest.plugins.nose2plugins import testlister
 from iutest.plugins.nose2plugins import viewupdater
 

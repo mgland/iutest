@@ -1,6 +1,7 @@
 import os
 import inspect
 import logging
+from iutest import dependencies
 
 logger = logging.getLogger(__name__)
 
@@ -19,9 +20,8 @@ def isPath(path):
 
 
 def objectFromDotPath(dotPath):
-    import nose2
-    _, obj = nose2.util.object_from_name(dotPath)
-    return obj
+    result = dependencies.Nose2Wrapper.get().util.object_from_name(dotPath)
+    return result[-1]
 
 
 def sourceFileAndLineFromObject(obj):

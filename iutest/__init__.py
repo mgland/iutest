@@ -3,25 +3,12 @@ import os
 import sys
 import logging
 
-logger = logging.getLogger(__name__)
-
-
-def _initNose2():
-    """Nose2 and its plugins need to be imported from nose2.
-    """
-    filePath = os.path.abspath(inspect.getfile(inspect.currentframe()))
-    path = os.path.join(os.path.dirname(filePath), "libs")
-    if path not in sys.path:
-        sys.path.append(path)
-
-
-_initNose2()
-
 from iutest import qt as _qt
 from iutest.core import testmanager
 from iutest.core import importutils
 from iutest.ui import iutestwindow
 
+logger = logging.getLogger(__name__)
 
 def runUi(startDirOrModule=None, topDir=None, exit_=False):
     """Load the IUTest UI

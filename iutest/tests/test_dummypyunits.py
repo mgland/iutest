@@ -1,9 +1,11 @@
 import unittest
-from nose2.tools import params
-
 import logging
 
+from iutest import dependencies
+from iutest.core import constants
+
 logger = logging.Logger(__name__)
+nose2 = dependencies.Nose2Wrapper.get()
 
 
 class DummyTests(unittest.TestCase):
@@ -50,7 +52,7 @@ class DummyTests(unittest.TestCase):
             with self.subTest(i=i):
                 self.assertEqual(i % 2, 0)
 
-    @params((1, 2), (2, 3), (6, 5), (4, 6))
+    @nose2.tools.params((1, 2), (2, 3), (6, 5), (4, 6))
     def test_parameters(self, num1, num2):
         logger.info("Test with %s < %s", num1, num2)
         self.assertLess(num1, num2)

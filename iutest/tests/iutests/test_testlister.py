@@ -1,9 +1,12 @@
 import unittest
 import os
+
+from iutest import dependencies
+
 from iutest.plugins.nose2plugins import testlister
 from iutest.core import pathutils
-from nose2.tools import params
 
+nose2 = dependencies.Nose2Wrapper.get()
 
 class TestListerTestCase(unittest.TestCase):
     def test_listByDir(self):
@@ -26,7 +29,7 @@ class TestListerTestCase(unittest.TestCase):
         tests = list(testlister.iterAllTestPathsFromRootDir(modulePath))
         self._checkListedTests(tests)
 
-    @params(
+    @nose2.tools.params(
         ("package.to.module.testcase.test", False),
         ("package.to.module.testcase.test:0", True),
     )

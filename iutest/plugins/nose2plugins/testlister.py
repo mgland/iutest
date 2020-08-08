@@ -1,13 +1,13 @@
 import unittest
 import logging
-import nose2  # This has to be imported this way.
 import inspect
 
+from iutest import dependencies
 from iutest.core import pathutils
 from iutest.core import uistream
 
 logger = logging.getLogger(__name__)
-
+nose2 = dependencies.Nose2Wrapper.get()
 
 def sourcePathAndLineFromModulePath(dotPath):
     """Get the python file path from a module path.

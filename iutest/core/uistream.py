@@ -1,8 +1,8 @@
 import weakref
-from nose2 import result
 import re
 import sys
 import logging
+from iutest import dependencies
 
 
 class UiStream(object):
@@ -84,16 +84,17 @@ class UiStream(object):
         msg = self._processLinkInMsg(msg)
         msg = self._processLinkInStackTrace(msg)
 
-        if self._testResult == result.ERROR:
+        nose2Wrapper = dependencies.Nose2Wrapper.get()
+        if self._testResult == nose2Wrapper.ERROR:
             reportUi.logError(msg)
 
-        elif self._testResult == result.FAIL:
+        elif self._testResult == nose2Wrapper.FAIL:
             reportUi.logFailed(msg)
 
-        elif self._testResult == result.SKIP:
+        elif self._testResult == nose2Wrapper.SKIP:
             reportUi.logWarning(msg)
 
-        elif self._testResult == result.PASS:
+        elif self._testResult == nose2Wrapper.PASS:
             reportUi.logSuccess(msg)
 
         else:

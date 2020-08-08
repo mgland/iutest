@@ -1,6 +1,6 @@
 import logging
+from iutest import dependencies
 from iutest.core.testrunners import base
-from iutest.libs import nose2
 from iutest.core import pathutils
 from iutest.plugins.nose2plugins import viewupdater
 from iutest.plugins.nose2plugins import testlister
@@ -51,7 +51,7 @@ class Nose2TestRunner(base.BaseTestRunner):
         argv.extend(["--fail-fast"] if self._manager.stopOnError() else [])
 
         viewupdater.ViewUpdater.resetLastData()
-        nose2.discover(
+        dependencies.Nose2Wrapper.get().discover(
             argv=argv, exit=False, extraHooks=viewupdater.ViewUpdater.getHooks(self._manager.ui())
         )
 

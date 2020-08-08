@@ -1,6 +1,8 @@
 import unittest
 import logging
-import nose2  # This has to be imported this way.
+from iutest import dependencies
+
+nose2 = dependencies.Nose2Wrapper.get()
 
 from iutest.core import constants
 

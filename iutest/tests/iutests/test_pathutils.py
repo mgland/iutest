@@ -1,12 +1,12 @@
 import unittest
 import os
-
+from iutest import dependencies
 from iutest.core import pathutils
-from nose2.tools import params
 
+nose2 = dependencies.Nose2Wrapper.get()
 
 class PathUtilsTestCase(unittest.TestCase):
-    @params(
+    @nose2.tools.params(
         ("/path/to/startDir", True),
         ("E:\\path\\to/startDir", True),
         ("module", False),

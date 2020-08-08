@@ -12,12 +12,23 @@ class _ErrorDummy(object):
     def __repr__(self):
         return "Error Happened."
 
+    def __iter__(self):
+        yield _ErrorDummy()
+
+    def __getitem__(self, index):
+        return _ErrorDummy()
 
 
-class _ModuleWrapper(object):
+
+class _DependencyWrapper(object):
     @classmethod
     def get(cls):
-        return None
+        if not hasattr(cls, "_instance"):
+            return None
+
+        if not cls._instance:
+            cls._instance = cls()
+        return cls._instance
 
     @classmethod
     def reload(cls):
@@ -29,16 +40,20 @@ class _ModuleWrapper(object):
 
     def _issueNotInstalledError(self):
         logger.error("The package '%s' is not installed", self.__class__.__name__)
+
+    @classmethod
+    def _issueNotImplementedError(cls):
+        err = "Please use derived class instead base class {}".format(cls.__name__)
+        raise NotImplementedError(err)
         
     def _tryImport(self, force):
-        err = "Please use derived class instead base class {}".format(self.__class__.__name__)
-        raise NotImplementedError(err)
+        self._issueNotImplementedError()
 
     def isValid(self):
         return bool(self._mod)
         
     def __getattribute__(self, name):
-        if hasattr(_ModuleWrapper, name):
+        if hasattr(_DependencyWrapper, name):
             return object.__getattribute__(self, name)
 
         mod = object.__getattribute__(self, "_mod")
@@ -49,20 +64,25 @@ class _ModuleWrapper(object):
         return object.__getattribute__(mod, name)
     
 
-class ReimportWrapper(_ModuleWrapper):
+class ReimportWrapper(_DependencyWrapper):
     _instance = None
-
-    @classmethod
-    def get(cls):
-        if not cls._instance:
-            cls._instance = cls()
-        return cls._instance
-        
     def _tryImport(self, force):
         if not force and self._mod:
             return
         try:
             import reimport
             self._mod = reimport
+        except ImportError:
+            self._issueNotInstalledError()
+
+
+class Nose2Wrapper(_DependencyWrapper):
+    _instance = None
+    def _tryImport(self, force):
+        if not force and self._mod:
+            return
+        try:
+            import nose2
+            self._mod = nose2
         except ImportError:
             self._issueNotInstalledError()

@@ -1,6 +1,6 @@
 import logging
+from iutest import dependencies
 from iutest.core import pathutils
-from iutest.core import dependencies
 
 logger = logging.getLogger(__name__)
 
