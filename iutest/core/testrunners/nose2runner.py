@@ -89,5 +89,24 @@ class Nose2TestRunner(base.BaseTestRunner):
         return testlister.gotErrorOnLastList()
 
     @classmethod
-    def lastRunTestIds(cls):
-        return viewupdater.ViewUpdater.lastRunTestIds
+    def lastRunInfo(cls):
+        info = base.TestRunInfo()
+        info.lastRunTestIds = viewupdater.ViewUpdater.lastRunTestIds
+        info.lastFailedTest = viewupdater.ViewUpdater.lastFailedTest
+        info.lastRunTime = viewupdater.ViewUpdater.runTime
+        info.lastRunCount = viewupdater.ViewUpdater.lastRunCount
+        info.lastSuccessCount = viewupdater.ViewUpdater.lastSuccessCount
+        info.lastFailedCount = viewupdater.ViewUpdater.lastFailedCount
+        info.lastErrorCount = viewupdater.ViewUpdater.lastErrorCount
+        info.lastSkipCount = viewupdater.ViewUpdater.lastSkipCount
+        info.lastExpectedFailureCount = viewupdater.ViewUpdater.lastExpectedFailureCount
+        info.lastUnexpectedSuccessCount = viewupdater.ViewUpdater.lastUnexpectedSuccessCount
+        return info
+
+    @classmethod
+    def parseParameterizedTestId(cls, testId):
+        return testlister.parseParameterizedTestId(testId)
+
+    @classmethod
+    def sourcePathAndLineFromModulePath(cls, modulePath):
+        return testlister.sourcePathAndLineFromModulePath(modulePath)

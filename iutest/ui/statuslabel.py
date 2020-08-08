@@ -1,70 +1,74 @@
 from iutest.qt import QtWidgets, QtCore
 from iutest.ui import uiconstants
-from iutest.plugins.nose2plugins import viewupdater
 
 
 class StatusLabel(QtWidgets.QLabel):
     def __init__(self, parent):
         QtWidgets.QLabel.__init__(self, parent)
         self.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+        self._testManager = None
+
+    def setTestManager(self, manager):
+        self._testManager = manager
 
     def updateReport(self):
-        testLbl = "tests" if viewupdater.ViewUpdater.lastRunCount != 1 else "test"
+        runInfo = self._testManager.lastRunInfo()
+        testLbl = "tests" if runInfo.lastRunCount != 1 else "test"
         msgs = [
             "%s %s run in %.3f sec"
             % (
-                viewupdater.ViewUpdater.lastRunCount,
+                runInfo.lastRunCount,
                 testLbl,
-                viewupdater.ViewUpdater.runTime,
+                runInfo.runTime,
             )
         ]
         if (
-            viewupdater.ViewUpdater.lastSuccessCount
-            == viewupdater.ViewUpdater.lastRunCount
+            runInfo.lastSuccessCount
+            == runInfo.lastRunCount
         ):
             msgs.append(
                 "<font color=%s>ALL GOOD :)</font>"
                 % uiconstants.LOG_COLOR_SUCCESS.name()
             )
         else:
-            if viewupdater.ViewUpdater.lastFailedCount:
+            if runInfo.lastFailedCount:
                 msgs.append(
                     "<font color=%s>%s failed</font>"
                     % (
                         uiconstants.LOG_COLOR_FAILED.name(),
-                        viewupdater.ViewUpdater.lastFailedCount,
+                        runInfo.lastFailedCount,
                     )
                 )
-            if viewupdater.ViewUpdater.lastErrorCount:
+            if runInfo.lastErrorCount:
                 msgs.append(
                     "<font color=%s>%s errors</font>"
                     % (
                         uiconstants.LOG_COLOR_ERROR.name(),
-                        viewupdater.ViewUpdater.lastErrorCount,
+                        runInfo.lastErrorCount,
                     )
                 )
-            if viewupdater.ViewUpdater.lastSkipCount:
+            if runInfo.lastSkipCount:
                 msgs.append(
                     "<font color=%s>%s skipped</font>"
                     % (
                         uiconstants.LOG_COLOR_WARNING.name(),
-                        viewupdater.ViewUpdater.lastSkipCount,
+                        runInfo.lastSkipCount,
                     )
                 )
-            if viewupdater.ViewUpdater.lastExpectedFailureCount:
+            if runInfo.lastExpectedFailureCount:
                 msgs.append(
                     "<font color=%s>%s expected failures</font>"
                     % (
                         uiconstants.LOG_COLOR_SUCCESS.name(),
-                        viewupdater.ViewUpdater.lastExpectedFailureCount,
+                        runInfo.lastExpectedFailureCount,
                     )
                 )
-            if viewupdater.ViewUpdater.lastUnexpectedSuccessCount:
+            if runInfo.lastUnexpectedSuccessCount:
                 msgs.append(
                     "<font color=%s>%s unexpected successes</font>"
                     % (
                         uiconstants.LOG_COLOR_ERROR.name(),
-                        viewupdater.ViewUpdater.lastUnexpectedSuccessCount,
+                        runInfo.lastUnexpectedSuccessCount,
                     )
                 )
         self.setText(", ".join(msgs))

@@ -20,7 +20,3 @@ class DummyRunner(base.BaseTestRunner):
 
     def iterAllTestIds(self):
         pass
-
-    @classmethod
-    def lastListerError(cls):
-        return None

@@ -68,7 +68,6 @@ class IUTestWindow(QtWidgets.QWidget):
         leftLay.addLayout(_topLayout)
 
         self._view = testtreeview.TestTreeView(self)
-        self._view.setTestManager(self._testManager)
         self._view.runAllTest.connect(self._runAllTests)
         self._view.runTests.connect(self._runTests)
         self._view.runSetupOnly.connect(self._runTestSetupOnly)
@@ -109,7 +108,13 @@ class IUTestWindow(QtWidgets.QWidget):
         self._loadLastDirsFromSettings()
         self._restorePanelVisState()
 
+        self.resetUiTestManager()
+
         QtCore.QTimer.singleShot(0, self._initialLoad)
+
+    def resetUiTestManager(self):
+        self._view.setTestManager(self._testManager)
+        self._statusLbl.setTestManager(self._testManager)
 
     def _initialLoad(self):
         self.reload(keepUiStates=False)

@@ -4,8 +4,6 @@ from iutest.qt import QtCore, QtGui, QtWidgets, Signal, variantToPyValue, iconFr
 from iutest.core import iconutils
 from iutest.core import constants
 from iutest.core import pathutils
-from iutest.plugins.nose2plugins import testlister
-from iutest.plugins.nose2plugins import viewupdater
 from iutest.core import gotocode
 from iutest.core import importutils
 from iutest.core import loggingutils
@@ -426,7 +424,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
             self._resetExpandStates(self._rootTestItem)
 
     def onSingleTestStartToRun(self, testId, startTime):
-        isParameterized, testId = testlister.parseParameterizedTestId(testId)
+        isParameterized, testId = self._testManager.parseParameterizedTestId(testId)
         item = self._findItemById(testId)
         if item:
             self.focusItem(item)
@@ -438,7 +436,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
                 item.setText(1, "running...")
 
     def onSingleTestStop(self, testId, endTime):
-        _, testId = testlister.parseParameterizedTestId(testId)
+        _, testId = self._testManager.parseParameterizedTestId(testId)
         item = self._findItemById(testId)
         if item:
             startTime = variantToPyValue(item.data(1, QtCore.Qt.UserRole))
@@ -447,7 +445,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
             item.setText(1, rep)
 
     def showResultOnItemByTestId(self, testId, state):
-        _, testId = testlister.parseParameterizedTestId(testId)
+        _, testId = self._testManager.parseParameterizedTestId(testId)
         item = self._findItemById(testId)
         if item:
             # For parameterized test, some might succeed but others might failed, we make sure
@@ -458,7 +456,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
                 self._setItemIconState(item, state)
 
     def onAllTestsFinished(self):
-        lastRunIds = viewupdater.ViewUpdater.lastRunTestIds
+        lastRunIds = self._testManager.lastRunTestIds()
         updatedIds = set()
 
         lastFailedItem = None
@@ -469,7 +467,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
                 continue
 
             self._calculateAncestorItemStates(item.parent(), updatedIds)
-            if viewupdater.ViewUpdater.lastFailedTest == testId:
+            if self._testManager.lastFailedTestIds() == testId:
                 lastFailedItem = item
 
         self.focusItem(lastFailedItem)
@@ -587,7 +585,7 @@ class TestTreeView(QtWidgets.QTreeWidget):
 
     def _atGoToCode(self):
         firstSelectedModulePath = self._firstSelectedModulePath()
-        sourceFile, line = testlister.sourcePathAndLineFromModulePath(
+        sourceFile, line = self._testManager.sourcePathAndLineFromModulePath(
             firstSelectedModulePath
         )
         if sourceFile:

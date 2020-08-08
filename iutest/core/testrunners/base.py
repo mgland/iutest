@@ -1,3 +1,16 @@
+class TestRunInfo(object):
+    def __init__(self):
+        self.lastRunTestIds = []
+        self.lastFailedTest = None
+        self.lastRunTime = 0
+        self.lastRunCount = 0
+        self.lastSuccessCount = 0
+        self.lastFailedCount = 0
+        self.lastErrorCount = 0
+        self.lastSkipCount = 0
+        self.lastExpectedFailureCount = 0
+        self.lastUnexpectedSuccessCount = 0
+
 
 class BaseTestRunner(object):
     def __init__(self, manager):
@@ -31,5 +44,21 @@ class BaseTestRunner(object):
         pass
 
     @classmethod
+    def lastRunInfo(cls):
+        return TestRunInfo()
+
+    @classmethod
     def lastRunTestIds(cls):
-        return None
+        return cls.lastRunInfo().lastRunTestIds
+
+    @classmethod
+    def lastFailedTestIds(cls):
+        return cls.lastRunInfo().lastFailedTest
+
+    @classmethod
+    def parseParameterizedTestId(cls, testId):
+        return False, testId
+
+    @classmethod
+    def sourcePathAndLineFromModulePath(cls, modulePath):
+        return None, 0
