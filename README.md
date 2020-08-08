@@ -1,31 +1,32 @@
-# ![alt text][logo] UTest-0.1
-UTest is a python unittest ui based on nose2, with a Chinese Name '油条'.
+# ![alt text][logo] IUTest-0.1
+IUTest stands for "Interactive UnitTest", it is a python unittest ui tool that aims to support many unittest frameworks, e.g. nose2, pytest, etc.
+It's Chinese name is '油条' :)
 
-[logo]: ./icons/utest.svg "UTest Logo"
+[logo]: ./icons/iutest.svg "IUTest Logo"
 
 
-## To launch UTest UI:
+## To launch IUTest UI:
 ```python
 import sys
-testerPath = 'E:/projects/utest'  # Change to your path!
+testerPath = 'E:/projects/iutest'  # Change to your path!
 if testerPath not in sys.path:
     sys.path.append(testerPath)
 
-import utest
-utest.runUi()
+import iutest
+iutest.runUi()
 ```
 
 ## To run tests without UI:
 ```python
 import sys
-testerPath = 'D:/CodingProjects/utest'  # Change to your path!
+testerPath = 'D:/projects/iutest'  # Change to your path!
 if testerPath not in sys.path:
     sys.path.append(testerPath)
     
-import utest
+import iutest
 
-utest.runAllTests(startDirOrModule='pathToTestRootDir', topDir='pathToPythonTopDir', stopOnError=False)
-utest.runAllTests(startDirOrModule='utest.tests', stopOnError=False)
+iutest.runAllTests(startDirOrModule='pathToTestRootDir', topDir='pathToPythonTopDir', stopOnError=False)
+iutest.runAllTests(startDirOrModule='iutest.tests', stopOnError=False)
 
-utest.runTests('utest.tests.test_dummytests', 'utest.tests.utests')
+iutest.runTests('iutest.tests.test_dummytests', 'iutest.tests.iutests')
 ```
