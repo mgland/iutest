@@ -39,7 +39,7 @@ class _DependencyWrapper(object):
         self._tryImport(force=False)
 
     def _issueNotInstalledError(self):
-        logger.error("The package '%s' is not installed", self.__class__.__name__)
+        logger.error("The package '%s' is not installed", self.name())
 
     @classmethod
     def _issueNotImplementedError(cls):
@@ -48,6 +48,10 @@ class _DependencyWrapper(object):
         
     def _tryImport(self, force):
         self._issueNotImplementedError()
+
+    @classmethod
+    def name(cls):
+        cls._issueNotImplementedError()
 
     def isValid(self):
         return bool(self._mod)
@@ -66,6 +70,11 @@ class _DependencyWrapper(object):
 
 class ReimportWrapper(_DependencyWrapper):
     _instance = None
+
+    @classmethod
+    def name(cls):
+        return "reimport"
+
     def _tryImport(self, force):
         if not force and self._mod:
             return
@@ -78,6 +87,11 @@ class ReimportWrapper(_DependencyWrapper):
 
 class Nose2Wrapper(_DependencyWrapper):
     _instance = None
+
+    @classmethod
+    def name(cls):
+        return "nose2"
+
     def _tryImport(self, force):
         if not force and self._mod:
             return
