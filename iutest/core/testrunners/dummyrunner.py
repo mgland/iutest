@@ -1,5 +1,6 @@
 import logging
 from iutest.core.testrunners import base
+from iutest.core.testrunners import runnerconstants
 
 logger = logging.getLogger(__name__)
 
@@ -7,6 +8,14 @@ class DummyRunner(base.BaseTestRunner):
     @classmethod
     def name(cls):
         return "dummy"
+
+    @classmethod
+    def isDummy(cls):
+        return True
+
+    @classmethod
+    def mode(cls):
+        return runnerconstants.RUNNER_DUMMY
 
     @classmethod
     def _warnNoRunner(cls):
@@ -19,4 +28,5 @@ class DummyRunner(base.BaseTestRunner):
         self._warnNoRunner()
 
     def iterAllTestIds(self):
-        pass
+        self._warnNoRunner()
+        return iter([])

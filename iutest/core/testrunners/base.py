@@ -17,6 +17,14 @@ class BaseTestRunner(object):
         self._manager = manager
 
     @classmethod
+    def isDummy(cls):
+        return False
+
+    @classmethod
+    def mode(cls):
+        cls._raiseNotImplementedError()
+
+    @classmethod
     def name(cls):
         cls._raiseNotImplementedError()
 

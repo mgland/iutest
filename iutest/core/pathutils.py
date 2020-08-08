@@ -1,6 +1,7 @@
 import os
 import inspect
 import logging
+import sys
 from iutest import dependencies
 
 logger = logging.getLogger(__name__)
@@ -20,8 +21,34 @@ def isPath(path):
 
 
 def objectFromDotPath(dotPath):
-    result = dependencies.Nose2Wrapper.get().util.object_from_name(dotPath)
-    return result[-1]
+    def tryImportClosestModule(paths):
+        module = None
+        while paths:
+            try:
+                module = __import__('.'.join(paths))
+                break
+            except:
+                del paths[-1]
+                if not paths:
+                    return None
+        return module
+
+    parts = dotPath.split('.')
+    module = tryImportClosestModule(parts[:])
+    if not module:
+        logger.error("No module found from %s", dotPath)
+        return None
+
+    # Now get the object from the module:
+    obj = module
+    parts = parts[1:]
+    for part in parts:
+        try:
+            obj = getattr(obj, part)
+        except AttributeError:
+            logger.exception("Error importing the module at path %s", dotPath)
+
+    return obj
 
 
 def sourceFileAndLineFromObject(obj):

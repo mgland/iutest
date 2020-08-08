@@ -1,6 +1,7 @@
 import logging
 
 from iutest.core import pathutils
+from iutest.core.testrunners import runnerconstants
 from iutest.core.testrunners import registry
 
 logger = logging.getLogger(__name__)
@@ -12,7 +13,7 @@ class TestManager(object):
         self._topDir = ""
         self._stopOnError = False
         self._ui = ui
-        self._runnerMode = registry.RUNNER_DUMMY
+        self._runnerMode = runnerconstants.RUNNER_DUMMY
         self._runners = {}
         self.setStartDirOrModule(startDirOrModule)
         self.setTopDir(topDir)

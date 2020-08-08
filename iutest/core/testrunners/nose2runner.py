@@ -1,6 +1,7 @@
 import logging
 from iutest import dependencies
 from iutest.core.testrunners import base
+from iutest.core.testrunners import runnerconstants
 from iutest.core import pathutils
 from iutest.plugins.nose2plugins import viewupdater
 from iutest.plugins.nose2plugins import testlister
@@ -12,6 +13,13 @@ class Nose2TestRunner(base.BaseTestRunner):
     @classmethod
     def name(cls):
         return "nose2"
+
+    def isDummy(self):
+        return False
+
+    @classmethod
+    def mode(cls):
+        return runnerconstants.RUNNER_NOSE2
 
     def runTests(self, *testIds):
         plugins = [

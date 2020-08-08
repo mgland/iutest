@@ -1,5 +1,6 @@
 import logging
 from iutest.core.testrunners import base
+from iutest.core.testrunners import runnerconstants
 from iutest.core import pathutils
 
 logger = logging.getLogger(__name__)
@@ -9,6 +10,13 @@ class PyTestTestRunner(base.BaseTestRunner):
     @classmethod
     def name(cls):
         return "pytest"
+
+    def isDummy(self):
+        return False
+
+    @classmethod
+    def mode(cls):
+        return runnerconstants.RUNNER_PYTEST
         
     def runTests(self, *testIds):
         pass
