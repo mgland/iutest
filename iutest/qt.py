@@ -13,6 +13,8 @@ class _QtModuleImporter(object):
     Variant = None
     Signal = None
 
+    IsQt5 = False
+
     @classmethod
     def _importFromPySide2(cls):
         try:
@@ -24,6 +26,7 @@ class _QtModuleImporter(object):
             cls.QtSvg = QtSvg
             cls.QtWidgets = QtWidgets
             cls.Signal = QtCore.Signal
+            cls.IsQt5 = True
         except Exception:
             logger.debug("Unable to import PySide2.")
 
@@ -38,6 +41,7 @@ class _QtModuleImporter(object):
             cls.QtWidgets = QtGui
             cls.QtSvg = QtSvg
             cls.Signal = QtCore.Signal
+            cls.IsQt5 = False
         except Exception:
             logger.debug("Unable to import PySide.")
 
@@ -53,6 +57,7 @@ class _QtModuleImporter(object):
             cls.QtSvg = QtSvg
             cls.Signal = QtCore.pyqtSignal
             cls.Variant = QtCore.QVariant
+            cls.IsQt5 = True
         except Exception:
             logger.debug("Unable to import PyQt5.")
 
@@ -69,6 +74,7 @@ class _QtModuleImporter(object):
             cls.QtSvg = QtSvg
             cls.Signal = QtCore.pyqtSignal
             cls.Variant = QtCore.QVariant
+            cls.IsQt5 = False
         except Exception:
             logger.debug("Unable to import PyQt4.")
 
@@ -121,6 +127,10 @@ def iconFromPath(filePath):
     painter.end()
     return QtGui.QIcon(pixmap)
 
+
+def isQt5():
+    return _QtModuleImporter.IsQt5
+    
 
 def setDarkStyle():
     presetStyles = ()
