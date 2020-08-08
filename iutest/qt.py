@@ -178,12 +178,14 @@ class ApplicationContext(object):
 
     def __enter__(self):
         self._application = QtWidgets.QApplication.instance()
-        self.isStandalone = False
         if not self._application:
-            self._application = QtWidgets.QApplication(sys.argv)
             self.isStandalone = True
+            self._application = QtWidgets.QApplication(sys.argv)
             if self._darkStyle:
                 setDarkStyle()
+        else:
+            self.isStandalone = hasattr(self._application, "_eventLoopExited") \
+                and self._application._eventLoopExited
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -195,3 +197,4 @@ class ApplicationContext(object):
                 sys.exit(self._application.exec_())
             else:
                 self._application.exec_()
+                self._application._eventLoopExited = True
