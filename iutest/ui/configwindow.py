@@ -1,11 +1,11 @@
 import logging
 import os
 
-from iutest.qt import QtCore, QtGui, QtWidgets
-from iutest.ui import uiutils
 from iutest.core import constants
 from iutest.core import appsettings
 from iutest.core import gotocode
+from iutest.qt import QtCore, QtGui, QtWidgets
+from iutest.ui import uiutils
 
 logger = logging.getLogger(__name__)
 

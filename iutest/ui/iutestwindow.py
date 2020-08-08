@@ -19,8 +19,6 @@ from iutest.ui import testtreeview
 from iutest.ui import statuslabel
 from iutest.ui import uiutils
 from iutest.ui import configwindow
-from iutest.plugins.nose2plugins import testlister
-from iutest.plugins.nose2plugins import viewupdater
 
 logger = logging.getLogger(__name__)
 
@@ -410,7 +408,7 @@ class IUTestWindow(QtWidgets.QWidget):
         self._updateDirUI()
         self._searchLE.clear()
         self.reload(keepUiStates=False)
-        if not testlister.gotErrorOnLastList():
+        if not self._testManager.lastListerError():
             self._saveLastTestDir(startDir, topDir)
 
     def _setPanelVisState(self, state, saveSettings=True):
@@ -570,12 +568,12 @@ class IUTestWindow(QtWidgets.QWidget):
 
     def _updateReimportRerunButtonEnabled(self):
         self._reimportAndRerunBtn.setEnabled(
-            bool(viewupdater.ViewUpdater.lastRunTestIds)
+            bool(self._testManager.lastRunTestIds())
         )
 
     def _reimportPyAndRerun(self):
         importutils.reimportAllChangedPythonModules()
-        lastRunIds = viewupdater.ViewUpdater.lastRunTestIds
+        lastRunIds = self._testManager.lastRunTestIds()
         if not lastRunIds:
             logger.warning("Didn't find the last run tests.")
             return

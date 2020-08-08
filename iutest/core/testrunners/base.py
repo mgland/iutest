@@ -26,3 +26,10 @@ class BaseTestRunner(object):
     def iterAllTestIds(self, startDir, topDir):
         self._raiseNotImplementedError()
 
+    @classmethod
+    def lastListerError(cls):
+        pass
+
+    @classmethod
+    def lastRunTestIds(cls):
+        return None

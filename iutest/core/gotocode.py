@@ -1,7 +1,7 @@
 import logging
-from iutest.qt import QtCore
 from iutest.core import appsettings
 from iutest.core import constants
+from iutest.qt import QtCore
 
 logger = logging.getLogger(__name__)
 

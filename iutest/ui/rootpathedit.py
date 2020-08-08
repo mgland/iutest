@@ -1,6 +1,5 @@
 from iutest.qt import QtCore, QtWidgets, Signal
 
-
 class RootPathEdit(QtWidgets.QLineEdit):
     rootPathChanged = Signal(str, str)
 

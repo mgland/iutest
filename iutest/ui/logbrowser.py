@@ -1,7 +1,7 @@
-from iutest.ui import uiconstants
 from iutest.core import uistream
-from iutest.qt import QtCore, QtGui, QtWidgets
 from iutest.core import gotocode
+from iutest.ui import uiconstants
+from iutest.qt import QtCore, QtGui, QtWidgets
 
 
 class LogBrowser(QtWidgets.QTextBrowser):

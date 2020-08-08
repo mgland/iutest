@@ -83,3 +83,11 @@ class Nose2TestRunner(base.BaseTestRunner):
             startDirOrModule, topDir
         ):
             yield tid
+
+    @classmethod
+    def lastListerError(cls):
+        return testlister.gotErrorOnLastList()
+
+    @classmethod
+    def lastRunTestIds(cls):
+        return viewupdater.ViewUpdater.lastRunTestIds

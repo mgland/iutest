@@ -12,7 +12,7 @@ class TestManager(object):
         self._topDir = ""
         self._stopOnError = False
         self._ui = ui
-        self._runnerMode = registry.RUNNER_NOSE2
+        self._runnerMode = registry.RUNNER_DUMMY
         self._runners = {}
         self.setStartDirOrModule(startDirOrModule)
         self.setTopDir(topDir)
@@ -86,15 +86,11 @@ class TestManager(object):
         return self._runners[self._runnerMode]
 
     def runTests(self, *tests):
-        runner = self.getRunner()
-        if runner:
-            runner.runTests(*tests)
+        self.getRunner().runTests(*tests)
 
     def iterAllTestIds(self):
-        runner = self.getRunner()
-        if runner:
-            for testId in runner.iterAllTestIds():
-                yield testId
+        for testId in self.getRunner().iterAllTestIds():
+            yield testId
 
     def runAllTests(self):
         tests = list(self.iterAllTestIds())
@@ -111,6 +107,11 @@ class TestManager(object):
             partialMode (int): the test run mode, available values are:
                 constants.RUN_TEST_SETUP_ONLY | constants.RUN_TEST_NO_TEAR_DOWN
         """
-        runner = self.getRunner()
-        if runner:
-            runner.runSingleTestPartially(testId, partialMode)
+        self.getRunner().runSingleTestPartially(testId, partialMode)
+
+    def lastListerError(self):
+        return self.getRunner().lastListerError()
+
+    def lastRunTestIds(self):
+        return self.getRunner().lastRunTestIds()
+    

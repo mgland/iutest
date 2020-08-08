@@ -1,6 +1,6 @@
 from iutest.qt import QtWidgets, QtCore
-from iutest.plugins.nose2plugins import viewupdater
 from iutest.ui import uiconstants
+from iutest.plugins.nose2plugins import viewupdater
 
 
 class StatusLabel(QtWidgets.QLabel):
