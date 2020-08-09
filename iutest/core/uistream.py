@@ -4,6 +4,7 @@ import sys
 import logging
 from iutest.core import constants
 
+
 class UiStream(object):
     _reportUi = None
     _urlTempalte = "<a href='?{1}={2}'>{0}</a>"

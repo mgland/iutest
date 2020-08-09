@@ -1,4 +1,5 @@
 import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -20,7 +21,7 @@ class _ErrorDummy(object):
 
     def __bool__(self):
         return False
-        
+
     def __nonzero__(self):
         return False
 
@@ -71,14 +72,14 @@ class _DependencyWrapper(object):
     def _issueNotImplementedError(cls):
         err = "Please use derived class instead base class {}".format(cls.__name__)
         raise NotImplementedError(err)
-        
+
     def _tryImport(self, force, silent):
         self._issueNotImplementedError()
 
     @classmethod
     def name(cls):
         cls._issueNotImplementedError()
-    
+
     def isValid(self):
         return bool(self._mod)
 
@@ -88,7 +89,7 @@ class _DependencyWrapper(object):
             logger.error("The module %s is not installed.", cls.get().name())
             return False
         return True
-    
+
 
 class ReimportWrapper(_DependencyWrapper):
     _instance = None
@@ -103,10 +104,11 @@ class ReimportWrapper(_DependencyWrapper):
         self._mod = None
         try:
             import reimport
+
             self._mod = reimport
         except ImportError:
             self._issueNotInstalledError(silent)
-                
+
 
 class Nose2Wrapper(_DependencyWrapper):
     _instance = None
@@ -121,6 +123,7 @@ class Nose2Wrapper(_DependencyWrapper):
         self._mod = None
         try:
             import nose2
+
             self._mod = nose2
         except ImportError:
             self._issueNotInstalledError(silent)
@@ -139,6 +142,7 @@ class PyTestWrapper(_DependencyWrapper):
         self._mod = None
         try:
             import pytest
+
             self._mod = pytest
         except ImportError:
             self._issueNotInstalledError(silent)

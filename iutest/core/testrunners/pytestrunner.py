@@ -8,6 +8,7 @@ from iutest.core import pathutils
 
 logger = logging.getLogger(__name__)
 
+
 class PyTestTestRunner(base.BaseTestRunner):
     _Icon = None
     # To-Do: Implement this class
@@ -28,7 +29,7 @@ class PyTestTestRunner(base.BaseTestRunner):
         if not cls._Icon:
             cls._Icon = _qt.iconFromPath(iconutils.iconPath("pytest.svg"))
         return cls._Icon
-        
+
     def runTests(self, *testIds):
         pass
 

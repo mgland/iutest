@@ -240,7 +240,7 @@ class IUTestWindow(QtWidgets.QWidget):
             btn.clicked.connect(self._onTestModeClicked)
             layout.addWidget(btn)
             self._testModeButtons[runnerMode] = btn
-    
+
     def _makeDirWidgets(self):
         lbl = QtWidgets.QLabel("Test Root")
         lbl.setToolTip(
@@ -326,7 +326,7 @@ class IUTestWindow(QtWidgets.QWidget):
         appsettings.get().saveSimpleConfig(
             constants.CONFIG_KEY_AUTO_CLEAR_LOG_STATE, state
         )
-    
+
     def _onTestModeClicked(self):
         btn = self.sender()
         if not btn:
@@ -334,7 +334,9 @@ class IUTestWindow(QtWidgets.QWidget):
 
         runnerMode = int(btn.windowTitle())
         self._testManager.setRunnerMode(runnerMode)
-        appsettings.get().saveSimpleConfig(constants.CONFIG_KEY_LAST_RUNNER_MODE, runnerMode)
+        appsettings.get().saveSimpleConfig(
+            constants.CONFIG_KEY_LAST_RUNNER_MODE, runnerMode
+        )
 
     def _onStopOnErrorButtonToggled(self, stop):
         self._testManager.setStopOnError(stop)
@@ -608,9 +610,7 @@ class IUTestWindow(QtWidgets.QWidget):
         self._runTests(self._view.selectedTestIds())
 
     def _updateReimportRerunButtonEnabled(self):
-        self._reimportAndRerunBtn.setEnabled(
-            bool(self._testManager.lastRunTestIds())
-        )
+        self._reimportAndRerunBtn.setEnabled(bool(self._testManager.lastRunTestIds()))
 
     def _reimportPyAndRerun(self):
         importutils.reimportAllChangedPythonModules()

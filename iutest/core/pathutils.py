@@ -24,7 +24,7 @@ def objectFromDotPath(dotPath):
         module = None
         while paths:
             try:
-                module = __import__('.'.join(paths))
+                module = __import__(".".join(paths))
                 break
             except:
                 del paths[-1]
@@ -32,7 +32,7 @@ def objectFromDotPath(dotPath):
                     return None
         return module
 
-    parts = dotPath.split('.')
+    parts = dotPath.split(".")
     module = tryImportClosestModule(parts[:])
     if not module:
         logger.error("No module found from %s", dotPath)

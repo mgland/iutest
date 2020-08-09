@@ -19,7 +19,7 @@ def reimportByDotPath(dotPath):
 def reimportAllChangedPythonModules():
     if not dependencies.ReimportWrapper.check():
         return
-        
+
     changed = dependencies.ReimportWrapper.getModule().modified()
     if changed:
         print("Reimporting: {}".format(changed))

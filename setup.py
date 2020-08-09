@@ -1,13 +1,16 @@
 from setuptools import setup
 
+
 def readme():
-    with open('README.md') as f:
+    with open("README.md") as f:
         README = f.read()
     return README
+
 
 def version():
     with open("iutest/_version.py") as f:
         f.readlines()[-1].split()[-1].strip("\"'")
+
 
 setup(
     name="iutest",
@@ -39,9 +42,5 @@ setup(
     ],
     include_package_data=True,
     install_requires=["reimport", "nose2", "pytest", "pyside2"],
-    entry_points={
-        "console_scripts": [
-            "iutest=iutest.cli:main",
-        ]
-    },
+    entry_points={"console_scripts": ["iutest=iutest.cli:main"]},
 )

@@ -131,10 +131,10 @@ def iconFromPath(filePath):
 def hasQt():
     return bool(QtCore)
 
-    
+
 def isQt5():
     return _QtModuleImporter.IsQt5
-    
+
 
 def setDarkStyle():
     presetStyles = ()
@@ -188,8 +188,10 @@ class ApplicationContext(object):
             if self._darkStyle:
                 setDarkStyle()
         else:
-            self.isStandalone = hasattr(self._application, "_eventLoopExited") \
+            self.isStandalone = (
+                hasattr(self._application, "_eventLoopExited")
                 and self._application._eventLoopExited
+            )
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):

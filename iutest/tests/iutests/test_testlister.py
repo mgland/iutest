@@ -3,9 +3,11 @@ import os
 
 from iutest.core import pathutils
 
+
 class TestListerTestCase(unittest.TestCase):
     def test_listByDir(self):
         from iutest.plugins.nose2plugins import testlister
+
         startDir = os.path.join(pathutils.iutestPackageDir(), "tests")
         topDir = pathutils.iutestRootDir()
         tests = list(testlister.iterAllTestPathsFromRootDir(startDir, topDir))
@@ -23,6 +25,7 @@ class TestListerTestCase(unittest.TestCase):
     def test_listByModulePath(self):
         modulePath = "iutest.tests"
         from iutest.plugins.nose2plugins import testlister
+
         tests = list(testlister.iterAllTestPathsFromRootDir(modulePath))
         self._checkListedTests(tests)
 
@@ -32,6 +35,7 @@ class TestListerTestCase(unittest.TestCase):
             ("package.to.module.testcase.test:0", True),
         )
         from iutest.plugins.nose2plugins import testlister
+
         for testId, expectParameterized in data:
             isParameterized, newTestId = testlister.parseParameterizedTestId(testId)
             self.assertEqual(isParameterized, expectParameterized)

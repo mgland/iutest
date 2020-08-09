@@ -13,12 +13,13 @@ from nose2 import result, events, util  # This has to be imported this way.
 
 logger = logging.getLogger(__name__)
 
+
 class TestUiLoggerPlugin(resultPlugin.ResultReporter):
     """A nose2 plug to capture the logs for ui.
     """
+
     _originalStdOut = sys.stdout
     _originalStdErr = sys.stderr
-
 
     def __init__(self):
         resultPlugin.ResultReporter.__init__(self)

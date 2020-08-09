@@ -6,6 +6,7 @@ from iutest.core import pathutils
 
 logger = logging.getLogger(__name__)
 
+
 def sourcePathAndLineFromModulePath(dotPath):
     """Get the python file path from a module path.
     Args:

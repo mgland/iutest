@@ -8,9 +8,10 @@ from iutest.core.testrunners import runnerconstants
 
 logger = logging.getLogger(__name__)
 
+
 class Nose2TestRunner(base.BaseTestRunner):
     _Icon = None
-    
+
     viewupdater = None
     testlister = None
     partialtest = None
@@ -24,6 +25,7 @@ class Nose2TestRunner(base.BaseTestRunner):
             from iutest.plugins.nose2plugins import viewupdater
             from iutest.plugins.nose2plugins import testlister
             from iutest.plugins.nose2plugins import partialtest
+
             cls.viewupdater = viewupdater
             cls.testlister = testlister
             cls.partialtest = partialtest
@@ -58,8 +60,8 @@ class Nose2TestRunner(base.BaseTestRunner):
             "iutest.plugins.nose2plugins.removeduplicated",
         ]
         excludePlugins = [
-            "iutest.plugins.nose2plugins.testlister", 
-            "iutest.plugins.nose2plugins.partialtest"
+            "iutest.plugins.nose2plugins.testlister",
+            "iutest.plugins.nose2plugins.partialtest",
         ]
         self._runTest(plugins, excludePlugins, [], *testIds)
 
@@ -90,7 +92,9 @@ class Nose2TestRunner(base.BaseTestRunner):
 
         self.viewupdater.ViewUpdater.resetLastData()
         dependencies.Nose2Wrapper.getModule().discover(
-            argv=argv, exit=False, extraHooks = self.viewupdater.ViewUpdater.getHooks(self._manager.ui())
+            argv=argv,
+            exit=False,
+            extraHooks=self.viewupdater.ViewUpdater.getHooks(self._manager.ui()),
         )
 
     def runSingleTestPartially(self, testId, partialMode):
@@ -101,7 +105,9 @@ class Nose2TestRunner(base.BaseTestRunner):
                 constants.RUN_TEST_SETUP_ONLY | constants.RUN_TEST_NO_TEAR_DOWN
         """
         if not self._importPlugins():
-            logger.warning("Unable to import nose2 plugs to run tests, is nose2 installed?")
+            logger.warning(
+                "Unable to import nose2 plugs to run tests, is nose2 installed?"
+            )
             return
 
         plugins = [
@@ -111,8 +117,8 @@ class Nose2TestRunner(base.BaseTestRunner):
             "iutest.plugins.nose2plugins.partialtest",
         ]
         excludePlugins = [
-            "iutest.plugins.nose2plugins.testlister", 
-            "nose2.plugins.result"
+            "iutest.plugins.nose2plugins.testlister",
+            "nose2.plugins.result",
         ]
         extraArgs = ["--partial-test"]
         self.partialtest.PartialTestRunner.setRunMode(partialMode)
@@ -120,10 +126,12 @@ class Nose2TestRunner(base.BaseTestRunner):
 
     def iterAllTestIds(self):
         if not self._importPlugins():
-            logger.warning("Unable to import nose2 plugins to list out tests, is nose2 installed?")
+            logger.warning(
+                "Unable to import nose2 plugins to list out tests, is nose2 installed?"
+            )
             return
 
-        startDirOrModule = self._manager.startDirOrModule()        
+        startDirOrModule = self._manager.startDirOrModule()
         topDir = self._manager.topDir()
         for tid in self.testlister.iterAllTestPathsFromRootDir(
             startDirOrModule, topDir
@@ -151,8 +159,12 @@ class Nose2TestRunner(base.BaseTestRunner):
         info.lastFailedCount = cls.viewupdater.ViewUpdater.lastFailedCount
         info.lastErrorCount = cls.viewupdater.ViewUpdater.lastErrorCount
         info.lastSkipCount = cls.viewupdater.ViewUpdater.lastSkipCount
-        info.lastExpectedFailureCount = cls.viewupdater.ViewUpdater.lastExpectedFailureCount
-        info.lastUnexpectedSuccessCount = cls.viewupdater.ViewUpdater.lastUnexpectedSuccessCount
+        info.lastExpectedFailureCount = (
+            cls.viewupdater.ViewUpdater.lastExpectedFailureCount
+        )
+        info.lastUnexpectedSuccessCount = (
+            cls.viewupdater.ViewUpdater.lastUnexpectedSuccessCount
+        )
         return info
 
     @classmethod

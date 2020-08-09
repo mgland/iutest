@@ -47,7 +47,7 @@ class TestManager(object):
         lastRunner = appsettings.get().simpleConfigIntValue(
             constants.CONFIG_KEY_LAST_RUNNER_MODE, -1
         )
-        if lastRunner  < 0:
+        if lastRunner < 0:
             return self._testFeasibleRunnerMode()
         else:
             return lastRunner
@@ -85,7 +85,7 @@ class TestManager(object):
 
     def setStopOnError(self, stop):
         self._stopOnError = stop
-    
+
     def stopOnError(self):
         return self._stopOnError
 
@@ -150,6 +150,6 @@ class TestManager(object):
 
     def parseParameterizedTestId(self, testId):
         return self.getRunner().parseParameterizedTestId(testId)
-    
+
     def lastFailedTestIds(self):
         return self.getRunner().lastFailedTestIds()

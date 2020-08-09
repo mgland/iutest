@@ -4,6 +4,7 @@ from iutest.core.testrunners import runnerconstants
 
 logger = logging.getLogger(__name__)
 
+
 class DummyRunner(base.BaseTestRunner):
     @classmethod
     def isDummy(cls):

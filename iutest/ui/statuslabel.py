@@ -16,16 +16,9 @@ class StatusLabel(QtWidgets.QLabel):
         testLbl = "tests" if runInfo.lastRunCount != 1 else "test"
         msgs = [
             "%s %s run in %.3f sec"
-            % (
-                runInfo.lastRunCount,
-                testLbl,
-                runInfo.lastRunTime,
-            )
+            % (runInfo.lastRunCount, testLbl, runInfo.lastRunTime)
         ]
-        if (
-            runInfo.lastSuccessCount
-            == runInfo.lastRunCount
-        ):
+        if runInfo.lastSuccessCount == runInfo.lastRunCount:
             msgs.append(
                 "<font color=%s>ALL GOOD :)</font>"
                 % uiconstants.LOG_COLOR_SUCCESS.name()
@@ -34,26 +27,17 @@ class StatusLabel(QtWidgets.QLabel):
             if runInfo.lastFailedCount:
                 msgs.append(
                     "<font color=%s>%s failed</font>"
-                    % (
-                        uiconstants.LOG_COLOR_FAILED.name(),
-                        runInfo.lastFailedCount,
-                    )
+                    % (uiconstants.LOG_COLOR_FAILED.name(), runInfo.lastFailedCount)
                 )
             if runInfo.lastErrorCount:
                 msgs.append(
                     "<font color=%s>%s errors</font>"
-                    % (
-                        uiconstants.LOG_COLOR_ERROR.name(),
-                        runInfo.lastErrorCount,
-                    )
+                    % (uiconstants.LOG_COLOR_ERROR.name(), runInfo.lastErrorCount)
                 )
             if runInfo.lastSkipCount:
                 msgs.append(
                     "<font color=%s>%s skipped</font>"
-                    % (
-                        uiconstants.LOG_COLOR_WARNING.name(),
-                        runInfo.lastSkipCount,
-                    )
+                    % (uiconstants.LOG_COLOR_WARNING.name(), runInfo.lastSkipCount)
                 )
             if runInfo.lastExpectedFailureCount:
                 msgs.append(

@@ -2,6 +2,7 @@ import unittest
 import os
 from iutest.core import pathutils
 
+
 class PathUtilsTestCase(unittest.TestCase):
     def test_isPath(self):
         data = (

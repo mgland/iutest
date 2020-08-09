@@ -9,6 +9,7 @@ logger = logging.Logger(__name__)
 
 from nose2 import tools
 
+
 class DummyTests(unittest.TestCase):
     """Some dummy tests for the IUTest UI manual tests.
     """

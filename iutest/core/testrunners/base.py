@@ -35,7 +35,10 @@ class BaseTestRunner(object):
         if cls.isValid():
             logger.info("Switch to test runner mode: %s", cls.name())
         else:
-            logger.warning("The test runner mode %s is unavailable, you need to install the package first.", cls.name())
+            logger.warning(
+                "The test runner mode %s is unavailable, you need to install the package first.",
+                cls.name(),
+            )
 
     @classmethod
     def mode(cls):
@@ -55,7 +58,9 @@ class BaseTestRunner(object):
 
     @classmethod
     def _raiseNotImplementedError(cls):
-        raise NotImplementedError("You should not use {} directly.".format(cls.__name__))
+        raise NotImplementedError(
+            "You should not use {} directly.".format(cls.__name__)
+        )
 
     def runTests(self, *testIds):
         self._raiseNotImplementedError()

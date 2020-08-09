@@ -3,6 +3,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def runUi(startDirOrModule=None, topDir=None, exit_=False):
     """Load the IUTest UI
 
@@ -13,9 +14,13 @@ def runUi(startDirOrModule=None, topDir=None, exit_=False):
     """
     from iutest import qt as _qt
     from iutest.ui import iutestwindow
+
     if not _qt.hasQt():
-        cmd = "`pip install PySide2`" 
-        logger.error("Unable to launch IUTest UI which requires either PySide or PyQt installed, please: %s", cmd)
+        cmd = "`pip install PySide2`"
+        logger.error(
+            "Unable to launch IUTest UI which requires either PySide or PyQt installed, please: %s",
+            cmd,
+        )
         return
 
     with _qt.ApplicationContext(exit_=exit_) as ctx:
@@ -42,6 +47,7 @@ def runAllTests(runnerName, startDirOrModule=None, topDir=None, stopOnError=Fals
     """
     from iutest.core import testmanager
     from iutest.core.testrunners import runnerconstants
+
     manager = testmanager.TestManager(
         None, startDirOrModule=startDirOrModule, topDir=topDir
     )
@@ -58,6 +64,7 @@ def runTests(runnerName, *tests):
     """
     from iutest.core import testmanager
     from iutest.core.testrunners import runnerconstants
+
     manager = testmanager.TestManager(None, startDirOrModule=None)
     manager.setRunnerMode(runnerconstants.runnerModeFromName(runnerName))
     manager.runTests(*tests)
@@ -66,65 +73,63 @@ def runTests(runnerName, *tests):
 def main():
     from iutest import _version
     from iutest.core.testrunners import runnerconstants
-    parser = argparse.ArgumentParser(description = "IUTest")
+
+    parser = argparse.ArgumentParser(description="IUTest")
     parser.add_argument(
-        "-v",
-        "--version", 
-        action = 'version',
-        version = _version.__version__
-    ) 
+        "-v", "--version", action="version", version=_version.__version__
+    )
 
     parser.add_argument(
         "-u",
         "--ui",
-        action='store_true', 
-        dest='ui',
+        action="store_true",
+        dest="ui",
         default=False,
-        help = "Run test interactively in IUTest UI"
+        help="Run test interactively in IUTest UI",
     )
 
     parser.add_argument(
         "-e",
         "--stopOnError",
-        action='store_true', 
-        dest='stopOnError',
+        action="store_true",
+        dest="stopOnError",
         default=False,
-        help = "Stop test running once there is an test error or failure"
+        help="Stop test running once there is an test error or failure",
     )
     parser.add_argument(
         "-m",
         "--runner",
-        action='store', 
-        dest='runner',
-        help = "The runner the runs the tests, e.g. 'nose2' or 'pytest'"
+        action="store",
+        dest="runner",
+        help="The runner the runs the tests, e.g. 'nose2' or 'pytest'",
     )
 
     parser.add_argument(
         "-a",
         "--runAllTests",
-        action='store', 
-        dest='testRootDirOrModule',
-        help = "Run all tests under the specified dir or python module"
+        action="store",
+        dest="testRootDirOrModule",
+        help="Run all tests under the specified dir or python module",
     )
 
     parser.add_argument(
         "-t",
         "--topDir",
-        action='store', 
-        dest='topDir',
-        help = "Specify the top dir of the python module to import"
+        action="store",
+        dest="topDir",
+        help="Specify the top dir of the python module to import",
     )
 
     parser.add_argument(
         "-r",
         "--runTest",
-        action='append', 
+        action="append",
         default=[],
-        dest='testModulePaths',
-        help = "Specify the top dir of the python module to import"
+        dest="testModulePaths",
+        help="Specify the top dir of the python module to import",
     )
 
-	# parse the arguments from standard input 
+    # parse the arguments from standard input
     results = parser.parse_args()
     if not results.ui:
         if not runnerconstants.isValidRunnerName(results.runner):
@@ -132,7 +137,12 @@ def main():
             return
 
         if results.testRootDirOrModule:
-            runAllTests(results.runner, results.testRootDirOrModule, topDir=results.topDir, stopOnError=results.stopOnError)
+            runAllTests(
+                results.runner,
+                results.testRootDirOrModule,
+                topDir=results.topDir,
+                stopOnError=results.stopOnError,
+            )
         if results.testModulePaths:
             runTests(results.runner, *results.testModulePaths)
     else:
