@@ -136,11 +136,15 @@ def main():
         runUi(results.testRootDirOrModule, topDir=results.topDir)
     else:
         if not results.testRootDirOrModule and not results.testModulePaths:
-            print("You need to specify -a/--runAllTests or -r/--runTest to run the tests.")
+            print(
+                "You need to specify -a/--runAllTests or -r/--runTest to run the tests."
+            )
             return
 
         if not runnerconstants.isValidRunnerName(results.runner):
-            print("You need to specify a valid test runner, e.g. --runner 'nose2' or --runner 'pytest'")
+            print(
+                "You need to specify a valid test runner, e.g. --runner 'nose2' or --runner 'pytest'"
+            )
             return
 
         if results.testRootDirOrModule:
