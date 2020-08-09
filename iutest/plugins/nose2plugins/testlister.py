@@ -7,7 +7,7 @@ from iutest.core import pathutils
 from iutest.core import uistream
 
 logger = logging.getLogger(__name__)
-nose2 = dependencies.Nose2Wrapper.get()
+nose2 = dependencies.Nose2Wrapper.getModule()
 
 def sourcePathAndLineFromModulePath(dotPath):
     """Get the python file path from a module path.

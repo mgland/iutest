@@ -1,6 +1,8 @@
 import logging
-import pytest
 import os
+
+from iutest import dependencies
+pytest = dependencies.PyTestWrapper.getModule()
 
 logger = logging.Logger(__name__)
 

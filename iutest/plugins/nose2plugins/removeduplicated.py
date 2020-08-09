@@ -1,7 +1,9 @@
 from iutest import dependencies
-nose2 = dependencies.Nose2Wrapper.get()
+from iutest.core import pathutils
+nose2 = dependencies.Nose2Wrapper.getModule()
+discoverCls = pathutils.objectFromDotPath("nose2.plugins.loader.discovery.Discoverer")
 
-class RemoveDuplicatedTests(nose2.events.Plugin, nose2.plugins.loader.discovery.Discoverer):
+class RemoveDuplicatedTests(nose2.events.Plugin, discoverCls):
     """If the DiscoveryLoader and the EggDiscoveryLoader plugins are enabled at the same time,
     there will be duplicated tests discovered as they both call _find_tests_in_module() which
     will discover tests no matter it is egg or not.

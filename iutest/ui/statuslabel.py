@@ -19,7 +19,7 @@ class StatusLabel(QtWidgets.QLabel):
             % (
                 runInfo.lastRunCount,
                 testLbl,
-                runInfo.runTime,
+                runInfo.lastRunTime,
             )
         ]
         if (

@@ -3,7 +3,7 @@ import re
 import sys
 import logging
 from iutest import dependencies
-
+nose2 = dependencies.Nose2Wrapper.getModule()
 
 class UiStream(object):
     _reportUi = None
@@ -84,17 +84,16 @@ class UiStream(object):
         msg = self._processLinkInMsg(msg)
         msg = self._processLinkInStackTrace(msg)
 
-        nose2Wrapper = dependencies.Nose2Wrapper.get()
-        if self._testResult == nose2Wrapper.ERROR:
+        if self._testResult == nose2.result.ERROR:
             reportUi.logError(msg)
 
-        elif self._testResult == nose2Wrapper.FAIL:
+        elif self._testResult == nose2.result.FAIL:
             reportUi.logFailed(msg)
 
-        elif self._testResult == nose2Wrapper.SKIP:
+        elif self._testResult == nose2.result.SKIP:
             reportUi.logWarning(msg)
 
-        elif self._testResult == nose2Wrapper.PASS:
+        elif self._testResult == nose2.result.PASS:
             reportUi.logSuccess(msg)
 
         else:

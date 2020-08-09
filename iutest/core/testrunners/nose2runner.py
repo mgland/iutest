@@ -101,9 +101,9 @@ class Nose2TestRunner(base.BaseTestRunner):
         argv.extend(testIds)
         argv.extend(["--fail-fast"] if self._manager.stopOnError() else [])
 
-        cls.viewupdater.ViewUpdater.resetLastData()
-        dependencies.Nose2Wrapper.get().discover(
-            argv=argv, exit=False, extraHooks=cls.viewupdater.ViewUpdater.getHooks(self._manager.ui())
+        self.viewupdater.ViewUpdater.resetLastData()
+        dependencies.Nose2Wrapper.getModule().discover(
+            argv=argv, exit=False, extraHooks = self.viewupdater.ViewUpdater.getHooks(self._manager.ui())
         )
 
     def runSingleTestPartially(self, testId, partialMode):

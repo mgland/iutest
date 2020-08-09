@@ -5,12 +5,13 @@ import logging
 
 from iutest import dependencies
 from iutest.core import uistream
+from iutest.core import pathutils
 
 logger = logging.getLogger(__name__)
-nose2 = dependencies.Nose2Wrapper.get()
+nose2 = dependencies.Nose2Wrapper.getModule()
+ResultReporter = pathutils.objectFromDotPath("nose2.plugins.result.ResultReporter")
 
-
-class TestUiLoggerPlugin(nose2.plugins.result.ResultReporter):
+class TestUiLoggerPlugin(ResultReporter):
     """A nose2 plug to capture the logs for ui.
     """
 

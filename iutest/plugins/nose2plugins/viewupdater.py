@@ -5,7 +5,7 @@ from iutest.core import constants
 from iutest.plugins.nose2plugins import testlister
 
 logger = logging.getLogger(__name__)
-nose2 = dependencies.Nose2Wrapper.get()
+nose2 = dependencies.Nose2Wrapper.getModule()
 
 
 class ViewUpdater(object):

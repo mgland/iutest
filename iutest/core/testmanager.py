@@ -144,4 +144,12 @@ class TestManager(object):
 
     def lastRunTestIds(self):
         return self.getRunner().lastRunTestIds()
+
+    def lastRunInfo(self):
+        return self.getRunner().lastRunInfo()
+
+    def parseParameterizedTestId(self, testId):
+        return self.getRunner().parseParameterizedTestId(testId)
     
+    def lastFailedTestIds(self):
+        return self.getRunner().lastFailedTestIds()
