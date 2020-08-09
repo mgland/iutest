@@ -1,8 +1,8 @@
 # ![alt text][logo] IUTest
-"IUTest" stands for "Interactive UnitTest", it is a python unittest interactive runner that aims to support various unittest frameworks like
+"IUTest" stands for "Interactive UnitTest", it is an interactive python unit-test runner that aims to support various unit-test frameworks like
 [nose2](https://pypi.org/project/nose2/), [pytest](https://pypi.org/project/pytest/), etc.
 
-In Chinese it is called "[油条](https://en.wikipedia.org/wiki/Youtiao)", which is famous Chinese fried breadstick typically for breakfast :)
+In Chinese it is called "[油条](https://en.wikipedia.org/wiki/Youtiao)", which is Chinese fried breadstick typically for breakfast :)
 
 [logo]: ./icons/iutest.svg "IUTest Logo"
 
