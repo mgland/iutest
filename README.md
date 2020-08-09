@@ -5,7 +5,7 @@
 "IUTest" stands for "Interactive UnitTest", it is an interactive python unit-test runner that aims to support various unit-test frameworks like
 [nose2](https://pypi.org/project/nose2/), [pytest](https://pypi.org/project/pytest/), etc.
 
-It has a pretty yummy Chinese name "[You Tiao](https://en.wikipedia.org/wiki/Youtiao)", which is Chinese fried breadstick typically for breakfast :)
+It has a pretty yummy Chinese name "[Youtiao](https://en.wikipedia.org/wiki/Youtiao)", which is Chinese fried breadstick typically for breakfast :)
 
 
 ### To install IUTest
