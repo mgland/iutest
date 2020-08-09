@@ -1,5 +1,6 @@
 import argparse
 import logging
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -131,9 +132,15 @@ def main():
 
     # parse the arguments from standard input
     results = parser.parse_args()
-    if not results.ui:
+    if len(sys.argv) < 2 or results.ui:
+        runUi(results.testRootDirOrModule, topDir=results.topDir)
+    else:
+        if not results.testRootDirOrModule and not results.testModulePaths:
+            print("You need to specify -a/--runAllTests or -r/--runTest to run the tests.")
+            return
+
         if not runnerconstants.isValidRunnerName(results.runner):
-            print("You need to specify a valid test runner, e.g. 'nose2' or 'pytest'")
+            print("You need to specify a valid test runner, e.g. --runner 'nose2' or --runner 'pytest'")
             return
 
         if results.testRootDirOrModule:
@@ -145,8 +152,6 @@ def main():
             )
         if results.testModulePaths:
             runTests(results.runner, *results.testModulePaths)
-    else:
-        runUi(results.testRootDirOrModule, topDir=results.topDir)
 
 
 if __name__ == "__main__":

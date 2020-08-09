@@ -22,6 +22,8 @@ pipenv install iutest
 iutest --version
 
 # Run IUTest UI:
+iutest
+# or
 iutest --ui
 
 # Run all tests for python module or directory:

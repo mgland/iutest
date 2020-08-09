@@ -9,7 +9,7 @@ def readme():
 
 def version():
     with open("iutest/_version.py") as f:
-        f.readlines()[-1].split()[-1].strip("\"'")
+        return f.readlines()[-1].split()[-1].strip("\"'")
 
 
 setup(
