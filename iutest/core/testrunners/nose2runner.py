@@ -105,7 +105,7 @@ class Nose2TestRunner(base.BaseTestRunner):
                 constants.RUN_TEST_SETUP_ONLY | constants.RUN_TEST_NO_TEAR_DOWN
         """
         if not self._importPlugins():
-            logger.error("Unable import nose2 plugs to run tests, is nose2 installed?")
+            logger.warning("Unable to import nose2 plugs to run tests, is nose2 installed?")
             return
 
         plugins = [
@@ -124,7 +124,7 @@ class Nose2TestRunner(base.BaseTestRunner):
 
     def iterAllTestIds(self):
         if not self._importPlugins():
-            logger.error("Unable import nose2 plugs to list out tests, is nose2 installed?")
+            logger.warning("Unable to import nose2 plugins to list out tests, is nose2 installed?")
             return
 
         startDirOrModule = self._manager.startDirOrModule()        
