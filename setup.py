@@ -4,7 +4,7 @@ from setuptools import setup
 def readme():
     src = "./iutest/icons/iutest.svg"
     dst = "http://mgland.com/shared/iutest.svg"
-    with open("README.md", encoding="utf-8") as f:
+    with open("README.md") as f:
         longDesc = f.read()
     return longDesc.replace(src, dst)
 
