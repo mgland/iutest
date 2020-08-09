@@ -1,11 +1,13 @@
 # ![alt text][logo] IUTest-0.1
-IUTest stands for "Interactive UnitTest", it is a python unittest ui tool that aims to support many unittest frameworks, e.g. nose2, pytest, etc.
-It's Chinese name is '油条' :)
+"IUTest" stands for "Interactive UnitTest", it is a python unittest interactive runner that aims to support various unittest frameworks like
+[nose2](https://pypi.org/project/nose2/), [pytest](https://pypi.org/project/pytest/), etc.
+
+In Chinese the name is [油条](https://en.wikipedia.org/wiki/Youtiao), which is famous Chinese fried breadstick typically for breakfast :)
 
 [logo]: ./icons/iutest.svg "IUTest Logo"
 
 
-### To install IUTest:
+### To install IUTest
 ```shell
 # For system default python or virtual env
 pip install iutest
@@ -14,7 +16,22 @@ pip install iutest
 pipenv install iutest
 ```
 
-### To run tests without UI in python:
+### IUTest Command Line Interface
+```shell
+# Get version:
+iutest --version
+
+# Run IUTest UI:
+iutest --ui
+
+# Run all tests for python module or directory:
+iutest --runner "nose2" --runAllTests "iutest" 
+
+# Run tests by python module paths:
+iutest --runner "nose2" --runTest "iutest.tests.test_dummypyunits" --runTest "iutest.tests.iutests"
+```
+
+### Run in python
 ```python
 import sys
 testerPath = 'E:/projects/iutest'  # Change to your path!
@@ -30,18 +47,14 @@ iutest.runAllTests(startDirOrModule='iutest.tests', stopOnError=False)
 
 # Run tests by given python module paths:
 iutest.runTests('iutest.tests.test_dummytests', 'iutest.tests.iutests')
-```
 
-### To install and run IUTest for DCC application, e.g. Maya:
-- They might be a way to use pip with Maya, but normally, you just download IUTest and its dependency libraries : nose2 or pytest, reimport, all these are available from https://pypi.org/
-- Install the code below as a Maya shelf button:
-```python
-import sys
-testerPath = 'E:/projects/iutest'  # Change to your path!
-if testerPath not in sys.path:
-    sys.path.append(testerPath)
-
-import iutest
+# Run UI:
 iutest.runUi()
 ```
+
+### Run IUTest in DCC application, e.g. [Maya](https://www.autodesk.com.au/products/maya)
+- They might be a way to use pip with Maya, but normally, you just download IUTest and its dependency libraries, 
+  including [nose2](https://pypi.org/project/nose2/), [pytest](https://pypi.org/project/pytest/) and [reimport](https://pypi.org/project/reimport/), 
+  these are all available from [PyPi](https://pypi.org/)
+- Install the [code](#Run-in-python) above as a Maya shelf button.
 - Click on the shelf button to run IUTest UI.

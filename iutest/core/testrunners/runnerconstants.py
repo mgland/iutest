@@ -9,13 +9,13 @@ RUNNER_NAMES = {
 }
 
 
-def isValidRunnerName(runnerModeName):
-    return runnerModeName and runnerModeName in RUNNER_NAMES.values()
+def isValidRunnerName(runnerName):
+    return runnerName and runnerName in RUNNER_NAMES.values()
 
 
-def runnerModeFromName(runnerModeName):
+def runnerModeFromName(runnerName):
     for mode, name in RUNNER_NAMES.items():
-        if runnerModeFromName == name:
+        if runnerName == name:
             return mode
 
     return RUNNER_DUMMY

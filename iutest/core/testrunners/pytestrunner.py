@@ -42,4 +42,4 @@ class PyTestTestRunner(base.BaseTestRunner):
         pass
 
     def iterAllTestIds(self):
-        pass
+        return iter([])
