@@ -14,12 +14,16 @@ class DummyRunner(base.BaseTestRunner):
         return True
 
     @classmethod
+    def icon(cls):
+        return None
+
+    @classmethod
     def mode(cls):
         return runnerconstants.RUNNER_DUMMY
 
     @classmethod
     def _warnNoRunner(cls):
-        logger.warning("No test runner installed or picked.")
+        logger.warning("No test runner installed in system or chosen in UI, please do: `pip install nose2`.")
 
     def runTests(self, *testIds):
         self._warnNoRunner()

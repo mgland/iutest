@@ -128,6 +128,10 @@ def iconFromPath(filePath):
     return QtGui.QIcon(pixmap)
 
 
+def hasQt():
+    return bool(QtCore)
+
+    
 def isQt5():
     return _QtModuleImporter.IsQt5
     

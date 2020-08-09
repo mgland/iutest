@@ -18,11 +18,22 @@ class _ErrorDummy(object):
     def __getitem__(self, index):
         return _ErrorDummy()
 
+    def __bool__(self):
+        return False
+        
+    def __nonzero__(self):
+        return False
 
 
 class _DependencyWrapper(object):
     @classmethod
-    def get(cls):
+    def get(cls, silent=False):
+        """Get an instance of the wrapper object.
+
+        Args:
+            silent (bool): Whether we issue errors or debug when the dependency 
+                is not installed.
+        """
         if not hasattr(cls, "_instance"):
             return None
 
@@ -31,22 +42,31 @@ class _DependencyWrapper(object):
         return cls._instance
 
     @classmethod
-    def reload(cls):
-        cls.get()._tryImport(force=True)
+    def reload(cls, silent=True):
+        """Try reimport the dependency module.
+
+        Args:
+            silent (bool): Whether we issue errors or debug when the dependency 
+                is not installed.
+        """
+        cls.get()._tryImport(force=True, silent=silent)
 
     def __init__(self):
         self._mod = None
-        self._tryImport(force=False)
+        self._tryImport(force=False, silent=True)
 
-    def _issueNotInstalledError(self):
-        logger.error("The package '%s' is not installed", self.name())
+    def _issueNotInstalledError(self, silent=True):
+        if not silent:
+            logger.error("The package '%s' is not installed", self.name())
+        else:
+            logger.debug("The package '%s' is not installed", self.name())
 
     @classmethod
     def _issueNotImplementedError(cls):
         err = "Please use derived class instead base class {}".format(cls.__name__)
         raise NotImplementedError(err)
         
-    def _tryImport(self, force):
+    def _tryImport(self, force, silent):
         self._issueNotImplementedError()
 
     @classmethod
@@ -75,15 +95,15 @@ class ReimportWrapper(_DependencyWrapper):
     def name(cls):
         return "reimport"
 
-    def _tryImport(self, force):
+    def _tryImport(self, force, silent):
         if not force and self._mod:
             return
         try:
             import reimport
             self._mod = reimport
         except ImportError:
-            self._issueNotInstalledError()
-
+            self._issueNotInstalledError(silent)
+                
 
 class Nose2Wrapper(_DependencyWrapper):
     _instance = None
@@ -92,11 +112,30 @@ class Nose2Wrapper(_DependencyWrapper):
     def name(cls):
         return "nose2"
 
-    def _tryImport(self, force):
+    def _tryImport(self, force, silent):
         if not force and self._mod:
             return
+        self._mod = None
         try:
             import nose2
             self._mod = nose2
         except ImportError:
-            self._issueNotInstalledError()
+            self._issueNotInstalledError(silent)
+
+
+class PyTestWrapper(_DependencyWrapper):
+    _instance = None
+
+    @classmethod
+    def name(cls):
+        return "pytest"
+
+    def _tryImport(self, force, silent):
+        if not force and self._mod:
+            return
+        self._mod = None
+        try:
+            import pytest
+            self._mod = pytest
+        except ImportError:
+            self._issueNotInstalledError(silent)

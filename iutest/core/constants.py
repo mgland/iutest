@@ -76,3 +76,5 @@ CODE_LINE_VAR = "$line"
 CONFIG_KEY_CODE_EDITOR_DEFAULT = 'code --goto "{}":{}'.format(
     CODE_FILE_VAR, CODE_LINE_VAR
 )
+
+CONFIG_KEY_LAST_RUNNER_MODE = "lastRunnerMode"

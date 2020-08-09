@@ -6,7 +6,6 @@ import logging
 from iutest import qt as _qt
 from iutest.core import testmanager
 from iutest.core import importutils
-from iutest.ui import iutestwindow
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +17,12 @@ def runUi(startDirOrModule=None, topDir=None, exit_=False):
         topDir (str): The top directory that need to be put in sys.path in order for the tests work.
         exit (bool): Whether we exit python console after the IUTest window closed.
     """
+    if not _qt.hasQt():
+        cmd = "`pip install PySide2`" 
+        logger.error("Unable to launch IUTest UI which requires either PySide or PyQt installed, please: %s", cmd)
+        return
+
+    from iutest.ui import iutestwindow
     with _qt.ApplicationContext(exit_=exit_) as ctx:
         if ctx.isStandalone:
             logging.basicConfig()

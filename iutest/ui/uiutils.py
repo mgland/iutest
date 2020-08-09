@@ -30,3 +30,18 @@ def makeIconButton(icon, parent=None):
     btn.setIconSize(QtCore.QSize(20, 20))
     btn.setFixedSize(QtCore.QSize(24, 24))
     return btn
+
+
+def addSeparatorToLayout(layout, direction):
+    sep = QtWidgets.QFrame()
+    sep.setStyleSheet("color:black")
+    policy = sep.sizePolicy()
+    if direction == QtCore.Qt.Horizontal:
+        sep.setFrameShape(sep.HLine)
+        sep.setSizePolicy(policy.Minimum, policy.Preferred)
+    else:
+        sep.setFrameShape(sep.VLine)
+        sep.setSizePolicy(policy.Preferred, policy.Minimum)
+
+    sep.setLineWidth(1)
+    layout.addWidget(sep)

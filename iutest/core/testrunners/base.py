@@ -1,3 +1,6 @@
+import logging
+logger = logging.getLogger(__name__)
+
 class TestRunInfo(object):
     def __init__(self):
         self.lastRunTestIds = []
@@ -21,11 +24,30 @@ class BaseTestRunner(object):
         return False
 
     @classmethod
+    def isValid(cls):
+        return False
+
+    @classmethod
+    def check(cls):
+        if cls.isValid():
+            logger.info("Switch to test runner mode: %s", cls.name())
+        else:
+            logger.warning("The test runner mode %s is unavailable, you need to install the package first.", cls.name())
+
+    @classmethod
     def mode(cls):
         cls._raiseNotImplementedError()
 
     @classmethod
     def name(cls):
+        cls._raiseNotImplementedError()
+
+    @classmethod
+    def icon(cls):
+        cls._raiseNotImplementedError()
+
+    @classmethod
+    def disabledIcon(cls):
         cls._raiseNotImplementedError()
 
     @classmethod

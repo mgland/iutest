@@ -217,6 +217,23 @@ class IUTestWindow(QtWidgets.QWidget):
         btn.setMenu(menu)
         return (btn, menu)
 
+    def _setInitialTestMode(self):
+        initRunnerMode = self._testManager.getInitialRunnerMode()
+        self._testManager.setRunnerMode(initRunnerMode)
+
+    def _makeTestModeWidget(self, layout):
+        for runner in self._testManager.iterAllRunners(excludeDummy=True):
+            icon = runner.icon()
+            toolTip = "Run {} tests.".format(runner.name())
+            runnerMode = runner.mode()
+            btn = uiutils.makeIconButton(icon, self)
+            btn.setCheckable(True)
+            btn.setAutoExclusive(True)
+            btn.setToolTip(toolTip)
+            btn.setWindowTitle(str(runnerMode))
+            btn.clicked.connect(self._onTestModeClicked)
+            layout.addWidget(btn)
+    
     def _makeDirWidgets(self):
         lbl = QtWidgets.QLabel("Test Root")
         lbl.setToolTip(
@@ -240,6 +257,8 @@ class IUTestWindow(QtWidgets.QWidget):
         self._dirLayout.addWidget(self._rootDirLE)
         self._dirLayout.addWidget(self._browseBtn)
         self._dirLayout.addWidget(self._panelVisBtn)
+        uiutils.addSeparatorToLayout(self._dirLayout, QtCore.Qt.Vertical)
+        self._makeTestModeWidget(self._dirLayout)
 
         self._updateDirUI()
 
@@ -299,6 +318,15 @@ class IUTestWindow(QtWidgets.QWidget):
         appsettings.get().saveSimpleConfig(
             constants.CONFIG_KEY_AUTO_CLEAR_LOG_STATE, state
         )
+    
+    def _onTestModeClicked(self):
+        btn = self.sender()
+        if not btn:
+            return
+
+        runnerMode = int(btn.windowTitle())
+        self._testManager.setRunnerMode(runnerMode)
+        appsettings.get().saveSimpleConfig(constants.CONFIG_KEY_LAST_RUNNER_MODE, runnerMode)
 
     def _onStopOnErrorButtonToggled(self, stop):
         self._testManager.setStopOnError(stop)

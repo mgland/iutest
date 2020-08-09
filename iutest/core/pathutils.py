@@ -41,12 +41,12 @@ def objectFromDotPath(dotPath):
 
     # Now get the object from the module:
     obj = module
-    parts = parts[1:]
-    for part in parts:
+    for part in parts[1:]:
         try:
             obj = getattr(obj, part)
         except AttributeError:
             logger.exception("Error importing the module at path %s", dotPath)
+            return None
 
     return obj
 

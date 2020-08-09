@@ -1,6 +1,8 @@
 import logging
 
+from iutest.core import constants
 from iutest.core import pathutils
+from iutest.core import appsettings
 from iutest.core.testrunners import runnerconstants
 from iutest.core.testrunners import registry
 
@@ -17,6 +19,38 @@ class TestManager(object):
         self._runners = {}
         self.setStartDirOrModule(startDirOrModule)
         self.setTopDir(topDir)
+
+    def setRunnerMode(self, runnerMode):
+        """Switch to different runner for listing or running the tests.
+        Args:
+            runnerMode (int): One of RUNNER_* int constant defined in registry.
+        """
+        self._initialiseRunner(runnerMode)
+        self._runnerMode = runnerMode
+        self.getRunner().check()
+
+    def iterAllRunners(self, excludeDummy=True):
+        for runnerMode in registry.getRunnerModes():
+            runner = self._getRunnerByMode(runnerMode)
+            if runner and not excludeDummy or not runner.isDummy():
+                yield runner
+
+    def _testFeasibleRunnerMode(self):
+        for runnerMode in registry.getRunnerModes():
+            runner = self._getRunnerByMode(runnerMode)
+            if runner.isValid():
+                return runnerMode
+
+        return runnerconstants.RUNNER_DUMMY
+
+    def getInitialRunnerMode(self):
+        lastRunner = appsettings.get().simpleConfigIntValue(
+            constants.CONFIG_KEY_LAST_RUNNER_MODE, -1
+        )
+        if lastRunner  < 0:
+            return self._testFeasibleRunnerMode()
+        else:
+            return lastRunner
 
     def setStartDirOrModule(self, startDirOrModule):
         self._startDirOrModule = startDirOrModule or ""
@@ -55,18 +89,10 @@ class TestManager(object):
     def stopOnError(self):
         return self._stopOnError
 
-    def setRunnerMode(self, runnerMode):
-        """Switch to different runner for listing or running the tests.
-        Args:
-            runnerMode (int): One of RUNNER_* int constant defined in registry.
-        """
-        self._initialRunner(runnerMode)
-        self._runnerMode = runnerMode
-
     def ui(self):
         return self._ui
 
-    def _initialRunner(self, runnerMode):
+    def _initialiseRunner(self, runnerMode):
         if runnerMode in self._runners:
             return True
 
@@ -79,12 +105,15 @@ class TestManager(object):
         self._runners[runnerMode] = runnerClass(self)
         return True
 
-    def getRunner(self):
-        if not self._initialRunner(self._runnerMode):
-            logger.error("Unable initialise the runner of mode %s", self._runnerMode)
+    def _getRunnerByMode(self, runnerMode):
+        if not self._initialiseRunner(runnerMode):
+            logger.error("Unable to initialise the runner of mode %s", runnerMode)
             return None
 
-        return self._runners[self._runnerMode]
+        return self._runners[runnerMode]
+
+    def getRunner(self):
+        return self._getRunnerByMode(self._runnerMode)
 
     def runTests(self, *tests):
         self.getRunner().runTests(*tests)

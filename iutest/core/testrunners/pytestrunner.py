@@ -1,4 +1,7 @@
 import logging
+from iutest import qt as _qt
+from iutest import dependencies
+from iutest.core import iconutils
 from iutest.core.testrunners import base
 from iutest.core.testrunners import runnerconstants
 from iutest.core import pathutils
@@ -6,6 +9,9 @@ from iutest.core import pathutils
 logger = logging.getLogger(__name__)
 
 class PyTestTestRunner(base.BaseTestRunner):
+    _Icon = None
+    _DisabledIcon = None
+
     # To-Do: Implement this class
     @classmethod
     def name(cls):
@@ -17,6 +23,25 @@ class PyTestTestRunner(base.BaseTestRunner):
     @classmethod
     def mode(cls):
         return runnerconstants.RUNNER_PYTEST
+
+    @classmethod
+    def isValid(cls):
+        return dependencies.PyTestWrapper.get().isValid()
+
+    @classmethod
+    def icon(cls):
+        if not cls.isValid():
+            return cls.disabledIcon()
+
+        if not cls._Icon:
+            cls._Icon = _qt.iconFromPath(iconutils.iconPath("pytest.svg"))
+        return cls._Icon
+
+    @classmethod
+    def disabledIcon(cls):
+        if not cls._DisabledIcon:
+            cls._DisabledIcon = _qt.iconFromPath(iconutils.iconPath("pytest.grey.svg"))
+        return cls._DisabledIcon
         
     def runTests(self, *testIds):
         pass
