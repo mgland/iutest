@@ -4,7 +4,7 @@ from iutest.core import pathutils
 
 
 def _iconDir():
-    return os.path.join(pathutils.iutestRootDir(), "icons")
+    return os.path.join(pathutils.iutestPackageDir(), "icons")
 
 
 def iconPath(iconName):

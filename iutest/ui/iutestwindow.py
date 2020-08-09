@@ -334,6 +334,7 @@ class IUTestWindow(QtWidgets.QWidget):
 
         runnerMode = int(btn.windowTitle())
         self._testManager.setRunnerMode(runnerMode)
+        self._onReloadUiButtonClicked()
         appsettings.get().saveSimpleConfig(
             constants.CONFIG_KEY_LAST_RUNNER_MODE, runnerMode
         )

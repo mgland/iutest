@@ -1,1 +1,3 @@
-include README.md LICENSE Pipfile icons/* docs/*
+include README.md LICENSE Pipfile 
+include iutest/icons/*
+include iutest/docs/*

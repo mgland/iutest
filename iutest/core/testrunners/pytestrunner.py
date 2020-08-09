@@ -22,7 +22,9 @@ class PyTestTestRunner(base.BaseTestRunner):
 
     @classmethod
     def isValid(cls):
-        return dependencies.PyTestWrapper.get().isValid()
+        # To-Do: Enable it when it is ready.
+        # return dependencies.PyTestWrapper.get().isValid()
+        return False
 
     @classmethod
     def icon(cls):

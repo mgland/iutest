@@ -54,6 +54,12 @@ class Nose2TestRunner(base.BaseTestRunner):
         return cls._Icon
 
     def runTests(self, *testIds):
+        if not self._importPlugins():
+            logger.warning(
+                "Unable to import nose2 plugs to run tests, is nose2 installed?"
+            )
+            return
+            
         plugins = [
             "iutest.plugins.nose2plugins.uilogger",
             "nose2.plugins.loader.eggdiscovery",

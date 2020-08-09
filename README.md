@@ -1,10 +1,11 @@
+
+[logo]: ./iutest/icons/iutest.svg "IUTest Logo"
+
 # ![logo] IUTest
 "IUTest" stands for "Interactive UnitTest", it is an interactive python unit-test runner that aims to support various unit-test frameworks like
 [nose2](https://pypi.org/project/nose2/), [pytest](https://pypi.org/project/pytest/), etc.
 
-In Chinese it is called "[You Tiao](https://en.wikipedia.org/wiki/Youtiao)", which is Chinese fried breadstick typically for breakfast :)
-
-[logo]: ./icons/iutest.svg "IUTest Logo"
+It has a pretty yummy Chinese name "[油条](https://en.wikipedia.org/wiki/Youtiao)", which is Chinese fried breadstick typically for breakfast :)
 
 
 ### To install IUTest
@@ -59,5 +60,6 @@ There might be a way to use pip with Maya, but here we keep it simple.
 - Download IUTest and its dependency libraries, 
   including [nose2](https://pypi.org/project/nose2/), [pytest](https://pypi.org/project/pytest/) and [reimport](https://pypi.org/project/reimport/), 
   these are all available from [PyPi](https://pypi.org/)
+- Make these libraries available to Maya by adding their path to `sys.path`.
 - Install the [code](#Run-in-python) above as a Maya shelf button.
 - Click on the shelf button to run IUTest UI.
