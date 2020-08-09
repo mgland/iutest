@@ -30,18 +30,9 @@ class PyTestTestRunner(base.BaseTestRunner):
 
     @classmethod
     def icon(cls):
-        if not cls.isValid():
-            return cls.disabledIcon()
-
         if not cls._Icon:
             cls._Icon = _qt.iconFromPath(iconutils.iconPath("pytest.svg"))
         return cls._Icon
-
-    @classmethod
-    def disabledIcon(cls):
-        if not cls._DisabledIcon:
-            cls._DisabledIcon = _qt.iconFromPath(iconutils.iconPath("pytest.grey.svg"))
-        return cls._DisabledIcon
         
     def runTests(self, *testIds):
         pass

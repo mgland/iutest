@@ -60,11 +60,12 @@ class _DependencyWrapper(object):
         self._mod = None
         self._tryImport(force=False, silent=True)
 
-    def _issueNotInstalledError(self, silent=True):
+    @classmethod
+    def _issueNotInstalledError(cls, silent=True):
         if not silent:
-            logger.error("The package '%s' is not installed", self.name())
+            logger.error("The package '%s' is not installed", cls.name())
         else:
-            logger.debug("The package '%s' is not installed", self.name())
+            logger.debug("The package '%s' is not installed", cls.name())
 
     @classmethod
     def _issueNotImplementedError(cls):
@@ -77,7 +78,7 @@ class _DependencyWrapper(object):
     @classmethod
     def name(cls):
         cls._issueNotImplementedError()
-
+    
     def isValid(self):
         return bool(self._mod)
 

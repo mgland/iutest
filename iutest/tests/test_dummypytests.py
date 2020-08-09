@@ -9,6 +9,7 @@ logger = logging.Logger(__name__)
 def _power(inputValue):
     return inputValue * inputValue
 
+
 def test_simpleApproved():
     """ a doctest in a docstring
     >>> _power(5)
@@ -18,6 +19,7 @@ def test_simpleApproved():
     """
     assert _power(5) == 25
     
+
 def test_simpleFailed():
     assert _power(5) == 6
 
@@ -26,9 +28,11 @@ def test_simpleFailed():
 def _prepareSomthing(tmpdir_factory):
     return tmpdir_factory.mktemp("data").join("temp.txt")
 
+
 def test_preparedTempFile(_prepareSomthing):
     print ("Prepared file:", _prepareSomthing)
     print (dir(_prepareSomthing))
+
 
 def test_toSkip():
     print (_power(5))

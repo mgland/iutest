@@ -54,7 +54,7 @@ class ViewStates(object):
         QtCore.QTimer.singleShot(0, self._restoreScrollValue)
 
 
-class TestTreeView(QtWidgets.QTreeWidget):
+class UTestTreeView(QtWidgets.QTreeWidget):
     runAllTest = Signal()
     runTests = Signal(list)
     runSetupOnly = Signal(str)

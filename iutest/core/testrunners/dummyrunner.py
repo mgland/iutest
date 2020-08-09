@@ -23,7 +23,7 @@ class DummyRunner(base.BaseTestRunner):
 
     @classmethod
     def _warnNoRunner(cls):
-        logger.warning("No test runner installed in system or chosen in UI, please do: `pip install nose2`.")
+        logger.warning("No test runner installed in system or chosen in UI.")
 
     def runTests(self, *testIds):
         self._warnNoRunner()

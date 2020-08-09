@@ -6,9 +6,6 @@ from iutest import dependencies
 from iutest.plugins.nose2plugins import testlister
 from iutest.core import pathutils
 
-nose2 = dependencies.Nose2Wrapper.getModule()
-nose2params = pathutils.objectFromDotPath("nose2.tools.params")
-
 class TestListerTestCase(unittest.TestCase):
     def test_listByDir(self):
         startDir = os.path.join(pathutils.iutestPackageDir(), "tests")
@@ -30,13 +27,14 @@ class TestListerTestCase(unittest.TestCase):
         tests = list(testlister.iterAllTestPathsFromRootDir(modulePath))
         self._checkListedTests(tests)
 
-    @nose2params(
-        ("package.to.module.testcase.test", False),
-        ("package.to.module.testcase.test:0", True),
-    )
-    def test_parseParameterizedTestId(self, testId, expectParameterized):
-        isParameterized, newTestId = testlister.parseParameterizedTestId(testId)
-        self.assertEqual(isParameterized, expectParameterized)
-        self.assertEqual(newTestId, testId.split(":")[0])
+    def test_parseParameterizedTestId(self):
+        data = (
+            ("package.to.module.testcase.test", False),
+            ("package.to.module.testcase.test:0", True),
+        )
+        for testId, expectParameterized in data:
+            isParameterized, newTestId = testlister.parseParameterizedTestId(testId)
+            self.assertEqual(isParameterized, expectParameterized)
+            self.assertEqual(newTestId, testId.split(":")[0])
 
     # To-Do: test the support for the tests in egg file.

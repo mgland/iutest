@@ -4,6 +4,7 @@ import sys
 import collections
 import weakref
 
+from iutest import dependencies
 from iutest import dcc
 from iutest.core import importutils
 from iutest.qt import QtCore, QtGui, QtWidgets, iconFromPath
@@ -15,7 +16,7 @@ from iutest.core import testmanager
 from iutest.core import uistream
 from iutest.ui import logbrowser
 from iutest.ui import rootpathedit
-from iutest.ui import testtreeview
+from iutest.ui import utesttreeview
 from iutest.ui import statuslabel
 from iutest.ui import uiutils
 from iutest.ui import configwindow
@@ -67,7 +68,7 @@ class IUTestWindow(QtWidgets.QWidget):
         self._makeTopWidgets(_topLayout)
         leftLay.addLayout(_topLayout)
 
-        self._view = testtreeview.TestTreeView(self)
+        self._view = utesttreeview.UTestTreeView(self)
         self._view.runAllTest.connect(self._runAllTests)
         self._view.runTests.connect(self._runTests)
         self._view.runSetupOnly.connect(self._runTestSetupOnly)
@@ -105,6 +106,7 @@ class IUTestWindow(QtWidgets.QWidget):
         self.setWindowFlags(QtCore.Qt.Window)
         self.setWindowTitle(constants.APP_NAME)
 
+        self._setInitialTestMode()
         self._loadLastDirsFromSettings()
         self._restorePanelVisState()
 
@@ -220,19 +222,24 @@ class IUTestWindow(QtWidgets.QWidget):
     def _setInitialTestMode(self):
         initRunnerMode = self._testManager.getInitialRunnerMode()
         self._testManager.setRunnerMode(initRunnerMode)
+        if initRunnerMode in self._testModeButtons:
+            self._testModeButtons[initRunnerMode].setChecked(True)
 
     def _makeTestModeWidget(self, layout):
+        self._testModeButtons = {}
         for runner in self._testManager.iterAllRunners(excludeDummy=True):
             icon = runner.icon()
             toolTip = "Run {} tests.".format(runner.name())
             runnerMode = runner.mode()
             btn = uiutils.makeIconButton(icon, self)
+            btn.setEnabled(runner.isValid())
             btn.setCheckable(True)
             btn.setAutoExclusive(True)
             btn.setToolTip(toolTip)
             btn.setWindowTitle(str(runnerMode))
             btn.clicked.connect(self._onTestModeClicked)
             layout.addWidget(btn)
+            self._testModeButtons[runnerMode] = btn
     
     def _makeDirWidgets(self):
         lbl = QtWidgets.QLabel("Test Root")
@@ -264,6 +271,7 @@ class IUTestWindow(QtWidgets.QWidget):
 
     def _makeTopWidgets(self, layout):
         reimportBtn = uiutils.makeIconButton(self._reimportIcon, self)
+        reimportBtn.setEnabled(dependencies.ReimportWrapper.get().isValid())
         reimportBtn.setToolTip("Reimport all changed python module.")
         reimportBtn.clicked.connect(self._reimportAllChangedModules)
         layout.addWidget(reimportBtn)

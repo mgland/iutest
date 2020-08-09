@@ -3,18 +3,16 @@ import os
 from iutest import dependencies
 from iutest.core import pathutils
 
-nose2 = dependencies.Nose2Wrapper.getModule()
-nose2params = pathutils.objectFromDotPath("nose2.tools.params")
-
 class PathUtilsTestCase(unittest.TestCase):
-    @nose2params(
-        ("/path/to/startDir", True),
-        ("E:\\path\\to/startDir", True),
-        ("module", False),
-        ("package1.package2.module", False),
-    )
-    def test_isPath(self, input, expectedResult):
-        self.assertEqual(pathutils.isPath(input), expectedResult)
+    def test_isPath(self):
+        data = (
+            ("/path/to/startDir", True),
+            ("E:\\path\\to/startDir", True),
+            ("module", False),
+            ("package1.package2.module", False),
+        )
+        for _input, expectedResult in data:
+            self.assertEqual(pathutils.isPath(_input), expectedResult)
 
     def test_iutestRootDir(self):
         rootDir = pathutils.iutestRootDir()
