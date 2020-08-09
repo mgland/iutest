@@ -100,6 +100,7 @@ class ReimportWrapper(_DependencyWrapper):
     def _tryImport(self, force, silent):
         if not force and self._mod:
             return
+        self._mod = None
         try:
             import reimport
             self._mod = reimport

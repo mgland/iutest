@@ -119,7 +119,7 @@ class Nose2TestRunner(base.BaseTestRunner):
             "nose2.plugins.result"
         ]
         extraArgs = ["--partial-test"]
-        cls.partialtest.PartialTestRunner.setRunMode(partialMode)
+        self.partialtest.PartialTestRunner.setRunMode(partialMode)
         self._runTest(plugins, excludePlugins, extraArgs, testId)
 
     def iterAllTestIds(self):

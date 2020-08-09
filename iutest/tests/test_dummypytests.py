@@ -1,6 +1,6 @@
 import logging
 import os
-
+'''
 from iutest import dependencies
 pytest = dependencies.PyTestWrapper.getModule()
 
@@ -51,3 +51,4 @@ class TestSomething:
         x = "hello"
         assert hasattr(x, "check")
 
+'''

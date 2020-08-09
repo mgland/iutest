@@ -2,8 +2,7 @@ import weakref
 import re
 import sys
 import logging
-from iutest import dependencies
-nose2 = dependencies.Nose2Wrapper.getModule()
+from iutest.core import constants
 
 class UiStream(object):
     _reportUi = None
@@ -84,16 +83,16 @@ class UiStream(object):
         msg = self._processLinkInMsg(msg)
         msg = self._processLinkInStackTrace(msg)
 
-        if self._testResult == nose2.result.ERROR:
+        if self._testResult == constants.TEST_RESULT_ERROR:
             reportUi.logError(msg)
 
-        elif self._testResult == nose2.result.FAIL:
+        elif self._testResult == constants.TEST_RESULT_FAIL:
             reportUi.logFailed(msg)
 
-        elif self._testResult == nose2.result.SKIP:
+        elif self._testResult == constants.TEST_RESULT_SKIP:
             reportUi.logWarning(msg)
 
-        elif self._testResult == nose2.result.PASS:
+        elif self._testResult == constants.TEST_RESULT_PASS:
             reportUi.logSuccess(msg)
 
         else:

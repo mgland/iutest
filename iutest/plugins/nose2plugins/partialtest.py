@@ -1,8 +1,6 @@
 import unittest
 import logging
-from iutest import dependencies
-
-nose2 = dependencies.Nose2Wrapper.getModule()
+import nose2
 
 from iutest.core import constants
 

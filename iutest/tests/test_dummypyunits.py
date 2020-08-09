@@ -6,8 +6,8 @@ from iutest.core import constants
 from iutest.core import pathutils
 
 logger = logging.Logger(__name__)
-nose2 = dependencies.Nose2Wrapper.getModule()
-nose2params = pathutils.objectFromDotPath("nose2.tools.params")
+
+from nose2 import tools
 
 class DummyTests(unittest.TestCase):
     """Some dummy tests for the IUTest UI manual tests.
@@ -53,7 +53,7 @@ class DummyTests(unittest.TestCase):
             with self.subTest(i=i):
                 self.assertEqual(i % 2, 0)
 
-    @nose2params((1, 2), (2, 3), (6, 5), (4, 6))
+    @tools.params((1, 2), (2, 3), (6, 5), (4, 6))
     def test_parameters(self, num1, num2):
         logger.info("Test with %s < %s", num1, num2)
         self.assertLess(num1, num2)

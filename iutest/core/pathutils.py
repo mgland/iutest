@@ -2,7 +2,6 @@ import os
 import inspect
 import logging
 import sys
-from iutest import dependencies
 
 logger = logging.getLogger(__name__)
 

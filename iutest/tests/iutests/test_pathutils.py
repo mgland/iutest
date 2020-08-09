@@ -1,6 +1,5 @@
 import unittest
 import os
-from iutest import dependencies
 from iutest.core import pathutils
 
 class PathUtilsTestCase(unittest.TestCase):

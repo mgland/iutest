@@ -1,11 +1,10 @@
 import logging
-from iutest import dependencies
+from nose2 import result
 
 from iutest.core import constants
 from iutest.plugins.nose2plugins import testlister
 
 logger = logging.getLogger(__name__)
-nose2 = dependencies.Nose2Wrapper.getModule()
 
 
 class ViewUpdater(object):
@@ -66,7 +65,7 @@ class ViewUpdater(object):
     def testOutcome(self, event):
         testId = event.test.id()
         cls = self.__class__
-        if event.outcome == nose2.result.ERROR:
+        if event.outcome == result.ERROR:
             cls.lastErrorCount += 1
             if not self.lastFailedTest:
                 ViewUpdater.lastFailedTest = testId
@@ -74,7 +73,7 @@ class ViewUpdater(object):
                 "showResultOnItemByTestId", testId, constants.TEST_ICON_STATE_ERROR
             )
 
-        elif event.outcome == nose2.result.FAIL:
+        elif event.outcome == result.FAIL:
             if not event.expected:
                 cls.lastFailedCount += 1
             else:
@@ -85,13 +84,13 @@ class ViewUpdater(object):
                 "showResultOnItemByTestId", testId, constants.TEST_ICON_STATE_FAILED
             )
 
-        elif event.outcome == nose2.result.SKIP:
+        elif event.outcome == result.SKIP:
             cls.lastSkipCount += 1
             self.callManagerMethod(
                 "showResultOnItemByTestId", testId, constants.TEST_ICON_STATE_SKIPPED
             )
 
-        elif event.outcome == nose2.result.PASS:
+        elif event.outcome == result.PASS:
             if event.expected:
                 cls.lastSuccessCount += 1
             else:

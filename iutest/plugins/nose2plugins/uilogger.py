@@ -5,30 +5,47 @@ import logging
 
 from iutest import dependencies
 from iutest.core import uistream
+from iutest.core import constants
 from iutest.core import pathutils
 
-logger = logging.getLogger(__name__)
-nose2 = dependencies.Nose2Wrapper.getModule()
-ResultReporter = pathutils.objectFromDotPath("nose2.plugins.result.ResultReporter")
+from nose2.plugins import result as resultPlugin  # This has to be imported this way.
+from nose2 import result, events, util  # This has to be imported this way.
 
-class TestUiLoggerPlugin(ResultReporter):
+logger = logging.getLogger(__name__)
+
+class TestUiLoggerPlugin(resultPlugin.ResultReporter):
     """A nose2 plug to capture the logs for ui.
     """
-
     _originalStdOut = sys.stdout
     _originalStdErr = sys.stderr
 
+
     def __init__(self):
-        nose2.plugins.result.ResultReporter.__init__(self)
+        resultPlugin.ResultReporter.__init__(self)
         self.stream = uistream.UiStream()
         self.logHandler = uistream.LogHandler()
         self.stdOutCapturer = uistream.StdOutCapturer(self._originalStdOut)
         self.stdErrCapturer = uistream.StdErrCapturer(self._originalStdErr)
 
+    @classmethod
+    def _mapTestResultCode(cls, nose2ResultCode):
+        """Translate nose2.result result constants to iutest.core.constants.TEST_RESULT_* constants
+        """
+        if nose2ResultCode == result.ERROR:
+            return constants.TEST_RESULT_ERROR
+        elif nose2ResultCode == result.FAIL:
+            return constants.TEST_RESULT_FAIL
+        elif nose2ResultCode == result.SKIP:
+            return constants.TEST_RESULT_SKIP
+        elif nose2ResultCode == result.PASS:
+            return constants.TEST_RESULT_PASS
+        else:
+            return None
+
     def startTest(self, event):
         info = self._linkInfoFromTest(event)
         self.stream.setLinkInfo(info)
-        nose2.plugins.result.ResultReporter.startTest(self, event)
+        resultPlugin.ResultReporter.startTest(self, event)
         self.stream.setLinkInfo()
 
         self.logHandler.start()
@@ -40,19 +57,19 @@ class TestUiLoggerPlugin(ResultReporter):
         self.stdErrCapturer.stop()
         self.logHandler.stop()
 
-        self.stream.setResult(event.outcome)
-        nose2.plugins.result.ResultReporter.testOutcome(self, event)
+        self.stream.setResult(self._mapTestResultCode(event.outcome))
+        resultPlugin.ResultReporter.testOutcome(self, event)
         self.stream.setResult()
 
     def afterTestRun(self, event):
-        evt = nose2.events.ReportSummaryEvent(event, self.stream, self.reportCategories)
+        evt = events.ReportSummaryEvent(event, self.stream, self.reportCategories)
 
         self.stream.setLinkInfo()
         self.stream.setProcessStackTraceLink(False)
 
         if evt.stopTestEvent.result.wasSuccessful():
-            self.stream.setResult(nose2.result.PASS)
-            nose2.plugins.result.ResultReporter.afterTestRun(self, event)
+            self.stream.setResult(self._mapTestResultCode(result.PASS))
+            resultPlugin.ResultReporter.afterTestRun(self, event)
             self.stream.setResult()
         else:
             cats = evt.reportCategories
@@ -71,7 +88,7 @@ class TestUiLoggerPlugin(ResultReporter):
                 for ev in events_:
                     self._reportErrorSummary(flavour.upper(), ev)
 
-            self.stream.setResult(nose2.result.FAIL)
+            self.stream.setResult(self._mapTestResultCode(result.FAIL))
             self._printSummary(evt)
             self.stream.setResult()
 
@@ -79,7 +96,7 @@ class TestUiLoggerPlugin(ResultReporter):
         self.stream.setProcessStackTraceLink(False)
 
         desc = self._getDescription(err.test, errorList=True)
-        self.stream.setResult(nose2.result.FAIL)
+        self.stream.setResult(self._mapTestResultCode(result.FAIL))
         self.stream.writeln(self.separator1)
         self.stream.setResult()
 
