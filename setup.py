@@ -5,10 +5,13 @@ def readme():
         README = f.read()
     return README
 
+def version():
+    with open("iutest/_version.py") as f:
+        f.readlines()[-1].split()[-1].strip("\"'")
 
 setup(
     name="iutest",
-    version="0.1.0",
+    version=version(),
     description="A Python unittest ui tool that aims to support many unittest frameworks.",
     long_description=readme(),
     long_description_content_type="text/markdown",

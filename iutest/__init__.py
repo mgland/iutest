@@ -1,13 +1,4 @@
-import inspect
-import os
-import sys
-import logging
-
-from iutest import qt as _qt
-from iutest.core import testmanager
 from iutest.core import importutils
-
-logger = logging.getLogger(__name__)
 
 def runUi(startDirOrModule=None, topDir=None, exit_=False):
     """Load the IUTest UI
@@ -17,23 +8,8 @@ def runUi(startDirOrModule=None, topDir=None, exit_=False):
         topDir (str): The top directory that need to be put in sys.path in order for the tests work.
         exit (bool): Whether we exit python console after the IUTest window closed.
     """
-    if not _qt.hasQt():
-        cmd = "`pip install PySide2`" 
-        logger.error("Unable to launch IUTest UI which requires either PySide or PyQt installed, please: %s", cmd)
-        return
-
-    from iutest.ui import iutestwindow
-    with _qt.ApplicationContext(exit_=exit_) as ctx:
-        if ctx.isStandalone:
-            logging.basicConfig()
-        try:
-            manager = iutestwindow.IUTestWindow(
-                startDirOrModule=startDirOrModule, topDir=topDir
-            )
-            manager.show()
-        except Exception:
-            ctx.setHasError(True)
-            logger.exception("Error loading IUTest window.")
+    from iutest import cli
+    cli.runUi(startDirOrModule=startDirOrModule, topDir=topDir, exit_=exit_)
 
 
 def runAllTests(startDirOrModule=None, topDir=None, stopOnError=False):
@@ -44,11 +20,8 @@ def runAllTests(startDirOrModule=None, topDir=None, stopOnError=False):
         topDir (str): The top directory that need to be put in sys.path in order for the tests work.
         stopOnError (bool): Stop the tests running on the first error/failure.
     """
-    manager = testmanager.TestManager(
-        None, startDirOrModule=startDirOrModule, topDir=topDir
-    )
-    manager.setStopOnError(stopOnError)
-    manager.runAllTests()
+    from iutest import cli
+    cli.runAllTests(startDirOrModule=startDirOrModule, topDir=topDir, stopOnError=stopOnError)
 
 
 def runTests(*tests):
@@ -57,8 +30,8 @@ def runTests(*tests):
     Args:
         tests (tuple): The tests input in arbitrary number. Each of them is a python module path str.
     """
-    manager = testmanager.TestManager(None, startDirOrModule=None)
-    manager.runTests(*tests)
+    from iutest import cli
+    cli.runTests(*tests)
 
 
 __all__ = ["importutils", "runUi", "runAllTests", "runTests"]

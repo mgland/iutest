@@ -10,12 +10,7 @@ logger = logging.getLogger(__name__)
 
 class PyTestTestRunner(base.BaseTestRunner):
     _Icon = None
-    _DisabledIcon = None
-
     # To-Do: Implement this class
-    @classmethod
-    def name(cls):
-        return "pytest"
 
     def isDummy(self):
         return False

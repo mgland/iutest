@@ -6,10 +6,6 @@ logger = logging.getLogger(__name__)
 
 class DummyRunner(base.BaseTestRunner):
     @classmethod
-    def name(cls):
-        return "dummy"
-
-    @classmethod
     def isDummy(cls):
         return True
 

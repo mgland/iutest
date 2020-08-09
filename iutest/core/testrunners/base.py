@@ -1,5 +1,8 @@
 import logging
+from iutest.core.testrunners import runnerconstants
+
 logger = logging.getLogger(__name__)
+
 
 class TestRunInfo(object):
     def __init__(self):
@@ -40,7 +43,7 @@ class BaseTestRunner(object):
 
     @classmethod
     def name(cls):
-        cls._raiseNotImplementedError()
+        return runnerconstants.RUNNER_NAMES[cls.mode()]
 
     @classmethod
     def icon(cls):

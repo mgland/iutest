@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 class Nose2TestRunner(base.BaseTestRunner):
     _Icon = None
-    _DisabledIcon = None
+    
     viewupdater = None
     testlister = None
     partialtest = None
@@ -33,10 +33,6 @@ class Nose2TestRunner(base.BaseTestRunner):
             cls.testlister = None
             cls.partialtest = None
             return False
-
-    @classmethod
-    def name(cls):
-        return "nose2"
 
     def isDummy(self):
         return False
