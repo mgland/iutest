@@ -1,8 +1,8 @@
-# ![alt text][logo] IUTest-0.1
+# ![alt text][logo] IUTest
 "IUTest" stands for "Interactive UnitTest", it is a python unittest interactive runner that aims to support various unittest frameworks like
 [nose2](https://pypi.org/project/nose2/), [pytest](https://pypi.org/project/pytest/), etc.
 
-In Chinese the name is [油条](https://en.wikipedia.org/wiki/Youtiao), which is famous Chinese fried breadstick typically for breakfast :)
+In Chinese it is called "[油条](https://en.wikipedia.org/wiki/Youtiao)", which is famous Chinese fried breadstick typically for breakfast :)
 
 [logo]: ./icons/iutest.svg "IUTest Logo"
 
@@ -53,7 +53,8 @@ iutest.runUi()
 ```
 
 ### Run IUTest in DCC application, e.g. [Maya](https://www.autodesk.com.au/products/maya)
-- They might be a way to use pip with Maya, but normally, you just download IUTest and its dependency libraries, 
+There might be a way to use pip with Maya, but here we keep it simple.
+- Download IUTest and its dependency libraries, 
   including [nose2](https://pypi.org/project/nose2/), [pytest](https://pypi.org/project/pytest/) and [reimport](https://pypi.org/project/reimport/), 
   these are all available from [PyPi](https://pypi.org/)
 - Install the [code](#Run-in-python) above as a Maya shelf button.
