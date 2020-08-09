@@ -57,8 +57,8 @@ iutest.runUi()
 
 ### Run IUTest in DCC application, e.g. [Maya](https://www.autodesk.com.au/products/maya)
 There might be a way to use pip with Maya, but here we keep it simple.
-- Download IUTest and its dependency libraries, 
-  including [nose2](https://pypi.org/project/nose2/), [pytest](https://pypi.org/project/pytest/) and [reimport](https://pypi.org/project/reimport/), 
+- Download [IUTest](https://pypi.org/project/iutest/) and its dependency libraries:
+  [nose2](https://pypi.org/project/nose2/), [pytest](https://pypi.org/project/pytest/) and [reimport](https://pypi.org/project/reimport/), 
   these are all available from [PyPi](https://pypi.org/)
 - Make these libraries available to Maya by adding their path to `sys.path`.
 - Install the [code](#Run-in-python) above as a Maya shelf button.
