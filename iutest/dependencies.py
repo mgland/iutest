@@ -42,6 +42,11 @@ class _DependencyWrapper(object):
         return cls._instance
 
     @classmethod
+    def getModule(cls, silent=False):
+        wrapper = cls.get(silent=silent)
+        return wrapper._mod    
+
+    @classmethod
     def reload(cls, silent=True):
         """Try reimport the dependency module.
 
@@ -78,6 +83,9 @@ class _DependencyWrapper(object):
         
     def __getattribute__(self, name):
         if hasattr(_DependencyWrapper, name):
+            return object.__getattribute__(self, name)
+        
+        if name in ("_mod", "isValid", "_tryImport", "_issueNotInstalledError", "_issueNotImplementedError"):
             return object.__getattribute__(self, name)
 
         mod = object.__getattribute__(self, "_mod")

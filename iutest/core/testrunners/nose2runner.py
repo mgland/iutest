@@ -101,9 +101,9 @@ class Nose2TestRunner(base.BaseTestRunner):
         argv.extend(testIds)
         argv.extend(["--fail-fast"] if self._manager.stopOnError() else [])
 
-        viewupdater.ViewUpdater.resetLastData()
+        cls.viewupdater.ViewUpdater.resetLastData()
         dependencies.Nose2Wrapper.get().discover(
-            argv=argv, exit=False, extraHooks=viewupdater.ViewUpdater.getHooks(self._manager.ui())
+            argv=argv, exit=False, extraHooks=cls.viewupdater.ViewUpdater.getHooks(self._manager.ui())
         )
 
     def runSingleTestPartially(self, testId, partialMode):
@@ -128,7 +128,7 @@ class Nose2TestRunner(base.BaseTestRunner):
             "nose2.plugins.result"
         ]
         extraArgs = ["--partial-test"]
-        partialtest.PartialTestRunner.setRunMode(partialMode)
+        cls.partialtest.PartialTestRunner.setRunMode(partialMode)
         self._runTest(plugins, excludePlugins, extraArgs, testId)
 
     def iterAllTestIds(self):
@@ -138,7 +138,7 @@ class Nose2TestRunner(base.BaseTestRunner):
 
         startDirOrModule = self._manager.startDirOrModule()        
         topDir = self._manager.topDir()
-        for tid in testlister.iterAllTestPathsFromRootDir(
+        for tid in self.testlister.iterAllTestPathsFromRootDir(
             startDirOrModule, topDir
         ):
             yield tid
@@ -148,7 +148,7 @@ class Nose2TestRunner(base.BaseTestRunner):
         if not cls._importPlugins():
             return None
 
-        return testlister.gotErrorOnLastList()
+        return cls.testlister.gotErrorOnLastList()
 
     @classmethod
     def lastRunInfo(cls):
@@ -156,16 +156,16 @@ class Nose2TestRunner(base.BaseTestRunner):
         if not cls._importPlugins():
             return info
 
-        info.lastRunTestIds = viewupdater.ViewUpdater.lastRunTestIds
-        info.lastFailedTest = viewupdater.ViewUpdater.lastFailedTest
-        info.lastRunTime = viewupdater.ViewUpdater.runTime
-        info.lastRunCount = viewupdater.ViewUpdater.lastRunCount
-        info.lastSuccessCount = viewupdater.ViewUpdater.lastSuccessCount
-        info.lastFailedCount = viewupdater.ViewUpdater.lastFailedCount
-        info.lastErrorCount = viewupdater.ViewUpdater.lastErrorCount
-        info.lastSkipCount = viewupdater.ViewUpdater.lastSkipCount
-        info.lastExpectedFailureCount = viewupdater.ViewUpdater.lastExpectedFailureCount
-        info.lastUnexpectedSuccessCount = viewupdater.ViewUpdater.lastUnexpectedSuccessCount
+        info.lastRunTestIds = cls.viewupdater.ViewUpdater.lastRunTestIds
+        info.lastFailedTest = cls.viewupdater.ViewUpdater.lastFailedTest
+        info.lastRunTime = cls.viewupdater.ViewUpdater.runTime
+        info.lastRunCount = cls.viewupdater.ViewUpdater.lastRunCount
+        info.lastSuccessCount = cls.viewupdater.ViewUpdater.lastSuccessCount
+        info.lastFailedCount = cls.viewupdater.ViewUpdater.lastFailedCount
+        info.lastErrorCount = cls.viewupdater.ViewUpdater.lastErrorCount
+        info.lastSkipCount = cls.viewupdater.ViewUpdater.lastSkipCount
+        info.lastExpectedFailureCount = cls.viewupdater.ViewUpdater.lastExpectedFailureCount
+        info.lastUnexpectedSuccessCount = cls.viewupdater.ViewUpdater.lastUnexpectedSuccessCount
         return info
 
     @classmethod
@@ -173,11 +173,11 @@ class Nose2TestRunner(base.BaseTestRunner):
         if not cls._importPlugins():
             return None
 
-        return testlister.parseParameterizedTestId(testId)
+        return cls.testlister.parseParameterizedTestId(testId)
 
     @classmethod
     def sourcePathAndLineFromModulePath(cls, modulePath):
         if not cls._importPlugins():
             return None
 
-        return testlister.sourcePathAndLineFromModulePath(modulePath)
+        return cls.testlister.sourcePathAndLineFromModulePath(modulePath)
