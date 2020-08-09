@@ -6,6 +6,7 @@ import weakref
 
 from iutest import dependencies
 from iutest import dcc
+from iutest import _version
 from iutest.core import importutils
 from iutest.qt import QtCore, QtGui, QtWidgets, iconFromPath
 from iutest.core import pathutils
@@ -104,8 +105,8 @@ class IUTestWindow(QtWidgets.QWidget):
         self.setTabOrder(self._view, self._logWgt)
         self.setWindowIcon(self._iutestIcon)
         self.setWindowFlags(QtCore.Qt.Window)
-        self.setWindowTitle(constants.APP_NAME)
 
+        self._updateWindowTitle()
         self._setInitialTestMode()
         self._loadLastDirsFromSettings()
         self._restorePanelVisState()
@@ -507,8 +508,11 @@ class IUTestWindow(QtWidgets.QWidget):
         self._updateDirUI()
         self.reload()
 
-    def _updateWindowTitle(self, configName):
-        self.setWindowTitle("{} - {}".format(constants.APP_NAME, configName))
+    def _updateWindowTitle(self, configName=None):
+        if configName:
+            self.setWindowTitle("{} {} - {}".format(constants.APP_NAME, _version.__version__, configName))
+        else:
+            self.setWindowTitle("{} {}".format(constants.APP_NAME, _version.__version__))
 
     def _configNameFromStartAndTopDir(self, startDir, topDir):
         config = appsettings.get().testDirSettings()
