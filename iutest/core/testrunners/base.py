@@ -31,12 +31,19 @@ class BaseTestRunner(object):
         return False
 
     @classmethod
+    def _issueNotInstalledError(cls):
+        logger.warning(
+            "The test runner %s is not installed, consider installing it by: `pip install %s`",
+            cls.name(), cls.name(),
+        )
+
+    @classmethod
     def check(cls):
         if cls.isValid():
-            logger.info("Switch to test runner mode: %s", cls.name())
+            logger.info("Switch to test runner %s.", cls.name())
         else:
             logger.warning(
-                "The test runner mode %s is unavailable, you need to install the package first.",
+                "The test runner %s is unavailable, you need to install it first or switch to other runners.",
                 cls.name(),
             )
 

@@ -221,7 +221,12 @@ class IUTestWindow(QtWidgets.QWidget):
         return (btn, menu)
 
     def _setInitialTestMode(self):
-        initRunnerMode = self._testManager.getInitialRunnerMode()
+        initRunnerMode = appsettings.get().simpleConfigIntValue(
+            constants.CONFIG_KEY_LAST_RUNNER_MODE, -1
+        )
+        if initRunnerMode < 0:
+            initRunnerMode = self._testManager.getFeasibleRunnerMode()
+            
         self._testManager.setRunnerMode(initRunnerMode)
         if initRunnerMode in self._testModeButtons:
             self._testModeButtons[initRunnerMode].setChecked(True)

@@ -91,7 +91,7 @@ class _QtModuleImporter(object):
             if cls.QtCore:
                 return
 
-        logger.error("No Qt modules found.")
+        logger.debug("No Qt modules found.")
 
 
 _QtModuleImporter.importModules()
@@ -128,12 +128,23 @@ def iconFromPath(filePath):
     return QtGui.QIcon(pixmap)
 
 
-def hasQt():
-    return bool(QtCore)
-
-
 def isQt5():
     return _QtModuleImporter.IsQt5
+
+
+def checkQtAvailability():
+    if bool(QtCore):
+        return True
+
+    if sys.version_info.major >= 3:
+        qtLibs = ["PySide2", "PyQt5"]
+    else:
+        qtLibs = ["PySide"]
+    cmdStr = " or ".join(["`pip install {}`".format(lib) for lib in qtLibs])
+    print(
+        "QT is required by IUTest UI, please install it by {}".format(cmdStr)
+    )
+    return False
 
 
 def setDarkStyle():
@@ -204,3 +215,4 @@ class ApplicationContext(object):
             else:
                 self._application.exec_()
                 self._application._eventLoopExited = True
+

@@ -1,35 +1,30 @@
 import argparse
 import logging
 import sys
+import os
 
 logger = logging.getLogger(__name__)
 
 
-def runUi(startDirOrModule=None, topDir=None, exit_=False):
+def runUi(modulePathOrDir=None, topDir=None, exit_=False):
     """Load the IUTest UI
 
     Args:
-        startDirOrModule (str): The directory or the module path to search for tests.
+        modulePathOrDir (str): The directory or the module path to search for tests.
         topDir (str): The top directory that need to be put in sys.path in order for the tests work.
         exit (bool): Whether we exit python console after the IUTest window closed.
     """
     from iutest import qt as _qt
-    from iutest.ui import iutestwindow
-
-    if not _qt.hasQt():
-        cmd = "`pip install PySide2`"
-        logger.error(
-            "Unable to launch IUTest UI which requires either PySide or PyQt installed, please: %s",
-            cmd,
-        )
+    if not _qt.checkQtAvailability():
         return
 
+    from iutest.ui import iutestwindow
     with _qt.ApplicationContext(exit_=exit_) as ctx:
         if ctx.isStandalone:
             logging.basicConfig()
         try:
             manager = iutestwindow.IUTestWindow(
-                startDirOrModule=startDirOrModule, topDir=topDir
+                startDirOrModule=modulePathOrDir, topDir=topDir
             )
             manager.show()
         except Exception:
@@ -37,38 +32,30 @@ def runUi(startDirOrModule=None, topDir=None, exit_=False):
             logger.exception("Error loading IUTest window.")
 
 
-def runAllTests(runnerName, startDirOrModule=None, topDir=None, stopOnError=False):
-    """Run all the tests without UI
-
-    Args:
-        runnerName (str): The runner mode name, e.g. 'nose2' or 'pytest'
-        startDirOrModule (str): The directory or the module path to search for tests.
-        topDir (str): The top directory that need to be put in sys.path in order for the tests work.
-        stopOnError (bool): Stop the tests running on the first error/failure.
-    """
-    from iutest.core import testmanager
-    from iutest.core.testrunners import runnerconstants
-
-    manager = testmanager.TestManager(
-        None, startDirOrModule=startDirOrModule, topDir=topDir
-    )
-    manager.setRunnerMode(runnerconstants.runnerModeFromName(runnerName))
-    manager.setStopOnError(stopOnError)
-    manager.runAllTests()
-
-
-def runTests(runnerName, *tests):
+def runTests(runnerName, topDir=None, stopOnError=False, *testModulePathsOrDir):
     """Run the tests without UI
 
     Args:
-        tests (tuple): The tests input in arbitrary number. Each of them is a python module path str.
+        runnerName (str): The runner name, e.g. 'nose2' or 'pytest'
+        topDir (str): The dir contains the python modules that the tests need for running.
+        stopOnError (bool): Stop the tests running on the first error/failure.
+        testModulePathsOrDir (tuple): List of python module paths or a single directory contains test modules.
     """
     from iutest.core import testmanager
     from iutest.core.testrunners import runnerconstants
+    dirs = [s for s in testModulePathsOrDir if os.path.isdir(s)]
+    if len(dirs) > 1:
+        logger.error("Please only input at most one test root dir once at a time.")
+        return
 
-    manager = testmanager.TestManager(None, startDirOrModule=None)
+    testRootDir =  dirs[0] if dirs else None
+    manager = testmanager.TestManager(ui=None, startDirOrModule=testRootDir, topDir=topDir)
     manager.setRunnerMode(runnerconstants.runnerModeFromName(runnerName))
-    manager.runTests(*tests)
+    manager.setStopOnError(stopOnError)
+    if testRootDir:
+        manager.runAllTests()
+    else:
+        manager.runTests(*testModulePathsOrDir)
 
 
 def main():
@@ -97,21 +84,6 @@ def main():
         default=False,
         help="Stop test running once there is an test error or failure",
     )
-    parser.add_argument(
-        "-m",
-        "--runner",
-        action="store",
-        dest="runner",
-        help="The runner the runs the tests, e.g. 'nose2' or 'pytest'",
-    )
-
-    parser.add_argument(
-        "-a",
-        "--runAllTests",
-        action="store",
-        dest="testRootDirOrModule",
-        help="Run all tests under the specified dir or python module",
-    )
 
     parser.add_argument(
         "-t",
@@ -122,22 +94,31 @@ def main():
     )
 
     parser.add_argument(
+        "-m",
+        "--runner",
+        action="store",
+        dest="runner",
+        help="The runner the runs the tests, e.g. 'nose2' or 'pytest'",
+    )
+
+    parser.add_argument(
         "-r",
-        "--runTest",
+        "--runTests",
         action="append",
         default=[],
-        dest="testModulePaths",
+        dest="testPathsOrDir",
         help="Specify the top dir of the python module to import",
     )
 
     # parse the arguments from standard input
     results = parser.parse_args()
     if len(sys.argv) < 2 or results.ui:
-        runUi(results.testRootDirOrModule, topDir=results.topDir)
+        testDir = results.testPathsOrDir[0] if results.testPathsOrDir else None
+        runUi(testDir, topDir=results.topDir)
     else:
-        if not results.testRootDirOrModule and not results.testModulePaths:
+        if not results.testPathsOrDir:
             print(
-                "You need to specify -a/--runAllTests or -r/--runTest to run the tests."
+                "You need to specify -r/--runTests with a directory or python module paths to run the tests."
             )
             return
 
@@ -147,15 +128,12 @@ def main():
             )
             return
 
-        if results.testRootDirOrModule:
-            runAllTests(
-                results.runner,
-                results.testRootDirOrModule,
-                topDir=results.topDir,
-                stopOnError=results.stopOnError,
-            )
-        if results.testModulePaths:
-            runTests(results.runner, *results.testModulePaths)
+        runTests(
+            results.runner,
+            results.topDir,
+            results.stopOnError,
+            *results.testPathsOrDir
+        )
 
 
 if __name__ == "__main__":

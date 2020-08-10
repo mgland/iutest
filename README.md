@@ -27,11 +27,14 @@ iutest
 # or
 iutest --ui
 
-# Run all tests for python module or directory:
-iutest --runner "nose2" --runAllTests "iutest" 
+# Run all tests recursively within a directory:
+iutest --runner "nose2" --runTests "E:/dir/to/test/modules"
 
 # Run tests by python module paths:
-iutest --runner "nose2" --runTest "iutest.tests.test_dummypyunits" --runTest "iutest.tests.iutests"
+iutest --runner "nose2" --runTests "iutest.tests.test_dummypyunits" --runTests "iutest.tests.iutests"
+
+# Run test but stop at first error / failure:
+iutest --runner "nose2" --runTests "iutest" --stopOnError
 ```
 
 ### Run in python
@@ -43,7 +46,7 @@ if testerPath not in sys.path:
     
 import iutest
 # Run all tests under given file system path:
-iutest.runAllTests(startDirOrModule='pathToTestRootDir', topDir='pathToPythonTopDir', stopOnError=False)
+iutest.runTests(startDirOrModule='pathToTestRootDir', topDir='pathToPythonTopDir', stopOnError=False)
 
 # Run all tests by given python module path:
 iutest.runAllTests(startDirOrModule='iutest.tests', stopOnError=False)

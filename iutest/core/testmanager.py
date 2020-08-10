@@ -2,7 +2,6 @@ import logging
 
 from iutest.core import constants
 from iutest.core import pathutils
-from iutest.core import appsettings
 from iutest.core.testrunners import runnerconstants
 from iutest.core.testrunners import registry
 
@@ -35,22 +34,13 @@ class TestManager(object):
             if runner and not excludeDummy or not runner.isDummy():
                 yield runner
 
-    def _testFeasibleRunnerMode(self):
+    def getFeasibleRunnerMode(self):
         for runnerMode in registry.getRunnerModes():
             runner = self._getRunnerByMode(runnerMode)
             if runner.isValid():
                 return runnerMode
 
         return runnerconstants.RUNNER_DUMMY
-
-    def getInitialRunnerMode(self):
-        lastRunner = appsettings.get().simpleConfigIntValue(
-            constants.CONFIG_KEY_LAST_RUNNER_MODE, -1
-        )
-        if lastRunner < 0:
-            return self._testFeasibleRunnerMode()
-        else:
-            return lastRunner
 
     def setStartDirOrModule(self, startDirOrModule):
         self._startDirOrModule = startDirOrModule or ""
@@ -97,7 +87,7 @@ class TestManager(object):
             return True
 
         if runnerMode not in registry.RUNNER_REGISTRY:
-            logger.error("The runner mode %s is invalid.", runnerMode)
+            logger.error("The runner %s is invalid.", runnerMode)
             return False
 
         runnerModulePath = registry.RUNNER_REGISTRY[runnerMode]

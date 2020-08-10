@@ -55,9 +55,7 @@ class Nose2TestRunner(base.BaseTestRunner):
 
     def runTests(self, *testIds):
         if not self._importPlugins():
-            logger.warning(
-                "Unable to import nose2 plugs to run tests, is nose2 installed?"
-            )
+            self._issueNotInstalledError()
             return
 
         plugins = [
@@ -96,7 +94,7 @@ class Nose2TestRunner(base.BaseTestRunner):
         argv.extend(testIds)
         argv.extend(["--fail-fast"] if self._manager.stopOnError() else [])
 
-        self.viewupdater.ViewUpdater.resetLastData()
+        self.viewupdater.ViewUpdater.resetLastData()        
         dependencies.Nose2Wrapper.getModule().discover(
             argv=argv,
             exit=False,
@@ -111,9 +109,7 @@ class Nose2TestRunner(base.BaseTestRunner):
                 constants.RUN_TEST_SETUP_ONLY | constants.RUN_TEST_NO_TEAR_DOWN
         """
         if not self._importPlugins():
-            logger.warning(
-                "Unable to import nose2 plugs to run tests, is nose2 installed?"
-            )
+            self._issueNotInstalledError()
             return
 
         plugins = [
@@ -132,9 +128,7 @@ class Nose2TestRunner(base.BaseTestRunner):
 
     def iterAllTestIds(self):
         if not self._importPlugins():
-            logger.warning(
-                "Unable to import nose2 plugins to list out tests, is nose2 installed?"
-            )
+            self._issueNotInstalledError()
             return
 
         startDirOrModule = self._manager.startDirOrModule()

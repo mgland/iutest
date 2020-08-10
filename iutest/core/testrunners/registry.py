@@ -8,6 +8,6 @@ RUNNER_REGISTRY = {
 
 
 def getRunnerModes():
-    """Get all runner modes in a priority high -> low order.
+    """Get all runners in a priority high -> low order.
     """
     return sorted(RUNNER_REGISTRY.keys(), reverse=True)
