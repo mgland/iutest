@@ -28,7 +28,7 @@ iutest
 iutest --ui
 
 # Run all tests recursively within a directory:
-iutest --runner "nose2" --runTests "E:/dir/to/test/modules"
+iutest --runner "nose2" --runTests "E:/projects/iutest"
 
 # Run tests by python module paths:
 iutest --runner "nose2" --runTests "iutest.tests.test_dummypyunits" --runTests "iutest.tests.iutests"
@@ -37,7 +37,7 @@ iutest --runner "nose2" --runTests "iutest.tests.test_dummypyunits" --runTests "
 iutest --runner "nose2" --runTests "iutest" --stopOnError
 ```
 
-### Run in python
+### Run tests in python
 ```python
 import sys
 testerPath = 'E:/projects/iutest'  # Change to your path!
@@ -46,23 +46,29 @@ if testerPath not in sys.path:
     
 import iutest
 # Run all tests under given file system path:
-iutest.runTests(startDirOrModule='pathToTestRootDir', topDir='pathToPythonTopDir', stopOnError=False)
-
-# Run all tests by given python module path:
-iutest.runAllTests(startDirOrModule='iutest.tests', stopOnError=False)
+iutest.runTests("nose2", 'path/To/Test/RootDir')
 
 # Run tests by given python module paths:
-iutest.runTests('iutest.tests.test_dummytests', 'iutest.tests.iutests')
+iutest.runTests("nose2", "iutest.tests.test_dummytests", "iutest.tests.iutests")
+```
 
-# Run UI:
+### Run UI in python
+```python
+import sys
+testerPath = 'E:/projects/iutest'  # Change to your path!
+if testerPath not in sys.path:
+    sys.path.append(testerPath)
+    
+import iutest
 iutest.runUi()
 ```
 
 ### Run IUTest in DCC application, e.g. [Maya](https://www.autodesk.com.au/products/maya)
-There might be a way to use pip with Maya, but here we keep it simple.
+It is easy to use [pip with Maya](http://mgland.com/qa/en/?qa=1748/how-to-use-pip-with-maya), with pip available in mayapy, you just need to do `mayapy -m pip install packageName` for each package we need: iutest, reimport, nose2 or pytest.
+
+However, pip requires root privilege and it did introduce many potential risks, so to use iutest in Maya without pip:
 - Download [IUTest](https://pypi.org/project/iutest/) and its dependency libraries:
-  [nose2](https://pypi.org/project/nose2/), [pytest](https://pypi.org/project/pytest/) and [reimport](https://pypi.org/project/reimport/), 
-  these are all available from [PyPi](https://pypi.org/)
+  [reimport](https://pypi.org/project/reimport/), [nose2](https://pypi.org/project/nose2/) or [pytest](https://pypi.org/project/pytest/)
 - Make these libraries available to Maya by adding their paths to `sys.path`.
-- Install the [code](#Run-in-python) above as a Maya shelf button.
+- Install the [code](#Run-UI-in-python) above as a Maya shelf button.
 - Click on the shelf button to run IUTest UI.

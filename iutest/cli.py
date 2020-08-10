@@ -32,14 +32,15 @@ def runUi(modulePathOrDir=None, topDir=None, exit_=False):
             logger.exception("Error loading IUTest window.")
 
 
-def runTests(runnerName, topDir=None, stopOnError=False, *testModulePathsOrDir):
+def runTests(runnerName, *testModulePathsOrDir, **arguments):
     """Run the tests without UI
 
     Args:
         runnerName (str): The runner name, e.g. 'nose2' or 'pytest'
-        topDir (str): The dir contains the python modules that the tests need for running.
-        stopOnError (bool): Stop the tests running on the first error/failure.
         testModulePathsOrDir (tuple): List of python module paths or a single directory contains test modules.
+        miscArguments (dict): Typical supported arguments are:
+            topDir (str): The dir contains the python modules that the tests need for running.
+            stopOnError (bool): Stop the tests running on the first error/failure.
     """
     from iutest.core import testmanager
     from iutest.core.testrunners import runnerconstants
@@ -49,6 +50,8 @@ def runTests(runnerName, topDir=None, stopOnError=False, *testModulePathsOrDir):
         return
 
     testRootDir =  dirs[0] if dirs else None
+    topDir  = arguments.get("topDir", None)
+    stopOnError = arguments.get("stopOnError", False)
     manager = testmanager.TestManager(ui=None, startDirOrModule=testRootDir, topDir=topDir)
     manager.setRunnerMode(runnerconstants.runnerModeFromName(runnerName))
     manager.setStopOnError(stopOnError)
@@ -128,11 +131,14 @@ def main():
             )
             return
 
+        arguments = {
+            "topDir" : results.topDir,
+            "stopOnError" : results.stopOnError,
+        }
         runTests(
             results.runner,
-            results.topDir,
-            results.stopOnError,
-            *results.testPathsOrDir
+            *results.testPathsOrDir,
+            **arguments
         )
 
 

@@ -13,17 +13,18 @@ def runUi(modulePathOrDir=None, topDir=None, exit_=False):
     cli.runUi(modulePathOrDir=modulePathOrDir, topDir=topDir, exit_=exit_)
 
 
-def runTests(runnerName, topDir=None, stopOnError=False, *testModulePathsOrDir):
+def runTests(runnerName, *testModulePathsOrDir, **arguments):
     """Run the tests without UI
 
     Args:
         runnerName (str): The runner name, e.g. 'nose2' or 'pytest'
-        topDir (str): The dir contains the python modules that the tests need for running.
-        stopOnError (bool): Stop the tests running on the first error/failure.
         testModulePathsOrDir (tuple): List of python module paths or a single directory contains test modules.
+        miscArguments (dict): Typical supported arguments are:
+            topDir (str): The dir contains the python modules that the tests need for running.
+            stopOnError (bool): Stop the tests running on the first error/failure.
     """
     from iutest import cli
-    cli.runTests(runnerName, topDir, stopOnError, *testModulePathsOrDir)
+    cli.runTests(runnerName, *testModulePathsOrDir, **arguments)
 
 
 __all__ = ["importutils", "runUi", "runTests"]
