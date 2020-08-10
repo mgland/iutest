@@ -17,7 +17,7 @@ def version():
 setup(
     name="iutest",
     version=version(),
-    description="A Python unittest ui tool that aims to support many unittest frameworks.",
+    description="An interactive python test runner supports various test frameworks.",
     long_description=readme(),
     long_description_content_type="text/markdown",
     url="https://github.com/mgland/iutest",
@@ -29,6 +29,11 @@ setup(
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
+        "Framework :: Pytest",
+        "Topic :: Software Development",
+        "Topic :: Software Development :: Testing",
+        "Topic :: Software Development :: Testing :: Unit",
+        "Intended Audience :: Developers",
     ],
     packages=[
         "iutest",
@@ -43,6 +48,6 @@ setup(
         "iutest.ui",
     ],
     include_package_data=True,
-    install_requires=["reimport", "nose2", "pytest", "pyside2"],
+    install_requires=["reimport"],
     entry_points={"console_scripts": ["iutest=iutest.cli:main"]},
 )
