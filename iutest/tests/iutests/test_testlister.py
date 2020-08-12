@@ -1,8 +1,11 @@
 import unittest
 import os
 
+from iutest import dependencies
 from iutest.core import pathutils
 
+
+@unittest.skipUnless(dependencies.Nose2Wrapper.get().isValid(), "It is nose2 only test")
 class Nose2TestListerTestCase(unittest.TestCase):
     def test_listByDir(self):
         from iutest.plugins.nose2plugins import testlister
@@ -15,7 +18,7 @@ class Nose2TestListerTestCase(unittest.TestCase):
     def _checkListedTests(self, tests):
         self.assertTrue(tests)
         hasThisTest = False
-        prefix = "iutest.tests.iutests.test_testlister.TestListerTestCase.test_"
+        prefix = "iutest.tests.iutests.test_testlister.{}.test_".format(self.__class__.__name__)
         for tid in tests:
             if tid.startswith(prefix):
                 hasThisTest = True
