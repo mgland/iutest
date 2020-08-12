@@ -1,4 +1,6 @@
 import logging
+from iutest import qt as _qt
+from iutest.core import iconutils
 from iutest.core.testrunners import runnerconstants
 
 logger = logging.getLogger(__name__)
@@ -23,12 +25,16 @@ class BaseTestRunner(object):
         self._manager = manager
 
     @classmethod
-    def isDummy(cls):
+    def isValid(cls):
         return False
 
     @classmethod
-    def isValid(cls):
-        return False
+    def iconFileName(cls):
+        cls._raiseNotImplementedError()
+
+    @classmethod
+    def icon(cls):
+        return _qt.iconFromPath(iconutils.iconPath(cls.iconFileName()))
 
     @classmethod
     def _issueNotInstalledError(cls):
@@ -54,14 +60,6 @@ class BaseTestRunner(object):
     @classmethod
     def name(cls):
         return runnerconstants.RUNNER_NAMES[cls.mode()]
-
-    @classmethod
-    def icon(cls):
-        cls._raiseNotImplementedError()
-
-    @classmethod
-    def disabledIcon(cls):
-        cls._raiseNotImplementedError()
 
     @classmethod
     def _raiseNotImplementedError(cls):

@@ -233,9 +233,9 @@ class IUTestWindow(QtWidgets.QWidget):
 
     def _makeTestModeWidget(self, layout):
         self._testModeButtons = {}
-        for runner in self._testManager.iterAllRunners(excludeDummy=True):
+        for runner in self._testManager.iterAllRunners():
             icon = runner.icon()
-            toolTip = "Run {} tests.".format(runner.name())
+            toolTip = "Run tests using {}.".format(runner.name())
             runnerMode = runner.mode()
             btn = uiutils.makeIconButton(icon, self)
             btn.setEnabled(runner.isValid())

@@ -10,12 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class PyTestTestRunner(base.BaseTestRunner):
-    _Icon = None
     # To-Do: Implement this class
-
-    def isDummy(self):
-        return False
-
     @classmethod
     def mode(cls):
         return runnerconstants.RUNNER_PYTEST
@@ -27,10 +22,8 @@ class PyTestTestRunner(base.BaseTestRunner):
         return False
 
     @classmethod
-    def icon(cls):
-        if not cls._Icon:
-            cls._Icon = _qt.iconFromPath(iconutils.iconPath("pytest.svg"))
-        return cls._Icon
+    def iconFileName(cls):
+        return "pytest.svg"
 
     def runTests(self, *testIds):
         pass

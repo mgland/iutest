@@ -10,8 +10,6 @@ logger = logging.getLogger(__name__)
 
 
 class Nose2TestRunner(base.BaseTestRunner):
-    _Icon = None
-
     viewupdater = None
     testlister = None
     partialtest = None
@@ -36,9 +34,6 @@ class Nose2TestRunner(base.BaseTestRunner):
             cls.partialtest = None
             return False
 
-    def isDummy(self):
-        return False
-
     @classmethod
     def mode(cls):
         return runnerconstants.RUNNER_NOSE2
@@ -48,10 +43,8 @@ class Nose2TestRunner(base.BaseTestRunner):
         return dependencies.Nose2Wrapper.get().isValid()
 
     @classmethod
-    def icon(cls):
-        if not cls._Icon:
-            cls._Icon = _qt.iconFromPath(iconutils.iconPath("nose2.svg"))
-        return cls._Icon
+    def iconFileName(cls):
+        return "nose2.svg"
 
     def runTests(self, *testIds):
         if not self._importPlugins():

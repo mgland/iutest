@@ -14,7 +14,7 @@ class TestManager(object):
         self._topDir = ""
         self._stopOnError = False
         self._ui = ui
-        self._runnerMode = runnerconstants.RUNNER_DUMMY
+        self._runnerMode = runnerconstants.RUNNER_PYUNIT
         self._runners = {}
         self.setStartDirOrModule(startDirOrModule)
         self.setTopDir(topDir)
@@ -28,10 +28,10 @@ class TestManager(object):
         self._runnerMode = runnerMode
         self.getRunner().check()
 
-    def iterAllRunners(self, excludeDummy=True):
+    def iterAllRunners(self):
         for runnerMode in registry.getRunnerModes():
             runner = self._getRunnerByMode(runnerMode)
-            if runner and not excludeDummy or not runner.isDummy():
+            if runner:
                 yield runner
 
     def getFeasibleRunnerMode(self):
@@ -40,7 +40,7 @@ class TestManager(object):
             if runner.isValid():
                 return runnerMode
 
-        return runnerconstants.RUNNER_DUMMY
+        return runnerconstants.RUNNER_PYUNIT
 
     def setStartDirOrModule(self, startDirOrModule):
         self._startDirOrModule = startDirOrModule or ""

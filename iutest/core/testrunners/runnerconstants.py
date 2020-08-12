@@ -1,8 +1,8 @@
-RUNNER_DUMMY = 0
+RUNNER_PYUNIT = 0
 RUNNER_NOSE2 = 1
 RUNNER_PYTEST = 2
 
-RUNNER_NAMES = {RUNNER_DUMMY: "", RUNNER_NOSE2: "nose2", RUNNER_PYTEST: "pytest"}
+RUNNER_NAMES = {RUNNER_PYUNIT: "unittest", RUNNER_NOSE2: "nose2", RUNNER_PYTEST: "pytest"}
 
 
 def isValidRunnerName(runnerName):
@@ -14,4 +14,4 @@ def runnerModeFromName(runnerName):
         if runnerName == name:
             return mode
 
-    return RUNNER_DUMMY
+    return RUNNER_PYUNIT
