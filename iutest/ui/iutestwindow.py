@@ -91,12 +91,12 @@ class IUTestWindow(QtWidgets.QWidget):
         self._splitter.setStretchFactor(1, 1)
 
         # bottom -----------------------------------
+        self._statusLbl = statuslabel.StatusLabel(self)
+        self._mainLay.addWidget(self._statusLbl)
+
         _btmLayout = uiutils.makeMinorHorizontalLayout()
         self._makeRunButtons(_btmLayout)
         self._mainLay.addLayout(_btmLayout)
-
-        self._statusLbl = statuslabel.StatusLabel(self)
-        self._mainLay.addWidget(self._statusLbl)
 
         self.resize(QtCore.QSize(900, 500))
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)  # for reimport convenience.
