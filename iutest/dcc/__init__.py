@@ -34,12 +34,10 @@ def isStandalone():
 def _dccModule():
     if isStandalone():
         from iutest.dcc import standalone
-
         return standalone
     elif isInsideMaya():
-        from iutest.dcc import dcc_maya
-
-        return dcc_maya
+        from iutest.dcc import dccmaya
+        return dccmaya
 
 
 module = _dccModule()
