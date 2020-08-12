@@ -70,7 +70,7 @@ class _DependencyWrapper(object):
 
     @classmethod
     def _issueNotImplementedError(cls):
-        err = "Please use derived class instead base class {}".format(cls.__name__)
+        err = "Please use a derived class instead of base class {}".format(cls.__name__)
         raise NotImplementedError(err)
 
     def _tryImport(self, force, silent):
@@ -86,7 +86,7 @@ class _DependencyWrapper(object):
     @classmethod
     def check(cls):
         if not cls.get().isValid():
-            logger.error("The module %s is not installed.", cls.get().name())
+            cls._issueNotInstalledError(silent=False)
             return False
         return True
 

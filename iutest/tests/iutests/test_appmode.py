@@ -15,4 +15,4 @@ class AppModeTestCase(unittest.TestCase):
     @unittest.skipUnless(dcc.isStandalone(), "It is standalone only test")
     def test_findParentWindow(self):
         window = dcc.findParentWindow()
-        self.assertTrue(window is None)
+        self.assertFalse(window)
