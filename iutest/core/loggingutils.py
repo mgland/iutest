@@ -15,7 +15,7 @@ def allLoggingLevel():
 
 
 def loggingLevels(*dotPaths):
-    return [logging.getLogger(dotPath).level for dotPath in dotPaths]
+    return (logging.getLogger(dotPath).level for dotPath in dotPaths)
 
 
 def setLoggingLevel(level, *dotPaths):

@@ -93,7 +93,6 @@ class Nose2TestRunner(base.BaseTestRunner):
 
         argv.extend(testIds)
         argv.extend(["--fail-fast"] if self._manager.stopOnError() else [])
-
         self.viewupdater.ViewUpdater.resetLastData()        
         dependencies.Nose2Wrapper.getModule().discover(
             argv=argv,

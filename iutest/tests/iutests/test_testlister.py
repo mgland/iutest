@@ -3,8 +3,7 @@ import os
 
 from iutest.core import pathutils
 
-
-class TestListerTestCase(unittest.TestCase):
+class Nose2TestListerTestCase(unittest.TestCase):
     def test_listByDir(self):
         from iutest.plugins.nose2plugins import testlister
 
