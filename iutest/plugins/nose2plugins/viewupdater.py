@@ -2,6 +2,7 @@ import logging
 from nose2 import result
 
 from iutest.core import constants
+from iutest.core import pyunitutils
 from iutest.plugins.nose2plugins import testlister
 
 logger = logging.getLogger(__name__)
@@ -51,7 +52,7 @@ class ViewUpdater(object):
     def startTest(self, event):
         ViewUpdater.lastRunCount += 1
         originalTestId = event.test.id()
-        _, testId = testlister.parseParameterizedTestId(originalTestId)
+        _, testId = pyunitutils.parseParameterizedTestId(originalTestId)
         if testId not in ViewUpdater.lastRunTestIds:
             ViewUpdater.lastRunTestIds.append(testId)
             self.callManagerMethod("onSingleTestStartToRun", testId, event.startTime)

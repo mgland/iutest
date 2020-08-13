@@ -19,7 +19,7 @@ def isPath(path):
     return "/" in path or "\\" in path
 
 
-def objectFromDotPath(dotPath):
+def objectFromDotPath(dotPath, silent=False):
     def tryImportClosestModule(paths):
         module = None
         while paths:
@@ -35,7 +35,8 @@ def objectFromDotPath(dotPath):
     parts = dotPath.split(".")
     module = tryImportClosestModule(parts[:])
     if not module:
-        logger.error("No module found from %s", dotPath)
+        if not silent:
+            logger.error("No module found from %s", dotPath)
         return None
 
     # Now get the object from the module:
@@ -44,7 +45,8 @@ def objectFromDotPath(dotPath):
         try:
             obj = getattr(obj, part)
         except AttributeError:
-            logger.exception("Error importing the module at path %s", dotPath)
+            if not silent:
+                logger.exception("Error importing the module at path %s", dotPath)
             return None
 
     return obj
@@ -61,3 +63,18 @@ def sourceFileAndLineFromObject(obj):
         line = 0
 
     return sourceFile, line
+
+
+def sourcePathAndLineFromModulePath(dotPath):
+    """Get the python file path from a module path.
+    Args:
+        dotPath (str): the python module path.
+    Return:
+        str: The python file path.
+    """
+    try:
+        obj = objectFromDotPath(dotPath)
+        return sourceFileAndLineFromObject(obj)
+    except Exception:
+        logger.error("Unable to retrieve source file from %s", obj)
+    return None, None

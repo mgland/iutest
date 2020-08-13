@@ -585,7 +585,7 @@ class UTestTreeView(QtWidgets.QTreeWidget):
 
     def _atGoToCode(self):
         firstSelectedModulePath = self._firstSelectedModulePath()
-        sourceFile, line = self._testManager.sourcePathAndLineFromModulePath(
+        sourceFile, line = pathutils.sourcePathAndLineFromModulePath(
             firstSelectedModulePath
         )
         if sourceFile:

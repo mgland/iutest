@@ -158,17 +158,3 @@ class Nose2TestRunner(base.BaseTestRunner):
             cls.viewupdater.ViewUpdater.lastUnexpectedSuccessCount
         )
         return info
-
-    @classmethod
-    def parseParameterizedTestId(cls, testId):
-        if not cls._importPlugins():
-            return None
-
-        return cls.testlister.parseParameterizedTestId(testId)
-
-    @classmethod
-    def sourcePathAndLineFromModulePath(cls, modulePath):
-        if not cls._importPlugins():
-            return None
-
-        return cls.testlister.sourcePathAndLineFromModulePath(modulePath)

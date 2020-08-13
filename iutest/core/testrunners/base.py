@@ -1,5 +1,6 @@
 import logging
 from iutest import qt as _qt
+from iutest.core import pyunitutils
 from iutest.core import iconutils
 from iutest.core.testrunners import runnerconstants
 
@@ -100,8 +101,5 @@ class BaseTestRunner(object):
 
     @classmethod
     def parseParameterizedTestId(cls, testId):
-        return False, testId
-
-    @classmethod
-    def sourcePathAndLineFromModulePath(cls, modulePath):
-        return None, 0
+        return pyunitutils.parseParameterizedTestId(testId)
+    

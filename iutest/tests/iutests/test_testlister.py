@@ -3,6 +3,7 @@ import os
 
 from iutest import dependencies
 from iutest.core import pathutils
+from iutest.core import pyunitutils
 
 
 @unittest.skipUnless(dependencies.Nose2Wrapper.get().isValid(), "It is nose2 only test")
@@ -36,10 +37,8 @@ class Nose2TestListerTestCase(unittest.TestCase):
             ("package.to.module.testcase.test", False),
             ("package.to.module.testcase.test:0", True),
         )
-        from iutest.plugins.nose2plugins import testlister
-
         for testId, expectParameterized in data:
-            isParameterized, newTestId = testlister.parseParameterizedTestId(testId)
+            isParameterized, newTestId = pyunitutils.parseParameterizedTestId(testId)
             self.assertEqual(isParameterized, expectParameterized)
             self.assertEqual(newTestId, testId.split(":")[0])
 

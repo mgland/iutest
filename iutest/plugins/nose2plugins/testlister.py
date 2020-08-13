@@ -3,24 +3,9 @@ import logging
 import inspect
 import nose2
 from iutest.core import pathutils
+from iutest.core import pyunitutils
 
 logger = logging.getLogger(__name__)
-
-
-def sourcePathAndLineFromModulePath(dotPath):
-    """Get the python file path from a module path.
-    Args:
-        dotPath (str): the python module path.
-    Return:
-        str: The python file path.
-    """
-    try:
-        obj = pathutils.objectFromDotPath(dotPath)
-        return pathutils.sourceFileAndLineFromObject(obj)
-    except Exception:
-        logger.error("Unable to retrieve source file from %s", obj)
-    return None, None
-
 
 def gotErrorOnLastList():
     return TestCollector.gotError
@@ -48,15 +33,6 @@ def iterAllTestPathsFromRootDir(startDirOrModuleName, topDir=None):
     nose2.discover(argv=argv, exit=False)
     for tid in TestCollector.iterTestIds():
         yield tid
-
-
-def parseParameterizedTestId(testId):
-    isParameterized = ":" in testId
-    return (
-        (isParameterized, testId.split(":")[0])
-        if isParameterized
-        else (isParameterized, testId)
-    )
 
 
 class TestCollector(nose2.events.Plugin):
@@ -142,5 +118,5 @@ class TestCollector(nose2.events.Plugin):
                 TestCollector.gotError = True
                 continue
 
-            _, testIdUsed = parseParameterizedTestId(testId)
+            _, testIdUsed = pyunitutils.parseParameterizedTestId(testId)
             self.collectId(testIdUsed)
