@@ -66,7 +66,8 @@ class AppSettings(object):
         return bool(value)
 
     def simpleConfigIntValue(self, key, defaultValue=0):
-        return int(self.simpleConfigValue(key, defaultValue=defaultValue))
+        configValue = self.simpleConfigValue(key, defaultValue=defaultValue) or 0
+        return int(configValue)
 
     def removeConfig(self, key):
         self._qsettings().remove(key)
