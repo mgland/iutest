@@ -4,6 +4,7 @@ import unittest
 from unittest import loader, suite, runner, TestProgram
 from iutest.core import pathutils
 from iutest.core import pyunitutils
+from iutest.core import uistream
 from iutest.core.testrunners import base
 from iutest.core.testrunners import runnerconstants
 
@@ -28,23 +29,18 @@ class PyUnitRunner(base.BaseTestRunner):
 
     def runTests(self, *testIds):
         failfast = self._manager.stopOnError()
+        testRunner = runner.TextTestRunner(stream=uistream.UiStream(), failfast=failfast)
         for tid in testIds:
-            tester = TestProgram(tid, argv=[''],verbosity=0, exit=False, failfast=failfast)
-            tester.createTests()
+            tester = TestProgram(
+                None, 
+                argv=['', tid],
+                testRunner=testRunner,
+                exit=False, 
+                failfast=failfast, 
+                buffer=uistream.UiStream()
+            )
+            #tester.createTests()
             tester.runTests()
-        
-        # if not self._Runner:
-        #     self.__class__._Runner = runner.TextTestRunner()
-
-        # self._Runner.failfast = self._manager.stopOnError()
-        # startMod = self._manager.startDirOrModule()
-        # startIndex = len(startMod) + 1
-        # for tid in testIds:
-        #     if tid.startswith(startMod):
-        #         tid = tid[startIndex:]
-        #     testObj = self._lastTests.get(tid)
-        #     print("Get:", tid, "=>", testObj)
-        #     self._Runner.run(testObj)
 
     def runSingleTestPartially(self, testId, partialMode):
         pass
