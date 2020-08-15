@@ -34,7 +34,7 @@ class PyUnitRunner(base.BaseTestRunner):
         argv = [""]
         argv.extend(testIds)
         pyunitextensions.PyUnitTestResult.resetLastData()
-        testRunner = pyunitextensions.PyUnitTest(self._manager.ui(), failfast=failfast)
+        testRunner = pyunitextensions.PyUnitTestRunnerWrapper(self._manager.ui(), failfast=failfast)
         runPyUnittest(
             None, 
             argv=argv,
@@ -54,7 +54,6 @@ class PyUnitRunner(base.BaseTestRunner):
                     yield p
         else:
             self._lastTests[tests.id()] = tests
-            #print("Collect:", tests.id(), "=>", tests)
             yield tests.id()
 
     @classmethod

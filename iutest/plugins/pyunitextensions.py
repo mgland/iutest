@@ -12,7 +12,7 @@ from unittest import TestProgram
 
 logger = logging.getLogger(__name__)
 
-class PyUnitTest(runner.TextTestRunner):
+class PyUnitTestRunnerWrapper(runner.TextTestRunner):
     def __init__(self, treeView, verbosity=2, failfast=False):
         self._verbosity = verbosity
         self.stream = uistream.UiStream()

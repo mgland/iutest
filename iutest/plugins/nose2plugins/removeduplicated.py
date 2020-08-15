@@ -24,7 +24,6 @@ class RemoveDuplicatedTests(events.Plugin, discovery.Discoverer):
     def loadTestsFromName(self, event):
         # This is where the EggDiscoveryLoader plugin introduce the duplicated plugin.
         # To-Do: Lodge the issue in nose2 repro.
-        print("Load tests from name")
         event.extraTests = self._removeDuplicate(event.extraTests)
 
     def loadTestsFromNames(self, event):

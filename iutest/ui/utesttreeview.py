@@ -63,12 +63,12 @@ class UTestTreeView(QtWidgets.QTreeWidget):
     _testAllIcons = []
     _testPackageIcons = []
     _testModuleIcons = []
+    _testSuiteIcons = []
     _testCaseIcons = []
-    _testItemIcons = []
     _allItemIconSet = []
 
     supportPartialCategories = (
-        constants.ITEM_CATEGORY_CASE,
+        constants.ITEM_CATEGORY_SUITE,
         constants.ITEM_CATEGORY_TEST,
     )
 
@@ -92,7 +92,7 @@ class UTestTreeView(QtWidgets.QTreeWidget):
         self.setIndentation(10)
 
         self._rootTestItem = None
-        self._testItems = []
+        self._testCases = []
         self._allItemsIdMap = {}
         self._initAllIcons()
 
@@ -144,21 +144,21 @@ class UTestTreeView(QtWidgets.QTreeWidget):
         cls._initComboIcons("_testAllIcons", "all.svg")
         cls._initComboIcons("_testPackageIcons", "package.svg")
         cls._initComboIcons("_testModuleIcons", "module.svg")
+        cls._initComboIcons("_testSuiteIcons", "testSuite.svg")
         cls._initComboIcons("_testCaseIcons", "testCase.svg")
-        cls._initComboIcons("_testItemIcons", "testItem.svg")
         cls._allItemIconSet = (
             cls._testAllIcons,
             cls._testPackageIcons,
             cls._testModuleIcons,
+            cls._testSuiteIcons,
             cls._testCaseIcons,
-            cls._testItemIcons,
         )
 
     def setFilterKeywords(self, keywords, ensureFirstMatchVisible=False):
         itemStates = {}
         if keywords:
             itemToFocus = None
-            for item in self._testItems:
+            for item in self._testCases:
                 self._accumulateItemVisibility(item, keywords, itemStates)
                 if not itemToFocus:
                     itemToFocus = item
@@ -264,7 +264,7 @@ class UTestTreeView(QtWidgets.QTreeWidget):
             self._rootTestItem, constants.TEST_ICON_STATE_NORMAL
         )
         self._resetExpandStates(self._rootTestItem)
-        for item in self._testItems:
+        for item in self._testCases:
             self._resetItem(item, False)
 
     def _resetItem(self, item, applyToAllChildren=False):
@@ -355,7 +355,7 @@ class UTestTreeView(QtWidgets.QTreeWidget):
         if keepUiStates:
             self._viewStates.save()
 
-        self._testItems = []
+        self._testCases = []
         self._rootTestItem = None
         self._allItemsIdMap = {}
         self.clear()
@@ -397,13 +397,13 @@ class UTestTreeView(QtWidgets.QTreeWidget):
                 self._allItemsIdMap[path] = item
                 cParent = item
 
-            testItem = cParent
-            testItem.setData(0, QtCore.Qt.UserRole, constants.ITEM_CATEGORY_TEST)
-            self._setItemIconState(testItem, constants.TEST_ICON_STATE_NORMAL)
-            self._testItems.append(cParent)
+            testCase = cParent
+            testCase.setData(0, QtCore.Qt.UserRole, constants.ITEM_CATEGORY_TEST)
+            self._setItemIconState(testCase, constants.TEST_ICON_STATE_NORMAL)
+            self._testCases.append(cParent)
 
-            caseItem = testItem.parent()
-            caseItem.setData(0, QtCore.Qt.UserRole, constants.ITEM_CATEGORY_CASE)
+            caseItem = testCase.parent()
+            caseItem.setData(0, QtCore.Qt.UserRole, constants.ITEM_CATEGORY_SUITE)
             self._setItemIconState(caseItem, constants.TEST_ICON_STATE_NORMAL)
 
             moduleItem = caseItem.parent()
@@ -473,10 +473,10 @@ class UTestTreeView(QtWidgets.QTreeWidget):
         self.focusItem(lastFailedItem)
 
     def testCount(self):
-        return len(self._testItems)
+        return len(self._testCases)
 
     def hasTests(self):
-        return bool(self._testItems)
+        return bool(self._testCases)
 
     def selectedTestIds(self):
         itemsByModulePath = {

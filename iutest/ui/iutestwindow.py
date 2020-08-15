@@ -640,7 +640,7 @@ class IUTestWindow(QtWidgets.QWidget):
     def _runPartialTest(self, partialMode):
         testId = self._view.firstSelectedTestOrTestCase()
         if not testId:
-            logger.error("You need to select testCase or test item.")
+            logger.error("You need to select test suite or test case.")
             return
         self._testManager.runSingleTestPartially(testId, partialMode)
         self._updateReimportRerunButtonEnabled()

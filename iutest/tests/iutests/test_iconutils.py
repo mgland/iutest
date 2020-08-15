@@ -7,7 +7,7 @@ from iutest.core import constants
 
 class IconUtilsTestCase(unittest.TestCase):
     def setUp(self):
-        self._iconFile = "testItem.svg"
+        self._iconFile = "testCase.svg"
 
     def test_iconPath(self):
         iconPath = iconutils.iconPath(self._iconFile)
