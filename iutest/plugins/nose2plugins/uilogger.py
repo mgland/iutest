@@ -44,10 +44,8 @@ class TestUiLoggerPlugin(resultPlugin.ResultReporter):
             return None
 
     def startTest(self, event):
-        info = self._linkInfoFromTest(event)
-        self.stream.setLinkInfo(info)
-        resultPlugin.ResultReporter.startTest(self, event)
-        self.stream.setLinkInfo()
+        with self.stream.linkInfoCtx(self._linkInfoFromTest(event)):
+            resultPlugin.ResultReporter.startTest(self, event)
 
         self.logHandler.start()
         self.stdOutCapturer.start()
@@ -58,9 +56,8 @@ class TestUiLoggerPlugin(resultPlugin.ResultReporter):
         self.stdErrCapturer.stop()
         self.logHandler.stop()
 
-        self.stream.setResult(self._mapTestResultCode(event.outcome))
-        resultPlugin.ResultReporter.testOutcome(self, event)
-        self.stream.setResult()
+        with self.stream.resultCtx(self._mapTestResultCode(event.outcome)):
+            resultPlugin.ResultReporter.testOutcome(self, event)
 
     def afterTestRun(self, event):
         evt = events.ReportSummaryEvent(event, self.stream, self.reportCategories)
@@ -69,9 +66,8 @@ class TestUiLoggerPlugin(resultPlugin.ResultReporter):
         self.stream.setProcessStackTraceLink(False)
 
         if evt.stopTestEvent.result.wasSuccessful():
-            self.stream.setResult(self._mapTestResultCode(result.PASS))
-            resultPlugin.ResultReporter.afterTestRun(self, event)
-            self.stream.setResult()
+            with self.stream.resultCtx(self._mapTestResultCode(result.PASS)):
+                resultPlugin.ResultReporter.afterTestRun(self, event)
         else:
             cats = evt.reportCategories
             errors = cats.get("errors", [])
@@ -89,29 +85,25 @@ class TestUiLoggerPlugin(resultPlugin.ResultReporter):
                 for ev in events_:
                     self._reportErrorSummary(flavour.upper(), ev)
 
-            self.stream.setResult(self._mapTestResultCode(result.FAIL))
-            self._printSummary(evt)
-            self.stream.setResult()
+            with self.stream.resultCtx(self._mapTestResultCode(result.FAIL)):
+                self._printSummary(evt)
 
     def _reportErrorSummary(self, flavour, err):
         self.stream.setProcessStackTraceLink(False)
 
         desc = self._getDescription(err.test, errorList=True)
-        self.stream.setResult(self._mapTestResultCode(result.FAIL))
-        self.stream.writeln(self.separator1)
-        self.stream.setResult()
+        with self.stream.resultCtx(self._mapTestResultCode(result.FAIL)):
+            self.stream.writeln(self.separator1)
 
-        self.stream.setLinkInfo(self._linkInfoFromTest(err))
-        self.stream.writeln("%s: %s" % (flavour, desc))
-        self.stream.setLinkInfo()
+        with self.stream.linkInfoCtx(self._linkInfoFromTest(err)):
+            self.stream.writeln("%s: %s" % (flavour, desc))
 
         # Now the stack trace, etc:
         self.stream.writeln(self.separator2)
         errDetail = self._getOutcomeDetail(err)
         if errDetail:
-            self.stream.setProcessStackTraceLink(True)
-            self.stream.writeln(errDetail)
-            self.stream.setProcessStackTraceLink(False)
+            with self.stream.processStackTraceLinkCtx():
+                self.stream.writeln(errDetail)
 
     def _linkInfoFromTest(self, event):
         try:

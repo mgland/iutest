@@ -4,6 +4,7 @@ import sys
 import logging
 from iutest.core import constants
 
+logger = logging.getLogger(__name__)
 
 class UiStream(object):
     _reportUi = None
@@ -37,12 +38,19 @@ class UiStream(object):
         self._linkInfo = None
         self._processStackTraceLink = False
         self._captureStdOut = False
+        self._treeView = None
 
     def setResult(self, result=None):
         self._testResult = result
 
+    def resultCtx(self, result):
+        return _UiStreamSetResultCtx(self, result)
+
     def setLinkInfo(self, linkInfo=None):
         self._linkInfo = linkInfo
+
+    def linkInfoCtx(self, linkInfo):
+        return _UiStreamLinkInfoCtx(self, linkInfo)
 
     def _processLinkInMsg(self, msg):
         if not self._linkInfo:
@@ -54,6 +62,7 @@ class UiStream(object):
     def _processLinkInStackTrace(self, msg):
         if not self._processStackTraceLink:
             return msg
+            
         lines = msg.split("\n")
         for i, line in enumerate(lines):
             matches = re.finditer(self._traceExp, line)
@@ -75,6 +84,9 @@ class UiStream(object):
 
     def setProcessStackTraceLink(self, process):
         self._processStackTraceLink = process
+
+    def processStackTraceLinkCtx(self):
+        return _UiStreamProcessLinkCtx(self)
 
     def write(self, msg):
         reportUi = self.ui()
@@ -106,6 +118,53 @@ class UiStream(object):
 
     def flush(self):
         pass
+    
+    def setTreeView(self, view):
+        self._treeView = view
+        
+    def callTreeViewMethod(self, method, *args, **kwargs):
+        if not self._treeView:
+            return
+        method = getattr(self._treeView, method)
+        if not method:
+            logger.error("%s has no method called %s", self._treeView, method)
+            return
+        method(*args, **kwargs)
+
+
+class _UiStreamProcessLinkCtx(object):
+    def __init__(self, uiStream):
+        self._uiStream = uiStream
+
+    def __enter__(self):
+        self._uiStream.setProcessStackTraceLink(True)
+
+    def __exit__(self, *_, **__):
+        self._uiStream.setProcessStackTraceLink(False)
+
+
+class _UiStreamSetResultCtx(object):
+    def __init__(self, uiStream, resultCode):
+        self._uiStream = uiStream
+        self._resultCode = resultCode
+
+    def __enter__(self):
+        self._uiStream.setResult(self._resultCode)
+
+    def __exit__(self, *_, **__):
+        self._uiStream.setResult()
+
+
+class _UiStreamLinkInfoCtx(object):
+    def __init__(self, uiStream, linkInfo):
+        self._uiStream = uiStream
+        self._linkInfo = linkInfo
+
+    def __enter__(self):
+        self._uiStream.setLinkInfo(self._linkInfo)
+
+    def __exit__(self, *_, **__):
+        self._uiStream.setLinkInfo()
 
 
 def writePlainTextToUiStream(msg):

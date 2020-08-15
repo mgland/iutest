@@ -42,6 +42,7 @@ class PyUnitRunner(base.BaseTestRunner):
             exit=False, 
             failfast=failfast, 
         )
+        testRunner.resetUiStreamResult()
 
     def runSingleTestPartially(self, testId, partialMode):
         pass
