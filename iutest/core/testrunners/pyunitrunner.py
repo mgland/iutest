@@ -7,6 +7,7 @@ from iutest.core import pyunitutils
 from iutest.core import uistream
 from iutest.core.testrunners import base
 from iutest.core.testrunners import runnerconstants
+from iutest.plugins import pyunitextensions
 
 logger = logging.getLogger(__name__)
 
@@ -29,18 +30,18 @@ class PyUnitRunner(base.BaseTestRunner):
 
     def runTests(self, *testIds):
         failfast = self._manager.stopOnError()
-        testRunner = runner.TextTestRunner(stream=uistream.UiStream(), failfast=failfast)
-        for tid in testIds:
-            tester = TestProgram(
-                None, 
-                argv=['', tid],
-                testRunner=testRunner,
-                exit=False, 
-                failfast=failfast, 
-                buffer=uistream.UiStream()
-            )
-            #tester.createTests()
-            tester.runTests()
+        argv = [""]
+        argv.extend(testIds)
+        pyunitextensions.PyUnitTestResult.resetLastData()
+        testRunner = pyunitextensions.PyUnitTest(self._manager.ui(), failfast=failfast)
+        testProgram = TestProgram(
+            None, 
+            argv=argv,
+            testRunner=testRunner,
+            exit=False, 
+            failfast=failfast, 
+        )
+        testProgram.runTests()
 
     def runSingleTestPartially(self, testId, partialMode):
         pass
@@ -81,4 +82,19 @@ class PyUnitRunner(base.BaseTestRunner):
     @classmethod
     def lastRunInfo(cls):
         info = base.TestRunInfo()
+        info.lastRunTestIds = pyunitextensions.PyUnitTestResult.lastRunTestIds
+        info.lastFailedTest = pyunitextensions.PyUnitTestResult.lastFailedTest
+        info.lastRunTime = pyunitextensions.PyUnitTestResult.runTime
+        info.lastRunCount = pyunitextensions.PyUnitTestResult.lastRunCount
+        info.lastSuccessCount = pyunitextensions.PyUnitTestResult.lastSuccessCount
+        info.lastFailedCount = pyunitextensions.PyUnitTestResult.lastFailedCount
+        info.lastErrorCount = pyunitextensions.PyUnitTestResult.lastErrorCount
+        info.lastSkipCount = pyunitextensions.PyUnitTestResult.lastSkipCount
+        info.lastExpectedFailureCount = (
+            pyunitextensions.PyUnitTestResult.lastExpectedFailureCount
+        )
+        info.lastUnexpectedSuccessCount = (
+            pyunitextensions.PyUnitTestResult.lastUnexpectedSuccessCount
+        )
         return info
+

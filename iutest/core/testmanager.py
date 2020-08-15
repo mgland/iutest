@@ -18,6 +18,13 @@ class TestManager(object):
         self._runners = {}
         self.setStartDirOrModule(startDirOrModule)
         self.setTopDir(topDir)
+        self._verbosity = 1
+
+    def setVerbosity(self, verbosity):
+        self._verbosity = verbosity
+
+    def verbosity(self):
+        return self._verbosity
 
     def setRunnerMode(self, runnerMode):
         """Switch to different runner for listing or running the tests.
