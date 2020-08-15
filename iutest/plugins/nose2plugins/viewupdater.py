@@ -26,6 +26,7 @@ class ViewUpdater(object):
     runTime = 0
     _startTime = 0
 
+    _testRunStartTimes = {}
     def __init__(self, ui):
         self.Cls = self.__class__
         self._ui = ui
@@ -45,6 +46,7 @@ class ViewUpdater(object):
         )  # To avoid double clicking to run single test will end up massive selection.
         self.Cls.lastFailedTest = None
         self.Cls._startTime = event.startTime
+        self.Cls._testRunStartTimes = {}
         self.callUiMethod("onTestRunningSessionStart")
 
     def stopTestRun(self, event):
@@ -54,6 +56,7 @@ class ViewUpdater(object):
     def startTest(self, event):
         self.Cls.lastRunCount += 1
         originalTestId = event.test.id()
+        self.Cls._testRunStartTimes[originalTestId] = event.startTime
         _, testId = pyunitutils.parseParameterizedTestId(originalTestId)
         if testId not in self.Cls.lastRunTestIds:
             self.Cls.lastRunTestIds.append(testId)
@@ -63,8 +66,9 @@ class ViewUpdater(object):
         testId = event.test.id()
         self.callUiMethod("onSingleTestStop", testId, event.stopTime)
         self.callUiMethod("repaintUi")
-        self.Cls.runTime = event.stopTime - event.startTime
-
+        testStartTime = self.Cls._testRunStartTimes.get(testId, self.Cls._startTime)
+        self.Cls.runTime = event.stopTime - testStartTime
+        
     def testOutcome(self, event):
         testId = event.test.id()
         if event.outcome == result.ERROR:

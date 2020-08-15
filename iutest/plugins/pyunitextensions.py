@@ -1,10 +1,12 @@
 import logging
 import time
+import sys
 from unittest import runner
 
 from iutest.core import constants
 from iutest.core import pyunitutils
 from iutest.core import uistream
+from iutest.core import pathutils
 from unittest import TestProgram
 
 logger = logging.getLogger(__name__)
@@ -37,6 +39,12 @@ class PyUnitTestResult(runner.TextTestResult):
     lastUnexpectedSuccessCount = 0
     lastFailedTest = None
 
+    runTime = 0
+    _startTime = 0
+
+    _originalStdOut = sys.stdout
+    _originalStdErr = sys.stderr
+
     _testRunStartTimes = {}
 
     def __init__(self, ui, verbosity=1):
@@ -48,6 +56,22 @@ class PyUnitTestResult(runner.TextTestResult):
             self._uiStream, 
             "A test result for ui update", 
             verbosity)
+        self.logHandler = uistream.LogHandler()
+        self.stdOutCapturer = uistream.StdOutCapturer(self._originalStdOut)
+        self.stdErrCapturer = uistream.StdErrCapturer(self._originalStdErr)
+
+    def _linkInfoFromTest(self, test):
+        try:
+            testMethodName = test.id().split(".")[-1]
+            test = getattr(test, testMethodName)
+            sourceFile, line = pathutils.sourceFileAndLineFromObject(test)
+            if not sourceFile:  # os.path.isfile(sourceFile)
+                return None
+
+            return testMethodName, sourceFile, line
+        except:
+            logger.debug("Unable retrieve test information for quick navigation.")
+        return None
 
     def callUiMethod(self, method, *args, **kwargs):
         if not self._ui:
@@ -57,6 +81,49 @@ class PyUnitTestResult(runner.TextTestResult):
             logger.error("%s has no method called %s", self._ui, method)
             return
         method(*args, **kwargs)
+
+    @classmethod
+    def _recordLastFailedTestId(cls, testId):
+        if not cls.lastFailedTest:
+            cls.lastFailedTest = testId
+
+    def _atOutcomeAvailable(self, testId, resultCode):
+        if resultCode == constants.TEST_RESULT_ERROR:
+            self.Cls.lastErrorCount += 1
+            self._recordLastFailedTestId(testId)
+            iconState = constants.TEST_ICON_STATE_ERROR
+
+        elif resultCode == constants.TEST_RESULT_FAIL:
+            iconState = constants.TEST_ICON_STATE_FAILED
+            self.Cls.lastFailedCount += 1
+            self._recordLastFailedTestId(testId)
+
+        elif resultCode == constants.TEST_RESULT_EXPECTED_FAIL:
+            iconState = constants.TEST_ICON_STATE_FAILED
+            self.Cls.lastExpectedFailureCount += 1
+            self._recordLastFailedTestId(testId)
+
+        elif resultCode == constants.TEST_RESULT_SKIP:
+            self.Cls.lastSkipCount += 1
+            iconState = constants.TEST_ICON_STATE_SKIPPED
+
+        elif resultCode == constants.TEST_RESULT_PASS:
+            iconState = constants.TEST_ICON_STATE_SUCCESS
+            self.Cls.lastSuccessCount += 1
+
+        elif resultCode == constants.TEST_RESULT_UNEXPECTED_PASS:
+            self.Cls.lastUnexpectedSuccessCount += 1
+            iconState = constants.TEST_ICON_STATE_SUCCESS                
+
+        self.callUiMethod(
+                "showResultOnItemByTestId", testId, iconState
+            )
+        self.stdOutCapturer.stop()
+        self.stdErrCapturer.stop()
+        self.logHandler.stop()
+
+        self._uiStream.setResult(resultCode)
+        self._uiStream.setResult()
 
     def startTestRun(self):
         self.callUiMethod(
@@ -74,7 +141,10 @@ class PyUnitTestResult(runner.TextTestResult):
         self.callUiMethod("onAllTestsFinished")
 
     def startTest(self, test):
+        info = self._linkInfoFromTest(test)
+        self._uiStream.setLinkInfo(info)
         self.Cls.lastRunCount += 1
+        
         originalTestId = test.id()
         _, testId = pyunitutils.parseParameterizedTestId(originalTestId)
         if testId not in self.Cls.lastRunTestIds:
@@ -84,6 +154,12 @@ class PyUnitTestResult(runner.TextTestResult):
             self.callUiMethod("onSingleTestStartToRun", testId, testStartTime)
 
         self.Base.startTest(test)
+        
+        self._uiStream.setLinkInfo()
+
+        self.logHandler.start()
+        self.stdOutCapturer.start()
+        self.stdErrCapturer.start()
     
     def stopTest(self, test):
         self.Base.stopTest(test)
@@ -107,67 +183,27 @@ class PyUnitTestResult(runner.TextTestResult):
         cls.lastUnexpectedSuccessCount = 0
 
     def addSuccess(self, test):
-        testId = test.id()
-
         self.Base.addSuccess(test)
 
         self.Cls.lastSuccessCount += 1
-        self.callUiMethod(
-            "showResultOnItemByTestId", testId, constants.TEST_ICON_STATE_SUCCESS
-        )
+        self._atOutcomeAvailable(test.id(), constants.TEST_RESULT_PASS)
 
     def addError(self, test, err):
-        testId = test.id()
-
         self.Base.addError(test, err)
-
-        self.Cls.lastErrorCount += 1
-        if not self.lastFailedTest:
-            self.Cls.lastFailedTest = testId
-        self.callUiMethod(
-            "showResultOnItemByTestId", testId, constants.TEST_ICON_STATE_ERROR
-        )      
+        self._atOutcomeAvailable(test.id(), constants.TEST_RESULT_ERROR)
 
     def addFailure(self, test, err):
-        testId = test.id()
-
         self.Base.addFailure(test, err)
-
-        self.Cls.lastFailedCount += 1
-        if not self.lastFailedTest:
-            self.Cls.lastFailedTest = testId
-        self.callUiMethod(
-            "showResultOnItemByTestId", testId, constants.TEST_ICON_STATE_FAILED
-        )
+        self._atOutcomeAvailable(test.id(), constants.TEST_RESULT_FAIL)
 
     def addSkip(self, test, reason):
-        testId = test.id()
-
         self.Base.addSkip(test, reason)
-
-        self.Cls.lastSkipCount += 1
-        self.callUiMethod(
-            "showResultOnItemByTestId", testId, constants.TEST_ICON_STATE_SKIPPED
-        )
+        self._atOutcomeAvailable(test.id(), constants.TEST_RESULT_SKIP)
 
     def addExpectedFailure(self, test, err):
-        testId = test.id()
-
         self.Base.addExpectedFailure(test, err)
-
-        self.Cls.lastExpectedFailureCount += 1
-        if not self.lastFailedTest:
-            self.Cls.lastFailedTest = testId
-        self.callUiMethod(
-            "showResultOnItemByTestId", testId, constants.TEST_ICON_STATE_FAILED
-        )
+        self._atOutcomeAvailable(test.id(), constants.TEST_RESULT_EXPECTED_FAIL)
 
     def addUnexpectedSuccess(self, test):
-        testId = test.id()
-
         self.Base.addUnexpectedSuccess(test)
-
-        self.Cls.lastUnexpectedSuccessCount += 1
-        self.callUiMethod(
-            "showResultOnItemByTestId", testId, constants.TEST_ICON_STATE_SUCCESS
-        )
+        self._atOutcomeAvailable(test.id(), constants.TEST_RESULT_UNEXPECTED_PASS)

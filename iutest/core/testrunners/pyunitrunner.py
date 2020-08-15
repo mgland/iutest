@@ -1,7 +1,8 @@
 import logging
 import os
 import unittest
-from unittest import loader, suite, runner, TestProgram
+from unittest import loader, suite, runner
+from unittest import main as runPyUnittest
 from iutest.core import pathutils
 from iutest.core import pyunitutils
 from iutest.core import uistream
@@ -34,14 +35,13 @@ class PyUnitRunner(base.BaseTestRunner):
         argv.extend(testIds)
         pyunitextensions.PyUnitTestResult.resetLastData()
         testRunner = pyunitextensions.PyUnitTest(self._manager.ui(), failfast=failfast)
-        testProgram = TestProgram(
+        runPyUnittest(
             None, 
             argv=argv,
             testRunner=testRunner,
             exit=False, 
             failfast=failfast, 
         )
-        testProgram.runTests()
 
     def runSingleTestPartially(self, testId, partialMode):
         pass
