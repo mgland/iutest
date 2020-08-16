@@ -2,13 +2,11 @@ import logging
 import time
 import sys
 from unittest import runner
-from unittest.suite import TestSuite
 
 from iutest.core import constants
 from iutest.core import pyunitutils
 from iutest.core import uistream
 from iutest.core import pathutils
-from unittest import TestProgram
 
 logger = logging.getLogger(__name__)
 

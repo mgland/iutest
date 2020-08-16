@@ -18,6 +18,9 @@ class PyUnitRunner(base.BaseTestRunner):
     _Icon = None
     _Runner = None
     _lastTests = {}
+    gotError = False
+
+    _loadTestsFailure = "_FailedTest"
     @classmethod
     def isValid(cls):
         return True
@@ -61,6 +64,10 @@ class PyUnitRunner(base.BaseTestRunner):
                 for p in self._collectAllPaths(t):
                     yield p
         else:
+            if not self._isTestFailedToLoad(tests):
+                self.__class__.gotError = True
+                return
+
             self._lastTests[tests.id()] = tests
             yield tests.id()
 
@@ -68,7 +75,22 @@ class PyUnitRunner(base.BaseTestRunner):
     def _resetLastTests(cls):
         cls._lastTests = {}
 
+    def _isTestFailedToLoad(self, test):
+        if test.__class__.__name__ == self._loadTestsFailure:
+            modulename = test.id().split(self._loadTestsFailure)[-1][1:]
+            raiser = getattr(test, modulename, None)
+            if not raiser:
+                return True
+            try:
+                raiser()
+            except Exception:
+                logger.exception("Unable to load tests from directory %s", modulename)
+                return False
+
+        return True
+
     def iterAllTestIds(self):
+        self.__class__.gotError = False
         self._resetLastTests()
         startDirOrModule = self._manager.startDirOrModule()
         topDir = self._manager.topDir()

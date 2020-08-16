@@ -1,13 +1,15 @@
 import unittest
 import logging
 
-from iutest import dependencies
-from iutest.core import constants
-from iutest.core import pathutils
-
 logger = logging.Logger(__name__)
 
-from nose2 import tools
+def _nose2Params(*paramList):
+    """Copy this directly from nose2 so that the tests here can still run without nose2.
+    """
+    def decorator(func):
+        func.paramList = paramList
+        return func
+    return decorator
 
 
 class DummyTests(unittest.TestCase):
@@ -54,7 +56,7 @@ class DummyTests(unittest.TestCase):
             with self.subTest(i=i):
                 self.assertEqual(i % 2, 0)
 
-    @tools.params((1, 2), (2, 3), (6, 5), (4, 6))
+    @_nose2Params((1, 2), (2, 3), (6, 5), (4, 6))
     def test_parameters(self, num1, num2):
         logger.info("Test with %s < %s", num1, num2)
         self.assertLess(num1, num2)
