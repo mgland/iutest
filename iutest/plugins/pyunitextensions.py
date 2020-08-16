@@ -13,19 +13,57 @@ from unittest import TestProgram
 logger = logging.getLogger(__name__)
 
 class PyUnitTestRunnerWrapper(runner.TextTestRunner):
-    def __init__(self, treeView, verbosity=2, failfast=False):
+    def __init__(
+        self, 
+        treeView, 
+        verbosity=2, 
+        failfast=False, 
+        partialMode=constants.RUN_TEST_FULL
+        ):
         self._verbosity = verbosity
         self.stream = uistream.UiStream()
         self.stream.setTreeView(treeView)
+        self._partialMode = partialMode
+
+        # call baseClass.__init__() here means running the test:
         runner.TextTestRunner.__init__(
             self, 
             stream=self.stream,
             resultclass=PyUnitTestResult,
             verbosity=verbosity, 
             failfast=failfast)
-
+    
+    @staticmethod
+    def _dummyFunction(*_, **__):
+        pass
+    
     def resetUiStreamResult(self):
         self.stream.setResult()
+
+    def _getTestCaseFromTest(self, test):
+        while not hasattr(test, "id"):
+            tests = list(test)
+            if not tests:
+                logger.error("No test to run.")
+                return
+            test = tests[0]
+            
+        return test
+
+    def run(self, test):
+        # If we run test partially, we guarante that suite only contains a single testCase object.
+        if self._partialMode != constants.RUN_TEST_FULL:
+            test = self._getTestCaseFromTest(test)
+            test.tearDown = self._dummyFunction
+            if self._partialMode == constants.RUN_TEST_SETUP_ONLY:
+                methodName = test.id().split(".")[-1]
+                setattr(test, methodName, self._dummyFunction)
+                logger.info("Run %s.setUp() only:", test.__class__.__name__)
+
+            elif self._partialMode == constants.RUN_TEST_NO_TEAR_DOWN:
+                logger.info("Skipped %s.tearDown():", test.__class__.__name__)
+
+        return runner.TextTestRunner.run(self, test)
 
 
 # To-Do: Refactor both PyUnitTestResult and similar class in nose2plugs.

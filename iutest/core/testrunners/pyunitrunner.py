@@ -1,3 +1,4 @@
+from iutest.core import constants
 import logging
 import os
 import unittest
@@ -30,11 +31,18 @@ class PyUnitRunner(base.BaseTestRunner):
         return "unittest.svg"
 
     def runTests(self, *testIds):
+        self._runTests(constants.RUN_TEST_FULL, *testIds)
+        
+    def _runTests(self, partialMode=constants.RUN_TEST_FULL, *testIds):
         failfast = self._manager.stopOnError()
         argv = [""]
         argv.extend(testIds)
         pyunitextensions.PyUnitTestResult.resetLastData()
-        testRunner = pyunitextensions.PyUnitTestRunnerWrapper(self._manager.ui(), failfast=failfast)
+        testRunner = pyunitextensions.PyUnitTestRunnerWrapper(
+            self._manager.ui(), 
+            failfast=failfast,
+            partialMode=partialMode
+        )
         runPyUnittest(
             None, 
             argv=argv,
@@ -45,7 +53,7 @@ class PyUnitRunner(base.BaseTestRunner):
         testRunner.resetUiStreamResult()
 
     def runSingleTestPartially(self, testId, partialMode):
-        pass
+        self._runTests(partialMode, testId)
 
     def _collectAllPaths(self, tests):
         if isinstance(tests, suite.TestSuite):
