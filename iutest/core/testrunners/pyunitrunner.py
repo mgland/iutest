@@ -93,17 +93,22 @@ class PyUnitRunner(base.BaseTestRunner):
         self.__class__.gotError = False
         self._resetLastTests()
         startDirOrModule = self._manager.startDirOrModule()
+        startModule = pathutils.objectFromDotPath(startDirOrModule, silent=True)
         topDir = self._manager.topDir()
         if not topDir or not os.path.isdir(topDir):
             if os.path.isdir(startDirOrModule):
                 topDir = startDirOrModule
-            else:
-                module = pathutils.objectFromDotPath(startDirOrModule)
-                topDir = os.path.dirname(module.__file__)
+            elif startModule:
+                topDir = os.path.dirname(startModule.__file__)
 
         tests = loader.defaultTestLoader.discover(startDirOrModule, 'test*.py', topDir)
-        for p in self._collectAllPaths(tests):
-            yield p
+        if not startModule:
+            for p in self._collectAllPaths(tests):
+                yield p
+        else:
+            for p in self._collectAllPaths(tests):
+                if not p.startswith(startDirOrModule):
+                    yield ".".join([startDirOrModule, p])
 
     @classmethod
     def lastListerError(cls):

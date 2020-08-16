@@ -13,14 +13,14 @@ logger = logging.getLogger(__name__)
 class PyUnitTestRunnerWrapper(runner.TextTestRunner):
     def __init__(
         self, 
-        treeView, 
+        testWindow, 
         verbosity=2, 
         failfast=False, 
         partialMode=constants.RUN_TEST_FULL
         ):
         self._verbosity = verbosity
         self.stream = uistream.UiStream()
-        self.stream.setTreeView(treeView)
+        self.stream.setTestWindow(testWindow)
         self._partialMode = partialMode
 
         # call baseClass.__init__() here means running the test:

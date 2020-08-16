@@ -38,7 +38,7 @@ class UiStream(object):
         self._linkInfo = None
         self._processStackTraceLink = False
         self._captureStdOut = False
-        self._treeView = None
+        self._testWindow = None
 
     def setResult(self, result=None):
         self._testResult = result
@@ -119,15 +119,15 @@ class UiStream(object):
     def flush(self):
         pass
     
-    def setTreeView(self, view):
-        self._treeView = view
+    def setTestWindow(self, view):
+        self._testWindow = view
         
-    def callTreeViewMethod(self, method, *args, **kwargs):
-        if not self._treeView:
+    def callTreeViewMethod(self, methodName, *args, **kwargs):
+        if not self._testWindow:
             return
-        method = getattr(self._treeView, method)
+        method = getattr(self._testWindow, methodName)
         if not method:
-            logger.error("%s has no method called %s", self._treeView, method)
+            logger.error("%s has no method called %s", self._testWindow, methodName)
             return
         method(*args, **kwargs)
 
