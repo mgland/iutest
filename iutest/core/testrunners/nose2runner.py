@@ -1,7 +1,5 @@
 import logging
-from iutest import qt as _qt
 from iutest import dependencies
-from iutest.core import iconutils
 from iutest.core import pathutils
 from iutest.core.testrunners import base
 from iutest.core.testrunners import runnerconstants
