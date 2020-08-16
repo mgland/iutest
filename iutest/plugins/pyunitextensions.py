@@ -13,16 +13,17 @@ from unittest import TestProgram
 logger = logging.getLogger(__name__)
 
 class PyUnitTestRunnerWrapper(runner.TextTestRunner):
-    def __init__(self, treeView, verbosity=2, failfast=False):
+    def __init__(self, treeView, verbosity=2, failfast=False, maxRunCount=0):
         self._verbosity = verbosity
         self.stream = uistream.UiStream()
         self.stream.setTreeView(treeView)
-        runner.TextTestRunner.__init__(
-            self, 
-            stream=self.stream,
-            resultclass=PyUnitTestResult,
-            verbosity=verbosity, 
-            failfast=failfast)
+        with PyUnitTestResult.maximumRunCountCtx(maxRunCount):
+            runner.TextTestRunner.__init__(
+                self, 
+                stream=self.stream,
+                resultclass=PyUnitTestResult,
+                verbosity=verbosity, 
+                failfast=failfast)
 
     def resetUiStreamResult(self):
         self.stream.setResult()
@@ -49,6 +50,8 @@ class PyUnitTestResult(runner.TextTestResult):
     _originalStdErr = sys.stderr
 
     _testRunStartTimes = {}
+
+    _maximumRunCount = 0
 
     def __init__(self, stream, descriptions, verbosity):
         self.Cls = self.__class__
@@ -141,18 +144,18 @@ class PyUnitTestResult(runner.TextTestResult):
         self.stream.setResult(resultCode)
 
     def startTest(self, test):
-        info = self._linkInfoFromTest(test)
-        with self.stream.linkInfoCtx(info):
-            self.Cls.lastRunCount += 1
-            
-            originalTestId = test.id()
-            _, testId = pyunitutils.parseParameterizedTestId(originalTestId)
-            if testId not in self.Cls.lastRunTestIds:
-                testStartTime = time.time()
-                self.Cls._testRunStartTimes[testId] = testStartTime
-                self.Cls.lastRunTestIds.append(testId)
-                self.callTreeViewMethod("onSingleTestStartToRun", testId, testStartTime)
+        originalTestId = test.id()
+        _, testId = pyunitutils.parseParameterizedTestId(originalTestId)
+        if testId in self.Cls.lastRunTestIds:
+            return
 
+        self.Cls.lastRunCount += 1
+        testStartTime = time.time()
+        self.Cls._testRunStartTimes[testId] = testStartTime
+        self.Cls.lastRunTestIds.append(testId)
+        self.callTreeViewMethod("onSingleTestStartToRun", testId, testStartTime)
+
+        with self.stream.linkInfoCtx(self._linkInfoFromTest(test)):
             self.Base.startTest(test)
 
         self.logHandler.start()
@@ -241,3 +244,19 @@ class PyUnitTestResult(runner.TextTestResult):
         except:
             logger.debug("Unable retrieve test information for quick navigation.")
         return None
+
+    @classmethod
+    def maximumRunCountCtx(self, maxLimit):
+        return _TestRunCountLimitCtx(self, maxLimit)
+
+
+class _TestRunCountLimitCtx(object):
+    def __init__(self, resultCls, maxLimit):
+        self._resultCls = resultCls
+        self._maxLimit = maxLimit
+
+    def __enter__(self):
+        self._resultCls._maximumRunCount = self._maxLimit
+
+    def __exit__(self, *_, **__):
+        self._resultCls._maximumRunCount = 0
