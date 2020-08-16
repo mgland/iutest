@@ -617,7 +617,7 @@ class IUTestWindow(QtWidgets.QWidget):
         self._runNoTearDown.setEnabled(hasSelForPartialRun)
 
     def _runViewSelectedTests(self):
-        self._runTests(self._view.selectedTestIds())
+        self._runTests(self._view.selectedTestIds(decomposePackageIfNecessary=True))
 
     def _updateReimportRerunButtonEnabled(self):
         self._reimportAndRerunBtn.setEnabled(bool(self._testManager.lastRunTestIds()))

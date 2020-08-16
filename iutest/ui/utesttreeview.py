@@ -121,12 +121,44 @@ class UTestTreeView(QtWidgets.QTreeWidget):
 
         header.resizeSection(1, 10)
 
+    def _iterAllDescendentItem(self, parentItem, category):
+        for i in range(parentItem.childCount()):
+            item = parentItem.child(i)
+            if self._categoryOfItem(item) == category:
+                yield item
+                continue
+
+            for it in self._iterAllChildrenItem(item, category):
+                yield it
+
+    def _splitPackageTestIds(self, *testIds):
+        if not self._testManager.avoidRunTestsOnPackageLevel():
+            return tuple(testIds)
+
+        items = filter(None, [self._findItemById(tid) for tid in testIds])
+        return self._splitPackageTestItems(*items)
+
+    def _splitPackageTestItems(self, *items):
+        if not self._testManager.avoidRunTestsOnPackageLevel():
+            return tuple([self.testIdOfItem(item) for item in items])
+
+        testIds = []
+        for item in items:
+            if self._categoryOfItem(item) != constants.ITEM_CATEGORY_PACKAGE:
+                testIds.append(self.testIdOfItem(item))
+                continue
+            
+            splittedTests = [self.testIdOfItem(item) for item in \
+                self._iterAllDescendentItem(item, constants.ITEM_CATEGORY_MODULE)]
+            testIds.extend(splittedTests)
+        return tuple(testIds)
+
     def onItemDoubleClicked(self, item, *_, **__):
         if item is self._rootTestItem:
             self.runAllTest.emit()
             return
 
-        self.runTests.emit([self.testIdOfItem(item)])
+        self.runTests.emit(self._splitPackageTestItems(item))
 
     @classmethod
     def _initComboIcons(cls, iconVarName, iconFileName):
@@ -478,7 +510,7 @@ class UTestTreeView(QtWidgets.QTreeWidget):
     def hasTests(self):
         return bool(self._testCases)
 
-    def selectedTestIds(self):
+    def selectedTestIds(self, decomposePackageIfNecessary=False):
         itemsByModulePath = {
             self.testIdOfItem(item): item for item in self.selectedItems()
         }
@@ -492,6 +524,9 @@ class UTestTreeView(QtWidgets.QTreeWidget):
             lastKey = key + "."
             logger.debug("Running test: %s", key)
             testsToRun.append(key)
+
+        if decomposePackageIfNecessary:
+            return self._splitPackageTestIds(*testsToRun)
 
         return tuple(testsToRun)
 
@@ -595,7 +630,7 @@ class UTestTreeView(QtWidgets.QTreeWidget):
             self.runWithoutTearDown.emit(testId)
 
     def _atRunSelected(self):
-        testIds = self.selectedTestIds()
+        testIds = self.selectedTestIds(decomposePackageIfNecessary=True)
         if testIds:
             self.runTests.emit(testIds)
 

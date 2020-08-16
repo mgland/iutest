@@ -132,4 +132,9 @@ class PyUnitRunner(base.BaseTestRunner):
             pyunitextensions.PyUnitTestResult.lastUnexpectedSuccessCount
         )
         return info
-
+    
+    @classmethod
+    def avoidRunTestsOnPackageLevel(self):
+        """Runner like pyunit, it is hard to run multiple packages in one go.
+        """
+        return True

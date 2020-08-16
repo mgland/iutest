@@ -150,3 +150,6 @@ class TestManager(object):
 
     def lastFailedTestIds(self):
         return self.getRunner().lastFailedTestIds()
+
+    def avoidRunTestsOnPackageLevel(self):
+        return self.getRunner().avoidRunTestsOnPackageLevel()

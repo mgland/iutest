@@ -103,3 +103,8 @@ class BaseTestRunner(object):
     def parseParameterizedTestId(cls, testId):
         return pyunitutils.parseParameterizedTestId(testId)
     
+    @classmethod
+    def avoidRunTestsOnPackageLevel(self):
+        """Runner like pyunit, it is hard to run multiple packages in one go.
+        """
+        return False
