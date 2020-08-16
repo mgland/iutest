@@ -495,10 +495,29 @@ class UTestTreeView(QtWidgets.QTreeWidget):
 
         return tuple(testsToRun)
 
-    def firstSelectedTestOrTestCase(self):
+    def _iterSelectedSuiteOrTestCaseItems(self):
         for item in self.iterSelectedItemsOfCategories(*self.supportPartialCategories):
-            return self.testIdOfItem(item)
+            yield item
+
+    def _firstSelectedTestCaseItem(self):
+        """Return first selected test case id.
+        
+        Notes:
+            If there is any selected test cases, return the first id. 
+            If there isn't but there is selected test suite, return its first test case id.
+        """
+        for item in self._iterSelectedSuiteOrTestCaseItems():
+            if self._categoryOfItem(item) == constants.ITEM_CATEGORY_TEST:
+                return item
+            
+            for i in range(item.childCount()):
+                return item.child(i)
+
         return None
+
+    def firstSelectedTestCaseId(self):
+        item = self._firstSelectedTestCaseItem()
+        return None if not item else self.testIdOfItem(item)
 
     def hasSelectedTests(self, hasSelectedTestOrCase=False):
         if not hasSelectedTestOrCase:
@@ -566,12 +585,12 @@ class UTestTreeView(QtWidgets.QTreeWidget):
             importutils.reimportByDotPath(dotPath)
 
     def _atRunSetupOnly(self):
-        testId = self.firstSelectedTestOrTestCase()
+        testId = self.firstSelectedTestCaseId()
         if testId:
             self.runSetupOnly.emit(testId)
 
     def _atRunWithoutTearDown(self):
-        testId = self.firstSelectedTestOrTestCase()
+        testId = self.firstSelectedTestCaseId()
         if testId:
             self.runWithoutTearDown.emit(testId)
 

@@ -638,7 +638,7 @@ class IUTestWindow(QtWidgets.QWidget):
         self._runPartialTest(constants.RUN_TEST_NO_TEAR_DOWN)
 
     def _runPartialTest(self, partialMode):
-        testId = self._view.firstSelectedTestOrTestCase()
+        testId = self._view.firstSelectedTestCaseId()
         if not testId:
             logger.error("You need to select test suite or test case.")
             return
