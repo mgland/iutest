@@ -8,8 +8,7 @@ from iutest import dependencies
 from iutest import dcc
 from iutest import _version
 from iutest.core import importutils
-from iutest.qt import QtCore, QtGui, QtWidgets, iconFromPath
-from iutest.core import pathutils
+from iutest.qt import QtCore, QtWidgets, iconFromPath
 from iutest.core import iconutils
 from iutest.core import appsettings
 from iutest.core import constants
@@ -114,6 +113,9 @@ class IUTestWindow(QtWidgets.QWidget):
         self.resetUiTestManager()
 
         QtCore.QTimer.singleShot(0, self._initialLoad)
+
+    def getLogBrowserWidget(self):
+        return self._logWgt
 
     def resetUiTestManager(self):
         self._view.setTestManager(self._testManager)
@@ -678,12 +680,15 @@ class IUTestWindow(QtWidgets.QWidget):
         self._viewSelectionChanged()
         self._updateReimportRerunButtonEnabled()
 
+    def _hookUiToStream(self):
+        uistream.UiStream.setUi(self)
+
     def _beforeTestCollection(self):
-        self._logWgt.onTestStart()
+        self._hookUiToStream()
         self._statusLbl.startCollectingTests()
 
     def _beforeRunningTests(self, tests):
-        self._logWgt.onTestStart()
+        self._hookUiToStream()
         self._view.resetTestItemsById(tests)
 
     def _applyFilterText(self, txt):
@@ -694,9 +699,14 @@ class IUTestWindow(QtWidgets.QWidget):
         keywords = lowerTxt.split(" ")
         self._clearFilterBtn.setEnabled(bool(keywords))
         self._view.setFilterKeywords(keywords, ensureFirstMatchVisible=not keepUiStates)
+    
+    def closeEvent(self, event):
+        uistream.UiStream.unsetUi(self)
+        QtWidgets.QWidget.closeEvent(self, event)
 
     # These below are to be called by hooks -------------------------------------------------
     def onSingleTestStart(self, testId, startTime):
+        self._hookUiToStream()
         self._view.onSingleTestStart(testId, startTime)
 
     def onSingleTestStop(self, testId, endTime):

@@ -9,26 +9,26 @@ logger = logging.getLogger(__name__)
 
 
 class Nose2TestRunner(base.BaseTestRunner):
-    viewupdater = None
+    uihooks = None
     testlister = None
     partialtest = None
 
     @classmethod
     def _importPlugins(cls):
-        if cls.viewupdater and cls.testlister and cls.partialtest:
+        if cls.uihooks and cls.testlister and cls.partialtest:
             return True
 
         try:
-            from iutest.plugins.nose2plugins import viewupdater
+            from iutest.plugins.nose2plugins import uihooks
             from iutest.plugins.nose2plugins import testlister
             from iutest.plugins.nose2plugins import partialtest
 
-            cls.viewupdater = viewupdater
+            cls.uihooks = uihooks
             cls.testlister = testlister
             cls.partialtest = partialtest
             return True
         except:
-            cls.viewupdater = None
+            cls.uihooks = None
             cls.testlister = None
             cls.partialtest = None
             return False
@@ -51,7 +51,7 @@ class Nose2TestRunner(base.BaseTestRunner):
             return
 
         plugins = [
-            "iutest.plugins.nose2plugins.uilogger",
+            "iutest.plugins.nose2plugins.uihooks",
             "nose2.plugins.loader.eggdiscovery",
             "iutest.plugins.nose2plugins.removeduplicated",
         ]
@@ -85,11 +85,10 @@ class Nose2TestRunner(base.BaseTestRunner):
 
         argv.extend(testIds)
         argv.extend(["--fail-fast"] if self._manager.stopOnError() else [])
-        self.viewupdater.ViewUpdater.resetLastData()        
+        self.uihooks.UiHooksPlugin.resetLastData()        
         dependencies.Nose2Wrapper.getModule().discover(
             argv=argv,
             exit=False,
-            extraHooks=self.viewupdater.ViewUpdater.getHooks(self._manager.ui()),
         )
 
     def runSingleTestPartially(self, testId, partialMode):
@@ -104,7 +103,7 @@ class Nose2TestRunner(base.BaseTestRunner):
             return
 
         plugins = [
-            "iutest.plugins.nose2plugins.uilogger",
+            "iutest.plugins.nose2plugins.uihooks",
             "nose2.plugins.loader.eggdiscovery",
             "iutest.plugins.nose2plugins.removeduplicated",
             "iutest.plugins.nose2plugins.partialtest",
@@ -140,4 +139,4 @@ class Nose2TestRunner(base.BaseTestRunner):
     def lastRunInfo(cls):
         if not cls._importPlugins():
             return runinfo.TestRunInfo()
-        return cls.viewupdater.ViewUpdater.lastRunInfo
+        return cls.uihooks.UiHooksPlugin.lastRunInfo

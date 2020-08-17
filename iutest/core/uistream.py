@@ -7,25 +7,25 @@ from iutest.core import constants
 logger = logging.getLogger(__name__)
 
 class UiStream(object):
-    _reportUi = None
-    _urlTempalte = "<a href='?{1}={2}'>{0}</a>"
+    _testMainWindow = None
+    _logBrowser = None
+
+    _urlTemplate = "<a href='?{1}={2}'>{0}</a>"
     _traceExp = None
 
     @classmethod
-    def register(cls, wgt):
-        cls._reportUi = weakref.ref(wgt)
+    def setUi(cls, wgt):
+        cls._testMainWindow = weakref.ref(wgt)
+        cls._logBrowser = cls.callUiMethod("getLogBrowserWidget")
 
     @classmethod
-    def ui(cls):
-        if not cls._reportUi:
-            return None
-
-        return cls._reportUi()
+    def unsetUi(cls, wgt):
+        if cls._testMainWindow and cls._testMainWindow() == wgt:
+            cls._testMainWindow = None
 
     @classmethod
-    def deregister(cls, wgt):
-        if cls.ui() == wgt:
-            cls._reportUi = None
+    def logBrowser(cls):
+        return cls._logBrowser
 
     @classmethod
     def _initExp(cls):
@@ -56,7 +56,7 @@ class UiStream(object):
         if not self._linkInfo:
             return msg
 
-        html = self._urlTempalte.format(*self._linkInfo)
+        html = self._urlTemplate.format(*self._linkInfo)
         return msg.replace(self._linkInfo[0], html)
 
     def _processLinkInStackTrace(self, msg):
@@ -78,7 +78,7 @@ class UiStream(object):
             if not len(data) == 2:
                 continue
 
-            html = self._urlTempalte.format(data[0], *data)
+            html = self._urlTemplate.format(data[0], *data)
             lines[i] = line.replace(data[0], html)
         return "<br>".join(lines)
 
@@ -89,7 +89,7 @@ class UiStream(object):
         return _UiStreamProcessLinkCtx(self)
 
     def write(self, msg):
-        reportUi = self.ui()
+        reportUi = self.logBrowser()
         if not reportUi:
             return
 
@@ -119,17 +119,17 @@ class UiStream(object):
     def flush(self):
         pass
     
-    def setTestWindow(self, view):
-        self._testWindow = view
-        
-    def callTreeViewMethod(self, methodName, *args, **kwargs):
-        if not self._testWindow:
+    @classmethod
+    def callUiMethod(cls, methodName, *args, **kwargs):
+        if not cls._testMainWindow:
             return
-        method = getattr(self._testWindow, methodName)
+        ui = cls._testMainWindow() # deref
+        method = getattr(ui, methodName)
         if not method:
-            logger.error("%s has no method called %s", self._testWindow, methodName)
-            return
-        method(*args, **kwargs)
+            logger.error("%s has no method called %s", ui, methodName)
+            return None
+
+        return method(*args, **kwargs)
 
 
 class _UiStreamProcessLinkCtx(object):
@@ -168,7 +168,7 @@ class _UiStreamLinkInfoCtx(object):
 
 
 def writePlainTextToUiStream(msg):
-    reportUi = UiStream.ui()
+    reportUi = UiStream.logBrowser()
     if reportUi:
         reportUi.logInformation(msg)
 
@@ -205,7 +205,7 @@ class LogHandler(logging.Handler):
         self._rootLogger = logging.getLogger()
 
     def emit(self, record):
-        reportUi = UiStream.ui()
+        reportUi = UiStream.logBrowser()
         msg = self.format(record)
         if self._forcePlainOutput:
             reportUi.logInformation(msg)

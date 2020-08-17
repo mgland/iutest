@@ -1,7 +1,6 @@
-from iutest.core import uistream
 from iutest.core import gotocode
 from iutest.ui import uiconstants
-from iutest.qt import QtCore, QtGui, QtWidgets
+from iutest.qt import QtGui, QtWidgets
 
 
 class LogBrowser(QtWidgets.QTextBrowser):
@@ -67,10 +66,3 @@ class LogBrowser(QtWidgets.QTextBrowser):
 
     def logWarning(self, msg, *args):
         self.logWithColor(msg, uiconstants.LOG_COLOR_WARNING, *args)
-
-    def closeEvent(self, event):
-        uistream.UiStream.deregister(self)
-        QtWidgets.QTextBrowser.closeEvent(self, event)
-
-    def onTestStart(self):
-        uistream.UiStream.register(self)

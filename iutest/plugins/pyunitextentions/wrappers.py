@@ -21,7 +21,6 @@ class PyUnitTestRunnerWrapper(runner.TextTestRunner):
         ):
         self._verbosity = verbosity
         self.stream = uistream.UiStream()
-        self.stream.setTestWindow(testWindow)
         self._partialMode = partialMode
 
         # call baseClass.__init__() here means running the test:
@@ -99,9 +98,9 @@ class PyUnitTestResult(runner.TextTestResult):
             logger.debug("Unable retrieve test information for quick navigation.")
         return None
 
-    def callTreeViewMethod(self, method, *args, **kwargs):
-        if hasattr(self.stream, "callTreeViewMethod"):
-            self.stream.callTreeViewMethod(method, *args, **kwargs)
+    def _callUiMethod(self, method, *args, **kwargs):
+        if hasattr(self.stream, "callUiMethod"):
+            self.stream.callUiMethod(method, *args, **kwargs)
 
     @classmethod
     def _recordLastFailedTestId(cls, testId):
@@ -137,7 +136,7 @@ class PyUnitTestResult(runner.TextTestResult):
             self.Cls.lastRunInfo.unexpectedSuccessCount += 1
             iconState = constants.TEST_ICON_STATE_SUCCESS                
 
-        self.callTreeViewMethod(
+        self._callUiMethod(
                 "showResultOnItemByTestId", testId, iconState
             )
         self.stdOutCapturer.stop()
@@ -145,19 +144,19 @@ class PyUnitTestResult(runner.TextTestResult):
         self.logHandler.stop()
 
     def startTestRun(self):
-        self.callTreeViewMethod(
+        self._callUiMethod(
             "repaintUi"
         )  # To avoid double clicking to run single test will end up massive selection.
         self.Cls.lastRunInfo.failedTestId = None
         self.Cls.lastRunInfo._sessionStartTime = time.time()
         self.Cls.lastRunInfo._testStartTimes = {}
-        self.callTreeViewMethod("onTestRunningSessionStart")
+        self._callUiMethod("onTestRunningSessionStart")
         self.Base.startTestRun()
 
     def stopTestRun(self):
         self.Base.stopTestRun()
         self.Cls.lastRunInfo.sessionRunTime = time.time() - self.Cls.lastRunInfo._sessionStartTime
-        self.callTreeViewMethod("onAllTestsFinished")
+        self._callUiMethod("onAllTestsFinished")
 
         resultCode = constants.TEST_RESULT_PASS if self.wasSuccessful() \
             else constants.TEST_RESULT_ERROR
@@ -174,7 +173,7 @@ class PyUnitTestResult(runner.TextTestResult):
                 testStartTime = time.time()
                 self.Cls.lastRunInfo._testStartTimes[testId] = testStartTime
                 self.Cls.lastRunInfo.runTestIds.append(testId)
-                self.callTreeViewMethod("onSingleTestStart", testId, testStartTime)
+                self._callUiMethod("onSingleTestStart", testId, testStartTime)
 
             self.Base.startTest(test)
 
@@ -190,8 +189,8 @@ class PyUnitTestResult(runner.TextTestResult):
         testStartTime = self.Cls.lastRunInfo._testStartTimes.get(testId, self.Cls.lastRunInfo._sessionStartTime)
         self.Cls.lastRunInfo.singleTestRunTime = stopTime - testStartTime
         
-        self.callTreeViewMethod("onSingleTestStop", testId, stopTime)
-        self.callTreeViewMethod("repaintUi")
+        self._callUiMethod("onSingleTestStop", testId, stopTime)
+        self._callUiMethod("repaintUi")
 
     @classmethod
     def resetLastData(cls):
