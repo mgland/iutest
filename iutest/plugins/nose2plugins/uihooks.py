@@ -3,12 +3,10 @@ import os
 import sys
 import logging
 
-from iutest import dependencies
 from iutest.core import uistream
 from iutest.core import constants
-from iutest.core import pathutils
 from iutest.core import runinfo
-from iutest.core import pyunitutils
+from iutest.plugins.pyunitextentions import pyunitcommon
 
 from nose2.plugins import result as resultPlugin  # This has to be imported this way.
 from nose2 import result, events  # This has to be imported this way.
@@ -16,29 +14,15 @@ from nose2 import result, events  # This has to be imported this way.
 logger = logging.getLogger(__name__)
 
 
-class UiHooksPlugin(resultPlugin.ResultReporter):
+class UiHooksPlugin(resultPlugin.ResultReporter, pyunitcommon.PyUnitUiMixin):
     """A nose2 plug to capture the logs for ui.
     """
     lastRunInfo = runinfo.TestRunInfo()
 
-    _originalStdOut = sys.stdout
-    _originalStdErr = sys.stderr
-
     def __init__(self):
         resultPlugin.ResultReporter.__init__(self)
+        pyunitcommon.PyUnitUiMixin.__init__(self, uistream.UiStream())
         self.Cls = self.__class__
-        self.stream = uistream.UiStream()
-        self.logHandler = uistream.LogHandler()
-        self.stdOutCapturer = uistream.StdOutCapturer(self._originalStdOut)
-        self.stdErrCapturer = uistream.StdErrCapturer(self._originalStdErr)
-
-    def _callUiMethod(self, method, *args, **kwargs):
-        if hasattr(self.stream, "callUiMethod"):
-            self.stream.callUiMethod(method, *args, **kwargs)
-
-    @classmethod
-    def resetLastData(cls):
-        cls.lastRunInfo.reset()
 
     @classmethod
     def _mapTestResultCode(cls, nose2ResultCode):
@@ -56,86 +40,28 @@ class UiHooksPlugin(resultPlugin.ResultReporter):
             return None
 
     def startTestRun(self, event):
-        self._callUiMethod(
-            "repaintUi"
-        )  # To avoid double clicking to run single test will end up massive selection.
-        self.Cls.lastRunInfo.failedTestId = None
-        self.Cls.lastRunInfo._sessionStartTime = event.startTime
-        self.Cls.lastRunInfo._testStartTimes = {}
-        self._callUiMethod("onTestRunningSessionStart")
+        self._atStartTestRun()
 
     def startTest(self, event):
-        self.Cls.lastRunInfo.runCount += 1
-        originalTestId = event.test.id()
-        self.Cls.lastRunInfo._testStartTimes[originalTestId] = event.startTime
-        _, testId = pyunitutils.parseParameterizedTestId(originalTestId)
-        if testId not in self.Cls.lastRunInfo.runTestIds:
-            self.Cls.lastRunInfo.runTestIds.append(testId)
-            self._callUiMethod("onSingleTestStart", testId, event.startTime)
-
-        # Now the logging browser:
-        with self.stream.linkInfoCtx(self._linkInfoFromTest(event)):
+        self._atStartTest(event.test)
+        with self.stream.linkInfoCtx(self._linkInfoFromTest(event.test)):            
             resultPlugin.ResultReporter.startTest(self, event)
 
-        self.logHandler.start()
-        self.stdOutCapturer.start()
-        self.stdErrCapturer.start()
+        self._startLogProcessers()
 
     def stopTest(self, event):
-        testId = event.test.id()
-        self._callUiMethod("onSingleTestStop", testId, event.stopTime)
-        self._callUiMethod("repaintUi")
-        testStartTime = self.Cls.lastRunInfo._testStartTimes.get(testId, self.Cls.lastRunInfo._sessionStartTime)
-        self.Cls.singleTestRunTime = event.stopTime - testStartTime
+        self._atStopTest(event.test)
 
     def testOutcome(self, event):
         testId = event.test.id()
-        if event.outcome == result.ERROR:
-            self.Cls.lastRunInfo.errorCount += 1
-            if not self.lastRunInfo.failedTestId:
-                self.Cls.lastRunInfo.failedTestId = testId
-            self._callUiMethod(
-                "showResultOnItemByTestId", testId, constants.TEST_ICON_STATE_ERROR
-            )
-
-        elif event.outcome == result.FAIL:
-            if not event.expected:
-                self.Cls.lastRunInfo.failedCount += 1
-            else:
-                self.Cls.lastRunInfo.expectedFailureCount += 1
-            if not self.lastRunInfo.failedTestId:
-                self.Cls.lastRunInfo.failedTestId = testId
-            self._callUiMethod(
-                "showResultOnItemByTestId", testId, constants.TEST_ICON_STATE_FAILED
-            )
-
-        elif event.outcome == result.SKIP:
-            self.Cls.lastRunInfo.skipCount += 1
-            self._callUiMethod(
-                "showResultOnItemByTestId", testId, constants.TEST_ICON_STATE_SKIPPED
-            )
-
-        elif event.outcome == result.PASS:
-            if event.expected:
-                self.Cls.lastRunInfo.successCount += 1
-            else:
-                self.Cls.lastRunInfo.unexpectedSuccessCount += 1
-
-            self._callUiMethod(
-                "showResultOnItemByTestId", testId, constants.TEST_ICON_STATE_SUCCESS
-            )
-
-        # Now the logging browser:
-        self.stdOutCapturer.stop()
-        self.stdErrCapturer.stop()
-        self.logHandler.stop()
+        resultCode = self._mapTestResultCode(event.outcome)
+        self._atOutcomeAvailable(testId, resultCode)      
 
         with self.stream.resultCtx(self._mapTestResultCode(event.outcome)):
             resultPlugin.ResultReporter.testOutcome(self, event)
 
     def stopTestRun(self, event):
-        self.Cls.lastRunInfo.sessionRunTime = event.stopTime - self.Cls.lastRunInfo._sessionStartTime
-        self._callUiMethod("onAllTestsFinished")
+        self._atStopTestRun()
 
     def afterTestRun(self, event):
         evt = events.ReportSummaryEvent(event, self.stream, self.reportCategories)
@@ -173,7 +99,7 @@ class UiHooksPlugin(resultPlugin.ResultReporter):
         with self.stream.resultCtx(self._mapTestResultCode(result.FAIL)):
             self.stream.writeln(self.separator1)
 
-        with self.stream.linkInfoCtx(self._linkInfoFromTest(err)):
+        with self.stream.linkInfoCtx(self._linkInfoFromTest(err.test)):
             self.stream.writeln("%s: %s" % (flavour, desc))
 
         # Now the stack trace, etc:
@@ -182,16 +108,3 @@ class UiHooksPlugin(resultPlugin.ResultReporter):
         if errDetail:
             with self.stream.processStackTraceLinkCtx():
                 self.stream.writeln(errDetail)
-
-    def _linkInfoFromTest(self, event):
-        try:
-            testMethodName = event.test.id().split(".")[-1]
-            test = getattr(event.test, testMethodName)
-            sourceFile, line = pathutils.sourceFileAndLineFromObject(test)
-            if not sourceFile:  # os.path.isfile(sourceFile)
-                return None
-
-            return testMethodName, sourceFile, line
-        except:
-            logger.debug("Unable retrieve test information for quick navigation.")
-        return None

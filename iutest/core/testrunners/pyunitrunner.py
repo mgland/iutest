@@ -8,7 +8,7 @@ from iutest.core import pathutils
 from iutest.core import runinfo
 from iutest.core.testrunners import base
 from iutest.core.testrunners import runnerconstants
-from iutest.plugins.pyunitextentions import wrappers
+from iutest.plugins.pyunitextentions import pyunitwrappers
 
 logger = logging.getLogger(__name__)
 
@@ -39,9 +39,8 @@ class PyUnitRunner(base.BaseTestRunner):
         failfast = self._manager.stopOnError()
         argv = [""]
         argv.extend(testIds)
-        wrappers.PyUnitTestResult.resetLastData()
-        testRunner = wrappers.PyUnitTestRunnerWrapper(
-            self._manager.ui(), 
+        pyunitwrappers.PyUnitTestResult.resetLastData()
+        testRunner = pyunitwrappers.PyUnitTestRunnerWrapper(
             failfast=failfast,
             partialMode=partialMode
         )
@@ -115,7 +114,7 @@ class PyUnitRunner(base.BaseTestRunner):
 
     @classmethod
     def lastRunInfo(cls):
-        return wrappers.PyUnitTestResult.lastRunInfo
+        return pyunitwrappers.PyUnitTestResult.lastRunInfo
     
     @classmethod
     def avoidRunTestsOnPackageLevel(self):
