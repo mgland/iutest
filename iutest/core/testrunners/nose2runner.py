@@ -1,6 +1,7 @@
 import logging
 from iutest import dependencies
 from iutest.core import pathutils
+from iutest.core import runinfo
 from iutest.core.testrunners import base
 from iutest.core.testrunners import runnerconstants
 
@@ -129,30 +130,14 @@ class Nose2TestRunner(base.BaseTestRunner):
             yield tid
 
     @classmethod
-    def lastListerError(cls):
+    def haslastListerError(cls):
         if not cls._importPlugins():
             return None
 
-        return cls.testlister.gotErrorOnLastList()
+        return cls.testlister.TestCollector.gotError()
 
     @classmethod
     def lastRunInfo(cls):
-        info = base.TestRunInfo()
         if not cls._importPlugins():
-            return info
-
-        info.lastRunTestIds = cls.viewupdater.ViewUpdater.lastRunTestIds
-        info.lastFailedTest = cls.viewupdater.ViewUpdater.lastFailedTest
-        info.lastRunTime = cls.viewupdater.ViewUpdater.runTime
-        info.lastRunCount = cls.viewupdater.ViewUpdater.lastRunCount
-        info.lastSuccessCount = cls.viewupdater.ViewUpdater.lastSuccessCount
-        info.lastFailedCount = cls.viewupdater.ViewUpdater.lastFailedCount
-        info.lastErrorCount = cls.viewupdater.ViewUpdater.lastErrorCount
-        info.lastSkipCount = cls.viewupdater.ViewUpdater.lastSkipCount
-        info.lastExpectedFailureCount = (
-            cls.viewupdater.ViewUpdater.lastExpectedFailureCount
-        )
-        info.lastUnexpectedSuccessCount = (
-            cls.viewupdater.ViewUpdater.lastUnexpectedSuccessCount
-        )
-        return info
+            return runinfo.TestRunInfo()
+        return cls.viewupdater.ViewUpdater.lastRunInfo

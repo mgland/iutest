@@ -2,14 +2,13 @@ from iutest.core import constants
 import logging
 import os
 import unittest
-from unittest import loader, suite, runner
+from unittest import loader, suite
 from unittest import main as runPyUnittest
 from iutest.core import pathutils
-from iutest.core import pyunitutils
-from iutest.core import uistream
+from iutest.core import runinfo
 from iutest.core.testrunners import base
 from iutest.core.testrunners import runnerconstants
-from iutest.plugins import pyunitextensions
+from iutest.plugins.pyunitextentions import wrappers
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +17,7 @@ class PyUnitRunner(base.BaseTestRunner):
     _Icon = None
     _Runner = None
     _lastTests = {}
-    gotError = False
+    _gotError = False
 
     _loadTestsFailure = "_FailedTest"
     @classmethod
@@ -40,8 +39,8 @@ class PyUnitRunner(base.BaseTestRunner):
         failfast = self._manager.stopOnError()
         argv = [""]
         argv.extend(testIds)
-        pyunitextensions.PyUnitTestResult.resetLastData()
-        testRunner = pyunitextensions.PyUnitTestRunnerWrapper(
+        wrappers.PyUnitTestResult.resetLastData()
+        testRunner = wrappers.PyUnitTestRunnerWrapper(
             self._manager.ui(), 
             failfast=failfast,
             partialMode=partialMode
@@ -65,7 +64,7 @@ class PyUnitRunner(base.BaseTestRunner):
                     yield p
         else:
             if not self._isTestFailedToLoad(tests):
-                self.__class__.gotError = True
+                self.__class__._gotError = True
                 return
 
             self._lastTests[tests.id()] = tests
@@ -90,7 +89,7 @@ class PyUnitRunner(base.BaseTestRunner):
         return True
 
     def iterAllTestIds(self):
-        self.__class__.gotError = False
+        self.__class__._gotError = False
         self._resetLastTests()
         startDirOrModule = self._manager.startDirOrModule()
         startModule = pathutils.objectFromDotPath(startDirOrModule, silent=True)
@@ -101,7 +100,7 @@ class PyUnitRunner(base.BaseTestRunner):
             elif startModule:
                 topDir = os.path.dirname(startModule.__file__)
 
-        tests = loader.defaultTestLoader.discover(startDirOrModule, 'test*.py', topDir)
+        tests = loader.defaultTestLoader.discover(startDirOrModule, top_level_dir=topDir)
         if not startModule:
             for p in self._collectAllPaths(tests):
                 yield p
@@ -111,30 +110,15 @@ class PyUnitRunner(base.BaseTestRunner):
                     yield ".".join([startDirOrModule, p])
 
     @classmethod
-    def lastListerError(cls):
-        return None
+    def haslastListerError(cls):
+        return cls._gotError
 
     @classmethod
     def lastRunInfo(cls):
-        info = base.TestRunInfo()
-        info.lastRunTestIds = pyunitextensions.PyUnitTestResult.lastRunTestIds
-        info.lastFailedTest = pyunitextensions.PyUnitTestResult.lastFailedTest
-        info.lastRunTime = pyunitextensions.PyUnitTestResult.runTime
-        info.lastRunCount = pyunitextensions.PyUnitTestResult.lastRunCount
-        info.lastSuccessCount = pyunitextensions.PyUnitTestResult.lastSuccessCount
-        info.lastFailedCount = pyunitextensions.PyUnitTestResult.lastFailedCount
-        info.lastErrorCount = pyunitextensions.PyUnitTestResult.lastErrorCount
-        info.lastSkipCount = pyunitextensions.PyUnitTestResult.lastSkipCount
-        info.lastExpectedFailureCount = (
-            pyunitextensions.PyUnitTestResult.lastExpectedFailureCount
-        )
-        info.lastUnexpectedSuccessCount = (
-            pyunitextensions.PyUnitTestResult.lastUnexpectedSuccessCount
-        )
-        return info
+        return wrappers.PyUnitTestResult.lastRunInfo
     
     @classmethod
     def avoidRunTestsOnPackageLevel(self):
-        """Runner like pyunit, it is hard to run multiple packages in one go.
+        """PyUnit is difficult to run test from package level without discovering it.
         """
         return True

@@ -458,7 +458,7 @@ class IUTestWindow(QtWidgets.QWidget):
         self._updateDirUI()
         self._searchLE.clear()
         self.reload(keepUiStates=False)
-        if not self._testManager.lastListerError():
+        if not self._testManager.haslastListerError():
             self._saveLastTestDir(startDir, topDir)
 
     def _setPanelVisState(self, state, saveSettings=True):
@@ -696,8 +696,8 @@ class IUTestWindow(QtWidgets.QWidget):
         self._view.setFilterKeywords(keywords, ensureFirstMatchVisible=not keepUiStates)
 
     # These below are to be called by hooks -------------------------------------------------
-    def onSingleTestStartToRun(self, testId, startTime):
-        self._view.onSingleTestStartToRun(testId, startTime)
+    def onSingleTestStart(self, testId, startTime):
+        self._view.onSingleTestStart(testId, startTime)
 
     def onSingleTestStop(self, testId, endTime):
         self._view.onSingleTestStop(testId, endTime)

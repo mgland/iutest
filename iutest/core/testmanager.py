@@ -136,8 +136,8 @@ class TestManager(object):
         """
         self.getRunner().runSingleTestPartially(testId, partialMode)
 
-    def lastListerError(self):
-        return self.getRunner().lastListerError()
+    def haslastListerError(self):
+        return self.getRunner().haslastListerError()
 
     def lastRunTestIds(self):
         return self.getRunner().lastRunTestIds()
@@ -148,8 +148,8 @@ class TestManager(object):
     def parseParameterizedTestId(self, testId):
         return self.getRunner().parseParameterizedTestId(testId)
 
-    def lastFailedTestIds(self):
-        return self.getRunner().lastFailedTestIds()
+    def lastFailedTestId(self):
+        return self.getRunner().lastFailedTestId()
 
     def avoidRunTestsOnPackageLevel(self):
         return self.getRunner().avoidRunTestsOnPackageLevel()

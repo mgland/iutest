@@ -7,6 +7,7 @@ from iutest.core import constants
 from iutest.core import pyunitutils
 from iutest.core import uistream
 from iutest.core import pathutils
+from iutest.core import runinfo
 
 logger = logging.getLogger(__name__)
 
@@ -68,24 +69,10 @@ class PyUnitTestRunnerWrapper(runner.TextTestRunner):
 class PyUnitTestResult(runner.TextTestResult):
     """A test result class that can show text results in ui, both in tree view and the log browser.
     """
-    lastRunTestIds = []
-    lastRunCount = 0
-    lastErrorCount = 0
-    lastFailedCount = 0
-    lastExpectedFailureCount = 0
-    lastSkipCount = 0
-    lastSuccessCount = 0
-    lastUnexpectedSuccessCount = 0
-    lastFailedTest = None
-
-    runTime = 0
-    _startTime = 0
+    lastRunInfo = runinfo.TestRunInfo()
 
     _originalStdOut = sys.stdout
     _originalStdErr = sys.stderr
-
-    _testRunStartTimes = {}
-
     def __init__(self, stream, descriptions, verbosity):
         self.Cls = self.__class__
         self.Base = super(PyUnitTestResult, self)
@@ -118,36 +105,36 @@ class PyUnitTestResult(runner.TextTestResult):
 
     @classmethod
     def _recordLastFailedTestId(cls, testId):
-        if not cls.lastFailedTest:
-            cls.lastFailedTest = testId
+        if not cls.lastRunInfo.failedTestId:
+            cls.lastRunInfo.failedTestId = testId
 
     def _atOutcomeAvailable(self, testId, resultCode):
         iconState = constants.TEST_ICON_STATE_SUCCESS
         if resultCode == constants.TEST_RESULT_ERROR:
-            self.Cls.lastErrorCount += 1
+            self.Cls.lastRunInfo.errorCount += 1
             self._recordLastFailedTestId(testId)
             iconState = constants.TEST_ICON_STATE_ERROR
 
         elif resultCode == constants.TEST_RESULT_FAIL:
             iconState = constants.TEST_ICON_STATE_FAILED
-            self.Cls.lastFailedCount += 1
+            self.Cls.lastRunInfo.failedCount += 1
             self._recordLastFailedTestId(testId)
 
         elif resultCode == constants.TEST_RESULT_EXPECTED_FAIL:
             iconState = constants.TEST_ICON_STATE_FAILED
-            self.Cls.lastExpectedFailureCount += 1
+            self.Cls.lastRunInfo.expectedFailureCount += 1
             self._recordLastFailedTestId(testId)
 
         elif resultCode == constants.TEST_RESULT_SKIP:
-            self.Cls.lastSkipCount += 1
+            self.Cls.lastRunInfo.skipCount += 1
             iconState = constants.TEST_ICON_STATE_SKIPPED
 
         elif resultCode == constants.TEST_RESULT_PASS:
             iconState = constants.TEST_ICON_STATE_SUCCESS
-            self.Cls.lastSuccessCount += 1
+            self.Cls.lastRunInfo.successCount += 1
 
         elif resultCode == constants.TEST_RESULT_UNEXPECTED_PASS:
-            self.Cls.lastUnexpectedSuccessCount += 1
+            self.Cls.lastRunInfo.unexpectedSuccessCount += 1
             iconState = constants.TEST_ICON_STATE_SUCCESS                
 
         self.callTreeViewMethod(
@@ -161,15 +148,15 @@ class PyUnitTestResult(runner.TextTestResult):
         self.callTreeViewMethod(
             "repaintUi"
         )  # To avoid double clicking to run single test will end up massive selection.
-        self.Cls.lastFailedTest = None
-        self.Cls._startTime = time.time()
+        self.Cls.lastRunInfo.failedTestId = None
+        self.Cls.lastRunInfo._sessionStartTime = time.time()
+        self.Cls.lastRunInfo._testStartTimes = {}
         self.callTreeViewMethod("onTestRunningSessionStart")
-        self.Cls._testRunStartTimes = {}
         self.Base.startTestRun()
 
     def stopTestRun(self):
         self.Base.stopTestRun()
-        self.Cls.runTime = time.time() - self.Cls._startTime
+        self.Cls.lastRunInfo.sessionRunTime = time.time() - self.Cls.lastRunInfo._sessionStartTime
         self.callTreeViewMethod("onAllTestsFinished")
 
         resultCode = constants.TEST_RESULT_PASS if self.wasSuccessful() \
@@ -179,15 +166,15 @@ class PyUnitTestResult(runner.TextTestResult):
     def startTest(self, test):
         info = self._linkInfoFromTest(test)
         with self.stream.linkInfoCtx(info):
-            self.Cls.lastRunCount += 1
+            self.Cls.lastRunInfo.runCount += 1
             
             originalTestId = test.id()
             _, testId = pyunitutils.parseParameterizedTestId(originalTestId)
-            if testId not in self.Cls.lastRunTestIds:
+            if testId not in self.Cls.lastRunInfo.runTestIds:
                 testStartTime = time.time()
-                self.Cls._testRunStartTimes[testId] = testStartTime
-                self.Cls.lastRunTestIds.append(testId)
-                self.callTreeViewMethod("onSingleTestStartToRun", testId, testStartTime)
+                self.Cls.lastRunInfo._testStartTimes[testId] = testStartTime
+                self.Cls.lastRunInfo.runTestIds.append(testId)
+                self.callTreeViewMethod("onSingleTestStart", testId, testStartTime)
 
             self.Base.startTest(test)
 
@@ -200,27 +187,20 @@ class PyUnitTestResult(runner.TextTestResult):
         originalTestId = test.id()
         _, testId = pyunitutils.parseParameterizedTestId(originalTestId)
         stopTime = time.time()
-        testStartTime = self.Cls._testRunStartTimes.get(testId, self.Cls._startTime)
-        self.Cls.runTime = stopTime - testStartTime
+        testStartTime = self.Cls.lastRunInfo._testStartTimes.get(testId, self.Cls.lastRunInfo._sessionStartTime)
+        self.Cls.lastRunInfo.singleTestRunTime = stopTime - testStartTime
         
         self.callTreeViewMethod("onSingleTestStop", testId, stopTime)
         self.callTreeViewMethod("repaintUi")
 
     @classmethod
     def resetLastData(cls):
-        cls.lastRunTestIds = []
-        cls.lastRunCount = 0
-        cls.lastErrorCount = 0
-        cls.lastFailedCount = 0
-        cls.lastExpectedFailureCount = 0
-        cls.lastSkipCount = 0
-        cls.lastSuccessCount = 0
-        cls.lastUnexpectedSuccessCount = 0
+        cls.lastRunInfo.reset()
 
     def addSuccess(self, test):
         with self.stream.resultCtx(constants.TEST_RESULT_PASS):
             self.Base.addSuccess(test)
-            self.Cls.lastSuccessCount += 1
+            self.Cls.lastRunInfo.successCount += 1
             self._atOutcomeAvailable(test.id(), constants.TEST_RESULT_PASS)
 
     def addError(self, test, err):

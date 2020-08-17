@@ -2,23 +2,10 @@ import logging
 from iutest import qt as _qt
 from iutest.core import pyunitutils
 from iutest.core import iconutils
+from iutest.core import runinfo
 from iutest.core.testrunners import runnerconstants
 
 logger = logging.getLogger(__name__)
-
-
-class TestRunInfo(object):
-    def __init__(self):
-        self.lastRunTestIds = []
-        self.lastFailedTest = None
-        self.lastRunTime = 0
-        self.lastRunCount = 0
-        self.lastSuccessCount = 0
-        self.lastFailedCount = 0
-        self.lastErrorCount = 0
-        self.lastSkipCount = 0
-        self.lastExpectedFailureCount = 0
-        self.lastUnexpectedSuccessCount = 0
 
 
 class BaseTestRunner(object):
@@ -84,20 +71,20 @@ class BaseTestRunner(object):
         self._raiseNotImplementedError()
 
     @classmethod
-    def lastListerError(cls):
+    def haslastListerError(cls):
         pass
 
     @classmethod
     def lastRunInfo(cls):
-        return TestRunInfo()
+        return runinfo.TestRunInfo()
 
     @classmethod
     def lastRunTestIds(cls):
-        return cls.lastRunInfo().lastRunTestIds
+        return cls.lastRunInfo().runTestIds
 
     @classmethod
-    def lastFailedTestIds(cls):
-        return cls.lastRunInfo().lastFailedTest
+    def lastFailedTestId(cls):
+        return cls.lastRunInfo().failedTestId
 
     @classmethod
     def parseParameterizedTestId(cls, testId):
@@ -105,6 +92,6 @@ class BaseTestRunner(object):
     
     @classmethod
     def avoidRunTestsOnPackageLevel(self):
-        """Runner like pyunit, it is hard to run multiple packages in one go.
+        """A stupid interface to tell the test manager to split these package level test id first.
         """
         return False

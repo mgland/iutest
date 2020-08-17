@@ -455,7 +455,7 @@ class UTestTreeView(QtWidgets.QTreeWidget):
         else:
             self._resetExpandStates(self._rootTestItem)
 
-    def onSingleTestStartToRun(self, testId, startTime):
+    def onSingleTestStart(self, testId, startTime):
         isParameterized, testId = self._testManager.parseParameterizedTestId(testId)
         item = self._findItemById(testId)
         if item:
@@ -499,7 +499,7 @@ class UTestTreeView(QtWidgets.QTreeWidget):
                 continue
 
             self._calculateAncestorItemStates(item.parent(), updatedIds)
-            if self._testManager.lastFailedTestIds() == testId:
+            if self._testManager.lastFailedTestId() == testId:
                 lastFailedItem = item
 
         self.focusItem(lastFailedItem)

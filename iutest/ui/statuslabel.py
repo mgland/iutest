@@ -13,46 +13,46 @@ class StatusLabel(QtWidgets.QLabel):
 
     def updateReport(self):
         runInfo = self._testManager.lastRunInfo()
-        testLbl = "tests" if runInfo.lastRunCount != 1 else "test"
+        testLbl = "tests" if runInfo.runCount != 1 else "test"
         msgs = [
             "%s %s run in %.3f sec"
-            % (runInfo.lastRunCount, testLbl, runInfo.lastRunTime)
+            % (runInfo.runCount, testLbl, runInfo.sessionRunTime)
         ]
-        if runInfo.lastSuccessCount == runInfo.lastRunCount:
+        if runInfo.successCount == runInfo.runCount:
             msgs.append(
                 "<font color=%s>ALL GOOD :)</font>"
                 % uiconstants.LOG_COLOR_SUCCESS.name()
             )
         else:
-            if runInfo.lastFailedCount:
+            if runInfo.failedCount:
                 msgs.append(
                     "<font color=%s>%s failed</font>"
-                    % (uiconstants.LOG_COLOR_FAILED.name(), runInfo.lastFailedCount)
+                    % (uiconstants.LOG_COLOR_FAILED.name(), runInfo.failedCount)
                 )
-            if runInfo.lastErrorCount:
+            if runInfo.errorCount:
                 msgs.append(
                     "<font color=%s>%s errors</font>"
-                    % (uiconstants.LOG_COLOR_ERROR.name(), runInfo.lastErrorCount)
+                    % (uiconstants.LOG_COLOR_ERROR.name(), runInfo.errorCount)
                 )
-            if runInfo.lastSkipCount:
+            if runInfo.skipCount:
                 msgs.append(
                     "<font color=%s>%s skipped</font>"
-                    % (uiconstants.LOG_COLOR_WARNING.name(), runInfo.lastSkipCount)
+                    % (uiconstants.LOG_COLOR_WARNING.name(), runInfo.skipCount)
                 )
-            if runInfo.lastExpectedFailureCount:
+            if runInfo.expectedFailureCount:
                 msgs.append(
                     "<font color=%s>%s expected failures</font>"
                     % (
                         uiconstants.LOG_COLOR_SUCCESS.name(),
-                        runInfo.lastExpectedFailureCount,
+                        runInfo.expectedFailureCount,
                     )
                 )
-            if runInfo.lastUnexpectedSuccessCount:
+            if runInfo.unexpectedSuccessCount:
                 msgs.append(
                     "<font color=%s>%s unexpected successes</font>"
                     % (
                         uiconstants.LOG_COLOR_ERROR.name(),
-                        runInfo.lastUnexpectedSuccessCount,
+                        runInfo.unexpectedSuccessCount,
                     )
                 )
         self.setText(", ".join(msgs))

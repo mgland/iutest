@@ -1,15 +1,10 @@
 import unittest
 import logging
-import inspect
 import nose2
 from iutest.core import pathutils
 from iutest.core import pyunitutils
 
 logger = logging.getLogger(__name__)
-
-def gotErrorOnLastList():
-    return TestCollector.gotError
-
 
 def iterAllTestPathsFromRootDir(startDirOrModuleName, topDir=None):
     argv = [

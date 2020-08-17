@@ -2,6 +2,7 @@ import logging
 from nose2 import result
 
 from iutest.core import constants
+from iutest.core import runinfo
 from iutest.core import pyunitutils
 
 logger = logging.getLogger(__name__)
@@ -12,21 +13,7 @@ logger = logging.getLogger(__name__)
 class ViewUpdater(object):
     """This class is a set of nose2 event hooks for updating the tests tree view.
     """
-
-    lastRunTestIds = []
-    lastRunCount = 0
-    lastErrorCount = 0
-    lastFailedCount = 0
-    lastExpectedFailureCount = 0
-    lastSkipCount = 0
-    lastSuccessCount = 0
-    lastUnexpectedSuccessCount = 0
-    lastFailedTest = None
-
-    runTime = 0
-    _startTime = 0
-
-    _testRunStartTimes = {}
+    lastRunInfo = runinfo.TestRunInfo()
     def __init__(self, ui):
         self.Cls = self.__class__
         self._ui = ui
@@ -44,63 +31,63 @@ class ViewUpdater(object):
         self.callUiMethod(
             "repaintUi"
         )  # To avoid double clicking to run single test will end up massive selection.
-        self.Cls.lastFailedTest = None
-        self.Cls._startTime = event.startTime
-        self.Cls._testRunStartTimes = {}
+        self.Cls.lastRunInfo.failedTestId = None
+        self.Cls.lastRunInfo._sessionStartTime = event.startTime
+        self.Cls.lastRunInfo._testStartTimes = {}
         self.callUiMethod("onTestRunningSessionStart")
 
     def stopTestRun(self, event):
-        self.Cls.runTime = event.stopTime - self.Cls._startTime
+        self.Cls.lastRunInfo.sessionRunTime = event.stopTime - self.Cls.lastRunInfo._sessionStartTime
         self.callUiMethod("onAllTestsFinished")
 
     def startTest(self, event):
-        self.Cls.lastRunCount += 1
+        self.Cls.lastRunInfo.runCount += 1
         originalTestId = event.test.id()
-        self.Cls._testRunStartTimes[originalTestId] = event.startTime
+        self.Cls.lastRunInfo._testStartTimes[originalTestId] = event.startTime
         _, testId = pyunitutils.parseParameterizedTestId(originalTestId)
-        if testId not in self.Cls.lastRunTestIds:
-            self.Cls.lastRunTestIds.append(testId)
-            self.callUiMethod("onSingleTestStartToRun", testId, event.startTime)
+        if testId not in self.Cls.lastRunInfo.runTestIds:
+            self.Cls.lastRunInfo.runTestIds.append(testId)
+            self.callUiMethod("onSingleTestStart", testId, event.startTime)
 
     def stopTest(self, event):
         testId = event.test.id()
         self.callUiMethod("onSingleTestStop", testId, event.stopTime)
         self.callUiMethod("repaintUi")
-        testStartTime = self.Cls._testRunStartTimes.get(testId, self.Cls._startTime)
-        self.Cls.runTime = event.stopTime - testStartTime
+        testStartTime = self.Cls.lastRunInfo._testStartTimes.get(testId, self.Cls.lastRunInfo._sessionStartTime)
+        self.Cls.singleTestRunTime = event.stopTime - testStartTime
         
     def testOutcome(self, event):
         testId = event.test.id()
         if event.outcome == result.ERROR:
-            self.Cls.lastErrorCount += 1
-            if not self.lastFailedTest:
-                self.Cls.lastFailedTest = testId
+            self.Cls.lastRunInfo.errorCount += 1
+            if not self.lastRunInfo.failedTestId:
+                self.Cls.lastRunInfo.failedTestId = testId
             self.callUiMethod(
                 "showResultOnItemByTestId", testId, constants.TEST_ICON_STATE_ERROR
             )
 
         elif event.outcome == result.FAIL:
             if not event.expected:
-                self.Cls.lastFailedCount += 1
+                self.Cls.lastRunInfo.failedCount += 1
             else:
-                self.Cls.lastExpectedFailureCount += 1
-            if not self.lastFailedTest:
-                self.Cls.lastFailedTest = testId
+                self.Cls.lastRunInfo.expectedFailureCount += 1
+            if not self.lastRunInfo.failedTestId:
+                self.Cls.lastRunInfo.failedTestId = testId
             self.callUiMethod(
                 "showResultOnItemByTestId", testId, constants.TEST_ICON_STATE_FAILED
             )
 
         elif event.outcome == result.SKIP:
-            self.Cls.lastSkipCount += 1
+            self.Cls.lastRunInfo.skipCount += 1
             self.callUiMethod(
                 "showResultOnItemByTestId", testId, constants.TEST_ICON_STATE_SKIPPED
             )
 
         elif event.outcome == result.PASS:
             if event.expected:
-                self.Cls.lastSuccessCount += 1
+                self.Cls.lastRunInfo.successCount += 1
             else:
-                self.Cls.lastUnexpectedSuccessCount += 1
+                self.Cls.lastRunInfo.unexpectedSuccessCount += 1
 
             self.callUiMethod(
                 "showResultOnItemByTestId", testId, constants.TEST_ICON_STATE_SUCCESS
@@ -108,14 +95,7 @@ class ViewUpdater(object):
 
     @classmethod
     def resetLastData(cls):
-        cls.lastRunTestIds = []
-        cls.lastRunCount = 0
-        cls.lastErrorCount = 0
-        cls.lastFailedCount = 0
-        cls.lastExpectedFailureCount = 0
-        cls.lastSkipCount = 0
-        cls.lastSuccessCount = 0
-        cls.lastUnexpectedSuccessCount = 0
+        cls.lastRunInfo.reset()
 
     @classmethod
     def getHooks(cls, manager):
