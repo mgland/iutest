@@ -2,8 +2,8 @@ import logging
 
 from iutest.core import constants
 from iutest.core import pathutils
-from iutest.core.testrunners import runnerconstants
-from iutest.core.testrunners import registry
+from iutest.core.runners import runnerconstants
+from iutest.core.runners import registry
 
 logger = logging.getLogger(__name__)
 

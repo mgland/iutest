@@ -38,7 +38,7 @@ setup(
     packages=[
         "iutest",
         "iutest.core",
-        "iutest.core.testrunners",
+        "iutest.core.runners",
         "iutest.dcc",
         "iutest.plugins",
         "iutest.plugins.nose2plugins",

@@ -43,7 +43,7 @@ def runTests(runnerName, *testModulePathsOrDir, **arguments):
             stopOnError (bool): Stop the tests running on the first error/failure.
     """
     from iutest.core import testmanager
-    from iutest.core.testrunners import runnerconstants
+    from iutest.core.runners import runnerconstants
     dirs = [s for s in testModulePathsOrDir if os.path.isdir(s)]
     if len(dirs) > 1:
         logger.error("Please only input at most one test root dir once at a time.")
@@ -63,7 +63,7 @@ def runTests(runnerName, *testModulePathsOrDir, **arguments):
 
 def main():
     from iutest import _version
-    from iutest.core.testrunners import runnerconstants
+    from iutest.core.runners import runnerconstants
 
     parser = argparse.ArgumentParser(description="IUTest")
     parser.add_argument(

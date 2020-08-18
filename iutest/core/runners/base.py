@@ -3,7 +3,7 @@ from iutest import qt as _qt
 from iutest.core import pyunitutils
 from iutest.core import iconutils
 from iutest.core import runinfo
-from iutest.core.testrunners import runnerconstants
+from iutest.core.runners import runnerconstants
 
 logger = logging.getLogger(__name__)
 

@@ -6,8 +6,8 @@ from unittest import loader, suite
 from unittest import main as runPyUnittest
 from iutest.core import pathutils
 from iutest.core import runinfo
-from iutest.core.testrunners import base
-from iutest.core.testrunners import runnerconstants
+from iutest.core.runners import base
+from iutest.core.runners import runnerconstants
 from iutest.plugins.pyunitextentions import pyunitwrappers
 
 logger = logging.getLogger(__name__)

@@ -2,8 +2,8 @@ import logging
 from iutest import qt as _qt
 from iutest import dependencies
 from iutest.core import iconutils
-from iutest.core.testrunners import base
-from iutest.core.testrunners import runnerconstants
+from iutest.core.runners import base
+from iutest.core.runners import runnerconstants
 from iutest.core import pathutils
 
 logger = logging.getLogger(__name__)
