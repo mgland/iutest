@@ -1,12 +1,21 @@
+import sys
 import logging
 from iutest import dependencies
 from iutest.core import pathutils
 
 logger = logging.getLogger(__name__)
 
+def isReimportFeatureAvailable(silentCheck=False):
+    if not hasattr(sys, "maxint"):
+        return False
+    if silentCheck:
+        return dependencies.ReimportWrapper.get().isValid()
 
-def reimportByDotPath(dotPath):
-    if not dependencies.ReimportWrapper.check():
+    return dependencies.ReimportWrapper.check()
+
+
+def reimportByModulePath(dotPath):
+    if not isReimportFeatureAvailable():
         return
     try:
         mod = pathutils.objectFromDotPath(dotPath)
@@ -16,13 +25,33 @@ def reimportByDotPath(dotPath):
         logger.exception("Error reloading module: %s", dotPath)
 
 
-def reimportAllChangedPythonModules():
-    if not dependencies.ReimportWrapper.check():
+def reimportAllChangedPythonModules(inclusiveKeyword=None, exclusiveKeyword=None):
+    """
+    Args:
+        filterKeyword (str): A keyword to 
+    """
+    if not isReimportFeatureAvailable():
         return
 
+    def _iterFilteredModules(modules):
+        if not modules:
+            return
+            
+        for module in modules:
+            if inclusiveKeyword and inclusiveKeyword.lower() not in module.lower():
+                logger.debug("Ignore %s since it does not match %s", module, inclusiveKeyword)
+                continue
+
+            if exclusiveKeyword and exclusiveKeyword.lower() in module.lower():
+                logger.debug("Ignore %s since it matches %s", module, exclusiveKeyword)
+                continue
+
+            yield module
+
     changed = dependencies.ReimportWrapper.getModule().modified()
+    changed = list(_iterFilteredModules(changed))
     if changed:
-        print("Reimporting: {}".format(changed))
+        print("Reimporting: {} ...".format(changed))
         successCount = 0
         failedCount = 0
         for module in changed:

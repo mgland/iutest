@@ -33,7 +33,7 @@ class AppSettings(object):
         return cls._instance
 
     @staticmethod
-    def createIniSettings():
+    def _createIniSettings():
         return QtCore.QSettings(
             QtCore.QSettings.IniFormat,
             QtCore.QSettings.UserScope,
@@ -42,7 +42,7 @@ class AppSettings(object):
         )
 
     def __init__(self):
-        self._settings = self.createIniSettings()
+        self._settings = self._createIniSettings()
 
     def saveSimpleConfig(self, key, value, sync=True):
         if isinstance(value, bool):
@@ -67,6 +67,10 @@ class AppSettings(object):
 
     def simpleConfigIntValue(self, key, defaultValue=0):
         configValue = self.simpleConfigValue(key, defaultValue=defaultValue) or 0
+        if isinstance(configValue, str):
+            if not configValue.isdigit():
+                return 0
+                
         return int(configValue)
 
     def removeConfig(self, key):

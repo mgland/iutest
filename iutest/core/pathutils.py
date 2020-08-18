@@ -76,5 +76,5 @@ def sourcePathAndLineFromModulePath(dotPath):
         obj = objectFromDotPath(dotPath)
         return sourceFileAndLineFromObject(obj)
     except Exception:
-        logger.error("Unable to retrieve source file from %s", obj)
+        logger.error("Unable to retrieve source file from %s", dotPath)
     return None, None

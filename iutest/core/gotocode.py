@@ -25,9 +25,12 @@ class CodeLineVisitor(QtCore.QObject):
         QtCore.QObject.__init__(self, parent=parent)
         self._process = QtCore.QProcess(self)
 
+    @staticmethod
+    def _goToCmd(template, filePath, lineNumber):
+        cmd = template.replace(constants.CODE_FILE_VAR, filePath)
+        return cmd.replace(constants.CODE_LINE_VAR, str(lineNumber))
+
     def goTo(self, filePath, lineNumber=0):
-        cmd = self.config()
-        cmd = cmd.replace(constants.CODE_FILE_VAR, filePath)
-        cmd = cmd.replace(constants.CODE_LINE_VAR, str(lineNumber))
+        cmd = self._goToCmd(self.config(), filePath, lineNumber)
         logger.debug(cmd)
         self._process.start(cmd)

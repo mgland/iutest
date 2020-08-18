@@ -276,6 +276,7 @@ class UTestTreeView(QtWidgets.QTreeWidget):
         return variantToPyValue(item.data(0, QtCore.Qt.UserRole))
 
     def _setItemIconState(self, item, state):
+        self._initAllIcons()
         category = self._categoryOfItem(item)
         icons = self._allItemIconSet[category]
         item.setData(0, QtCore.Qt.UserRole + 1, state)
@@ -591,6 +592,7 @@ class UTestTreeView(QtWidgets.QTreeWidget):
         self._goToCodeAct.triggered.connect(self._atGoToCode)
 
         self._reloadModulesAct = QtWidgets.QAction("Reload Selected Modules", self)
+        self._reloadModulesAct.setVisible(importutils.isReimportFeatureAvailable(silentCheck=True))
         self._reloadModulesAct.triggered.connect(self._atReloadSelectedModules)
 
         self._contextMenu.addAction(self._runAllAct)
@@ -617,7 +619,7 @@ class UTestTreeView(QtWidgets.QTreeWidget):
             constants.ITEM_CATEGORY_MODULE
         ):
             dotPath = self.testIdOfItem(moduleItem)
-            importutils.reimportByDotPath(dotPath)
+            importutils.reimportByModulePath(dotPath)
 
     def _atRunSetupOnly(self):
         testId = self.firstSelectedTestCaseId()

@@ -1,10 +1,5 @@
 import logging
-import os
-import sys
-import collections
-import weakref
 
-from iutest import dependencies
 from iutest import dcc
 from iutest import _version
 from iutest.core import importutils
@@ -279,7 +274,7 @@ class IUTestWindow(QtWidgets.QWidget):
 
     def _makeTopWidgets(self, layout):
         reimportBtn = uiutils.makeIconButton(self._reimportIcon, self)
-        reimportBtn.setEnabled(dependencies.ReimportWrapper.get().isValid())
+        reimportBtn.setVisible(importutils.isReimportFeatureAvailable(silentCheck=True))
         reimportBtn.setToolTip("Reimport all changed python module.")
         reimportBtn.clicked.connect(self._reimportAllChangedModules)
         layout.addWidget(reimportBtn)
