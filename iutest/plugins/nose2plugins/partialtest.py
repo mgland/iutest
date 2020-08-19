@@ -36,7 +36,7 @@ class PartialTestRunner(nose2.events.Plugin):
         """Set run mode to either TEST_SETUP_ONLY or TEST_NO_TEAR_DOWN
         """
         cls.runMode = min(
-            constants.RUN_TEST_NO_TEAR_DOWN,
+            constants.RUN_TEST_FULL,
             max(constants.RUN_TEST_SETUP_ONLY, int(mode)),
         )
 
@@ -56,9 +56,11 @@ class PartialTestRunner(nose2.events.Plugin):
         if self.runMode == constants.RUN_TEST_SETUP_ONLY:
             test.setUp()
             logger.info("Run %s.setUp() only.", test.__class__.__name__)
-        else:
+        elif self.runMode == constants.RUN_TEST_NO_TEAR_DOWN:
             with _NoTearDown(test):
                 test.run(self.session.testResult)
+        else:
+            test.run(self.session.testResult)
 
         PartialTestRunner.lastRunTest = test
 

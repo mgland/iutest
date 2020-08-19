@@ -181,6 +181,9 @@ class BaseCapturer(object):
         writePlainTextToUiStream(msg)
         self._originalStream.write(msg)
 
+    def flush(self):
+        pass
+
 
 class StdOutCapturer(BaseCapturer):
     def start(self):

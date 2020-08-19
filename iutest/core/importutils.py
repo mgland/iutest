@@ -14,6 +14,12 @@ def isReimportFeatureAvailable(silentCheck=False):
     return dependencies.ReimportWrapper.check()
 
 
+def isModuleModified(dotPath):
+    if not isReimportFeatureAvailable():
+        return None
+    return dependencies.ReimportWrapper.getModule().modified(dotPath)
+
+
 def reimportByModulePath(dotPath):
     if not isReimportFeatureAvailable():
         return
