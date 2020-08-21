@@ -4,6 +4,7 @@ import sys
 import tempfile
 import shutil
 
+import iutest
 from iutest import cli
 from iutest.core import pathutils
 from iutest.core.runners import runnerconstants
@@ -26,10 +27,6 @@ class CliTestCase(unittest.TestCase):
             shutil.rmtree(self._tempDir)
             if self._tempDir in sys.path:
                 sys.path.remove(self._tempDir)
-
-    def test_runTestsByModulePath(self):
-        runAction = lambda : cli.runTests(self._runner, self._testId)
-        common.checkRunTestsAfterAction(self, runAction)
 
     def _buildTempTests(self):
         if not self._tempDir or not os.path.isdir(self._tempDir):
@@ -57,8 +54,22 @@ class CliTestCase(unittest.TestCase):
         if self._tempDir not in sys.path:
             sys.path.append(self._tempDir)
 
-    def test_runTestsByDirs(self):
+    def test_cliRunTestsByModulePath(self):
+        runAction = lambda : cli.runTests(self._runner, self._testId)
+        common.checkRunTestsAfterAction(self, runAction)
+
+    def test_cliRunTestsByDirs(self):
         self._buildTempTests()
         import test_iutest_cli_temp as tempcommon
         runAction = lambda : cli.runTests(self._runner, self._tempDir)
+        tempcommon.checkRunTestsAfterAction(self, runAction)
+
+    def test_iutestRunTestsByModulePath(self):
+        runAction = lambda : iutest.runTests(self._runner, self._testId)
+        common.checkRunTestsAfterAction(self, runAction)
+
+    def test_iurestRunTestsByDirs(self):
+        self._buildTempTests()
+        import test_iutest_cli_temp as tempcommon
+        runAction = lambda : iutest.runTests(self._runner, self._tempDir)
         tempcommon.checkRunTestsAfterAction(self, runAction)
