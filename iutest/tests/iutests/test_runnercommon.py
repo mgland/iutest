@@ -1,5 +1,6 @@
 import unittest
 import os
+from unittest.suite import TestSuite
 
 from iutest.core import constants
 from iutest.core import pathutils
@@ -47,13 +48,16 @@ class RunnerDummyTestCase(unittest.TestCase):
         cls.checkTearDownRun(testSuite, False)
 
 
+def initTestTargets(testSuite):
+    testSuite._testId = __name__
+    testSuite._modulePath = "iutest.tests"
+
+
 def setUpTest(testSuite, runnerMode):
     testSuite._manager = testmanager.TestManager(None, None)
     testSuite._manager.setRunnerMode(runnerMode)
     testSuite.assertEqual(testSuite._manager.getRunner().mode(), runnerMode)
-    testSuite._testId = __name__
-    testSuite._modulePath = "iutest.tests"
-
+    initTestTargets(testSuite)
 
 def checkListedTests(testSuite, tests):
     testSuite.assertTrue(tests)
@@ -62,7 +66,6 @@ def checkListedTests(testSuite, tests):
         os.path.splitext(os.path.basename(__file__))[0],
         RunnerDummyTestCase.__name__, 
     )
-    print(prefix)
     for tid in tests:
         if tid.startswith(prefix):
             hasThisTest = True
@@ -94,13 +97,19 @@ def checkListByModulePath(testSuite):
     checkListedTests(testSuite, tests)
 
 
-def checkRunTests(testSuite):
+def checkRunTestsAfterAction(testSuite, action):
     RunnerDummyTestCase.resetStates(testSuite)
-    testSuite._manager.setStartDirOrModule(testSuite._modulePath)
-    testSuite._manager.runTests(testSuite._testId)
+    action()
     RunnerDummyTestCase.checkSetUpRun(testSuite, True)
     RunnerDummyTestCase.checkTestRun(testSuite, True)
     RunnerDummyTestCase.checkTearDownRun(testSuite, True)
+    print("The test on {} did run.".format(RunnerDummyTestCase.__name__))
+
+
+def checkRunTests(testSuite):
+    testSuite._manager.setStartDirOrModule(testSuite._modulePath)
+    action = lambda : testSuite._manager.runTests(testSuite._testId)
+    checkRunTestsAfterAction(testSuite, action)
 
 
 def checkPartialRun(testSuite):
