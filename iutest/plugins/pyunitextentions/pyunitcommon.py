@@ -49,36 +49,29 @@ class PyUnitUiMixin(object):
             cls.lastRunInfo.failedTestId = testId
 
     def _atOutcomeAvailable(self, testId, resultCode):
-        iconState = constants.TEST_ICON_STATE_SUCCESS
         if resultCode == constants.TEST_RESULT_ERROR:
             self.Cls.lastRunInfo.errorCount += 1
             self._recordLastFailedTestId(testId)
-            iconState = constants.TEST_ICON_STATE_ERROR
 
         elif resultCode == constants.TEST_RESULT_FAIL:
-            iconState = constants.TEST_ICON_STATE_FAILED
             self.Cls.lastRunInfo.failedCount += 1
             self._recordLastFailedTestId(testId)
 
         elif resultCode == constants.TEST_RESULT_EXPECTED_FAIL:
-            iconState = constants.TEST_ICON_STATE_FAILED
             self.Cls.lastRunInfo.expectedFailureCount += 1
             self._recordLastFailedTestId(testId)
 
-        elif resultCode == constants.TEST_RESULT_SKIP:
-            self.Cls.lastRunInfo.skipCount += 1
-            iconState = constants.TEST_ICON_STATE_SKIPPED
-
-        elif resultCode == constants.TEST_RESULT_PASS:
-            iconState = constants.TEST_ICON_STATE_SUCCESS
-            self.Cls.lastRunInfo.successCount += 1
-
         elif resultCode == constants.TEST_RESULT_UNEXPECTED_PASS:
             self.Cls.lastRunInfo.unexpectedSuccessCount += 1
-            iconState = constants.TEST_ICON_STATE_SUCCESS                
+
+        elif resultCode == constants.TEST_RESULT_SKIP:
+            self.Cls.lastRunInfo.skipCount += 1
+
+        elif resultCode == constants.TEST_RESULT_PASS:
+            self.Cls.lastRunInfo.successCount += 1
 
         self._callUiMethod(
-                "showResultOnItemByTestId", testId, iconState
+                "showResultOnItemByTestId", testId, resultCode
             )
         self.stdOutCapturer.stop()
         self.stdErrCapturer.stop()

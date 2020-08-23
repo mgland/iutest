@@ -238,7 +238,7 @@ class UTestTreeView(QtWidgets.QTreeWidget):
             if each.startswith(":"):
                 hasFilter = True
                 if not stateMatch:
-                    desiredState = constants.TEST_ICON_STATE_NORMAL
+                    desiredState = constants.TEST_RESULT_NONE
                     if each in constants.KEYWORD_TEST_STATES:
                         desiredState = constants.KEYWORD_TEST_STATES[each]
                     if desiredState < 0:
@@ -275,6 +275,9 @@ class UTestTreeView(QtWidgets.QTreeWidget):
     def _categoryOfItem(self, item):
         return variantToPyValue(item.data(0, QtCore.Qt.UserRole))
 
+    def _stateOfItem(self, item):
+        return item.data(0, QtCore.Qt.UserRole + 1)
+
     def _setItemIconState(self, item, state):
         self._initAllIcons()
         category = self._categoryOfItem(item)
@@ -294,7 +297,7 @@ class UTestTreeView(QtWidgets.QTreeWidget):
 
     def resetAllItemsToNormal(self):
         self._setTestIconStateToDecendents(
-            self._rootTestItem, constants.TEST_ICON_STATE_NORMAL
+            self._rootTestItem, constants.TEST_RESULT_NONE
         )
         self._resetExpandStates(self._rootTestItem)
         for item in self._testCases:
@@ -322,8 +325,8 @@ class UTestTreeView(QtWidgets.QTreeWidget):
                 continue
 
             self._resetItem(item, True)
-            self._setTestIconStateToAncestors(item, constants.TEST_ICON_STATE_NORMAL)
-            self._setTestIconStateToDecendents(item, constants.TEST_ICON_STATE_NORMAL)
+            self._setTestIconStateToAncestors(item, constants.TEST_RESULT_NONE)
+            self._setTestIconStateToDecendents(item, constants.TEST_RESULT_NONE)
         self.repaint()
 
     def focusItem(self, item):
@@ -338,11 +341,12 @@ class UTestTreeView(QtWidgets.QTreeWidget):
             return
 
         updatedIds.add(cId)
-        state = constants.TEST_ICON_STATE_NORMAL
+        stateToSet = constants.TEST_RESULT_NONE
         for i in range(item.childCount()):
-            state = variantToPyValue(item.child(i).data(0, QtCore.Qt.UserRole + 1))
-            state = max(state, state)
-        self._setItemIconState(item, state)
+            cState = variantToPyValue(item.child(i).data(0, QtCore.Qt.UserRole + 1))
+            stateToSet = max(stateToSet, cState)
+        
+        self._setItemIconState(item, stateToSet)
 
         if item is self._rootTestItem:
             return
@@ -400,7 +404,7 @@ class UTestTreeView(QtWidgets.QTreeWidget):
         self._rootTestItem = QtWidgets.QTreeWidgetItem([startDirOrModule])
         self._rootTestItem.setToolTip(0, startDirOrModule)
         self._rootTestItem.setData(0, QtCore.Qt.UserRole, constants.ITEM_CATEGORY_ALL)
-        self._setItemIconState(self._rootTestItem, constants.TEST_ICON_STATE_NORMAL)
+        self._setItemIconState(self._rootTestItem, constants.TEST_RESULT_NONE)
         self.addTopLevelItem(self._rootTestItem)
 
         self._allItemsIdMap[startDirOrModule] = self._rootTestItem
@@ -432,23 +436,23 @@ class UTestTreeView(QtWidgets.QTreeWidget):
 
             testCase = cParent
             testCase.setData(0, QtCore.Qt.UserRole, constants.ITEM_CATEGORY_TEST)
-            self._setItemIconState(testCase, constants.TEST_ICON_STATE_NORMAL)
+            self._setItemIconState(testCase, constants.TEST_RESULT_NONE)
             self._testCases.append(cParent)
 
             caseItem = testCase.parent()
             caseItem.setData(0, QtCore.Qt.UserRole, constants.ITEM_CATEGORY_SUITE)
-            self._setItemIconState(caseItem, constants.TEST_ICON_STATE_NORMAL)
+            self._setItemIconState(caseItem, constants.TEST_RESULT_NONE)
 
             moduleItem = caseItem.parent()
             moduleItem.setData(0, QtCore.Qt.UserRole, constants.ITEM_CATEGORY_MODULE)
-            self._setItemIconState(moduleItem, constants.TEST_ICON_STATE_NORMAL)
+            self._setItemIconState(moduleItem, constants.TEST_RESULT_NONE)
 
             packageItem = moduleItem.parent()
             while packageItem is not self._rootTestItem and packageItem:
                 packageItem.setData(
                     0, QtCore.Qt.UserRole, constants.ITEM_CATEGORY_PACKAGE
                 )
-                self._setItemIconState(packageItem, constants.TEST_ICON_STATE_NORMAL)
+                self._setItemIconState(packageItem, constants.TEST_RESULT_NONE)
                 packageItem = packageItem.parent()
 
         if keepUiStates:
@@ -461,7 +465,7 @@ class UTestTreeView(QtWidgets.QTreeWidget):
         item = self._findItemById(testId)
         if item:
             self.focusItem(item)
-            self._setTestIconStateToAncestors(item, constants.TEST_ICON_STATE_RUNNING)
+            self._setTestIconStateToAncestors(item, constants.TEST_RESULT_RUNNING)
             if not isParameterized or not variantToPyValue(
                 item.data(1, QtCore.Qt.UserRole)
             ):
@@ -483,8 +487,8 @@ class UTestTreeView(QtWidgets.QTreeWidget):
         if item:
             # For parameterized test, some might succeed but others might failed, we make sure
             # we set failed for this situation.
-            if state == constants.TEST_ICON_STATE_SKIPPED or state > variantToPyValue(
-                item.data(0, QtCore.Qt.UserRole + 1)
+            if state == constants.TEST_RESULT_SKIP or state > variantToPyValue(
+                self._stateOfItem(item)
             ):
                 self._setItemIconState(item, state)
 
@@ -498,7 +502,7 @@ class UTestTreeView(QtWidgets.QTreeWidget):
             item = self._findItemById(testId)
             if not item:
                 continue
-
+            
             self._calculateAncestorItemStates(item.parent(), updatedIds)
             if self._testManager.lastFailedTestId() == testId:
                 lastFailedItem = item

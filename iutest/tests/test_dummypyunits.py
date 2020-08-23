@@ -38,7 +38,7 @@ class DummyTests(unittest.TestCase):
         self.assertTrue(False, "False will never be True.")
 
     @unittest.expectedFailure
-    def test_expectedFailureButSuccess(self):
+    def test_unexpectedPass(self):
         logger.warning("This should not pass.")
         self.assertTrue(True)
 

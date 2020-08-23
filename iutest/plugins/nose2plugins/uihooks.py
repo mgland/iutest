@@ -25,19 +25,26 @@ class UiHooksPlugin(resultPlugin.ResultReporter, pyunitcommon.PyUnitUiMixin):
         self.Cls = self.__class__
 
     @classmethod
-    def _mapTestResultCode(cls, nose2ResultCode):
+    def _mapTestResultCode(cls, resultCode, expected):
         """Translate nose2.result result constants to iutest.core.constants.TEST_RESULT_* constants
         """
-        if nose2ResultCode == result.ERROR:
+        if resultCode == result.ERROR:
             return constants.TEST_RESULT_ERROR
-        elif nose2ResultCode == result.FAIL:
+        
+        if resultCode == result.FAIL:
+            if expected:
+                return constants.TEST_RESULT_EXPECTED_FAIL
             return constants.TEST_RESULT_FAIL
-        elif nose2ResultCode == result.SKIP:
+
+        if resultCode == result.SKIP:
             return constants.TEST_RESULT_SKIP
-        elif nose2ResultCode == result.PASS:
+
+        if resultCode == result.PASS:
+            if not expected:
+                return constants.TEST_RESULT_UNEXPECTED_PASS
             return constants.TEST_RESULT_PASS
-        else:
-            return None
+
+        return constants.TEST_RESULT_NONE
 
     def startTestRun(self, event):
         self._atStartTestRun()
@@ -54,10 +61,10 @@ class UiHooksPlugin(resultPlugin.ResultReporter, pyunitcommon.PyUnitUiMixin):
 
     def testOutcome(self, event):
         testId = event.test.id()
-        resultCode = self._mapTestResultCode(event.outcome)
+        resultCode = self._mapTestResultCode(event.outcome, event.expected)
         self._atOutcomeAvailable(testId, resultCode)      
 
-        with self.stream.resultCtx(self._mapTestResultCode(event.outcome)):
+        with self.stream.resultCtx(resultCode):
             resultPlugin.ResultReporter.testOutcome(self, event)
 
     def stopTestRun(self, event):
@@ -70,7 +77,7 @@ class UiHooksPlugin(resultPlugin.ResultReporter, pyunitcommon.PyUnitUiMixin):
         self.stream.setProcessStackTraceLink(False)
 
         if evt.stopTestEvent.result.wasSuccessful():
-            with self.stream.resultCtx(self._mapTestResultCode(result.PASS)):
+            with self.stream.resultCtx(self._mapTestResultCode(result.PASS, True)):
                 resultPlugin.ResultReporter.afterTestRun(self, event)
         else:
             cats = evt.reportCategories
@@ -89,14 +96,14 @@ class UiHooksPlugin(resultPlugin.ResultReporter, pyunitcommon.PyUnitUiMixin):
                 for ev in events_:
                     self._reportErrorSummary(flavour.upper(), ev)
 
-            with self.stream.resultCtx(self._mapTestResultCode(result.FAIL)):
+            with self.stream.resultCtx(self._mapTestResultCode(result.FAIL, False)):
                 self._printSummary(evt)
 
     def _reportErrorSummary(self, flavour, err):
         self.stream.setProcessStackTraceLink(False)
 
         desc = self._getDescription(err.test, errorList=True)
-        with self.stream.resultCtx(self._mapTestResultCode(result.FAIL)):
+        with self.stream.resultCtx(self._mapTestResultCode(result.FAIL, False)):
             self.stream.writeln(self.separator1)
 
         with self.stream.linkInfoCtx(self._linkInfoFromTest(err.test)):

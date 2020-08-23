@@ -151,7 +151,7 @@ class IUTestWindow(QtWidgets.QWidget):
             return
 
         panelStatePaths = iconutils.iconPathSet(
-            "panelMode.svg", constants.PANEL_VIS_STATE_ICON_SUFFIXES, includeInput=False
+            "panelMode.svg", constants.PANEL_VIS_STATE_ICON_SUFFIXES
         )
         cls._panelStateIconSet = [iconFromPath(p) for p in panelStatePaths]
 
