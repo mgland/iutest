@@ -2,7 +2,7 @@ RUNNER_PYUNIT = 0
 RUNNER_NOSE2 = 1
 RUNNER_PYTEST = 2
 
-RUNNER_NAMES = {RUNNER_PYUNIT: "unittest", RUNNER_NOSE2: "nose2", RUNNER_PYTEST: "pytest"}
+RUNNER_NAMES = {RUNNER_PYUNIT: "PyUnit", RUNNER_NOSE2: "nose2", RUNNER_PYTEST: "pytest"}
 
 
 def isValidRunnerName(runnerName):

@@ -62,7 +62,7 @@ class IUTestWindow(QtWidgets.QWidget):
         self._leftWidget, leftLay = self._createSplitterContent()
 
         _topLayout = uiutils.makeMinorHorizontalLayout()
-        self._makeTopWidgets(_topLayout)
+        self._makeTreeTopWidgets(_topLayout)
         leftLay.addLayout(_topLayout)
 
         self._view = utesttreeview.UTestTreeView(self)
@@ -130,7 +130,7 @@ class IUTestWindow(QtWidgets.QWidget):
         return wgt, splitterLay
 
     def _makeLogTopLayout(self, layout):
-        _console = QtWidgets.QLabel("Console")
+        _console = QtWidgets.QLabel("Log Browser")
 
         self._clearLogBtn = uiutils.makeIconButton(self._clearLogIcon, self)
         self._clearLogBtn.setToolTip("Clear the log browser logging.")
@@ -184,27 +184,27 @@ class IUTestWindow(QtWidgets.QWidget):
         self._configMenu.addAction(act)
         return (act, value)
 
-    def _regenerateMoreFeatureMenu(self):
-        self._moreMenu.clear()
+    def _regenerateBrowseMenu(self):
+        self._browseMenu.clear()
 
-        act = self._moreMenu.addAction("Pick Test Root Dir ...")
+        act = self._browseMenu.addAction("Pick Test Root Dir ...")
         act.triggered.connect(self._onBrowseTestsRootDir)
-        act = self._moreMenu.addAction("Pick Top Root Dir ...")
+        act = self._browseMenu.addAction("Pick Top Root Dir ...")
         act.triggered.connect(self._onBrowseTopDir)
-        self._moreMenu.addSeparator()
-        act = self._moreMenu.addAction("Save Current Path Settings ...")
+        self._browseMenu.addSeparator()
+        act = self._browseMenu.addAction("Save Current Path Settings ...")
         act.triggered.connect(self._onSaveCurrentDirSettings)
-        act = self._moreMenu.addAction("Delete Current Settings ...")
+        act = self._browseMenu.addAction("Delete Current Settings ...")
         act.triggered.connect(self._onDeleteCurrentDirSettings)
-        self._moreMenu.addSeparator()
+        self._browseMenu.addSeparator()
 
         # Read settings:
         config = appsettings.get().testDirSettings()
         for key, pair in config.items():
-            act = self._moreMenu.addAction(key)
+            act = self._browseMenu.addAction(key)
             act.triggered.connect(self._loadSavedDirPair)
             act.setToolTip("\n".join(pair))
-        self._moreMenu.addSeparator()
+        self._browseMenu.addSeparator()
 
     def _updateLabelOfTestRunnerAct(self, act, currentMode):
         runnerMode = act.data()
@@ -269,6 +269,7 @@ class IUTestWindow(QtWidgets.QWidget):
 
         self._configMenu.addSeparator()
         act = self._configMenu.addAction("Preference..")
+        act.setIcon(self._configIcon)
         act.triggered.connect(self._showConfigWindow)
 
     def _showConfigWindow(self):
@@ -296,9 +297,6 @@ class IUTestWindow(QtWidgets.QWidget):
         self._testManager.setRunnerMode(initRunnerMode)
         return self._testManager.getRunner()
 
-    def _tooltipForRunnerSwitchButton(self, runner):
-        return "Run tests using {}, long-press to switch to different runner.".format(runner.name())
-
     def _makeDirWidgets(self):
         lbl = QtWidgets.QLabel("Test Root")
         lbl.setToolTip(
@@ -307,10 +305,10 @@ class IUTestWindow(QtWidgets.QWidget):
         self._rootDirLE = rootpathedit.RootPathEdit(self)
         self._rootDirLE.rootPathChanged.connect(self._switchToTestRootPath)
 
-        self._browseBtn, self._moreMenu = self._makeMenuToolButton(
+        self._browseBtn, self._browseMenu = self._makeMenuToolButton(
             self._moreIcon, "Click to access more features."
         )
-        self._regenerateMoreFeatureMenu()
+        self._regenerateBrowseMenu()
 
         self._panelVisBtn = uiutils.makeIconButton(self._panelStateIconSet[-1], self)
         self._panelVisBtn.setToolTip(
@@ -327,7 +325,7 @@ class IUTestWindow(QtWidgets.QWidget):
 
         self._updateDirUI()
 
-    def _makeTopWidgets(self, layout):
+    def _makeTreeTopWidgets(self, layout):
         reimportBtn = uiutils.makeIconButton(self._reimportIcon, self)
         reimportBtn.setVisible(importutils.isReimportFeatureAvailable(silentCheck=True))
         reimportBtn.setToolTip("Reimport all changed python module.")
@@ -600,7 +598,7 @@ class IUTestWindow(QtWidgets.QWidget):
         self._updateWindowTitle(name[0])
 
     def _deferredRegenerateMenu(self):
-        QtCore.QTimer.singleShot(0, self._regenerateMoreFeatureMenu)
+        QtCore.QTimer.singleShot(0, self._regenerateBrowseMenu)
 
     def _onDeleteCurrentDirSettings(self):
         config = appsettings.get().testDirSettings()

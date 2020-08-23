@@ -30,7 +30,7 @@ class PyUnitRunner(base.BaseTestRunner):
 
     @classmethod
     def iconFileName(cls):
-        return "unittest.svg"
+        return "pyunit.svg"
 
     def runTests(self, *testIds):
         self._runTests(constants.RUN_TEST_FULL, *testIds)
