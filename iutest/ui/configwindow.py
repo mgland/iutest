@@ -18,7 +18,7 @@ class ConfigWindow(QtWidgets.QDialog):
 
     def __init__(self, parent=None):
         QtWidgets.QDialog.__init__(self, parent)
-        self.setWindowTitle("{} Settings".format(constants.APP_NAME))
+        self.setWindowTitle("{} Preference".format(constants.APP_NAME))
 
         self._mainLayout = uiutils.makeMainLayout(self)
         self._formLayout = uiutils.makeMinorLayout(QtWidgets.QFormLayout)
