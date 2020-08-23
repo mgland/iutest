@@ -1,0 +1,3 @@
+PySide
+nose2
+reimport==1.4.1
