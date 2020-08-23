@@ -35,6 +35,7 @@ class IUTestWindow(QtWidgets.QWidget):
     _runPartialIcon = None
     _runAllIcon = None
     _runSelectedIcon = None
+    _configIcon = None
     _panelStateIconSet = None
 
     def __init__(self, startDirOrModule=None, topDir=None, parent=None):
@@ -101,7 +102,6 @@ class IUTestWindow(QtWidgets.QWidget):
         self.setWindowFlags(QtCore.Qt.Window)
 
         self._updateWindowTitle()
-        self._setInitialTestMode()
         self._loadLastDirsFromSettings()
         self._restorePanelVisState()
 
@@ -130,16 +130,6 @@ class IUTestWindow(QtWidgets.QWidget):
 
     def _makeLogTopLayout(self, layout):
         _console = QtWidgets.QLabel("Console")
-        self._clearLogOnRunBtn = uiutils.makeIconButton(self._clearLogOnRunIcon, self)
-        self._clearLogOnRunBtn.setToolTip(
-            "Clear the log browser automatically before every test run."
-        )
-        self._clearLogOnRunBtn.setCheckable(True)
-        autoClear = appsettings.get().simpleConfigBoolValue(
-            constants.CONFIG_KEY_AUTO_CLEAR_LOG_STATE
-        )
-        self._clearLogOnRunBtn.setChecked(autoClear)
-        self._clearLogOnRunBtn.toggled.connect(self._onAutoClearButtonToggled)
 
         self._clearLogBtn = uiutils.makeIconButton(self._clearLogIcon, self)
         self._clearLogBtn.setToolTip("Clear the log browser logging.")
@@ -147,7 +137,6 @@ class IUTestWindow(QtWidgets.QWidget):
 
         layout.addWidget(_console, 0)
         layout.addStretch(1)
-        layout.addWidget(self._clearLogOnRunBtn, 0)
         layout.addWidget(self._clearLogBtn, 0)
 
     @classmethod
@@ -168,6 +157,7 @@ class IUTestWindow(QtWidgets.QWidget):
         cls._initSingleIcon("_iutestIcon", "iutest.svg")
         cls._initSingleIcon("_reimportIcon", "reimport.svg")
         cls._initSingleIcon("_reloadUiIcon", "reloadUI.svg")
+        cls._initSingleIcon("_configIcon", "config.svg")
         cls._initSingleIcon("_clearIcon", "clear.svg")
         cls._initSingleIcon("_moreIcon", "more.svg")
         cls._initSingleIcon("_filterIcon", "stateFilter.svg")
@@ -181,12 +171,24 @@ class IUTestWindow(QtWidgets.QWidget):
         cls._initSingleIcon("_runAllIcon", "runAll.svg")
         cls._initSingleIcon("_runSelectedIcon", "runSelected.svg")
 
+    def _addToggleConfigAction(self, lbl, icon, tooltip, configKey, slot):
+        # Cannot use self._configMenu.addAction() directly here since over-zealous garbage collection in some DCC apps:
+        act = QtWidgets.QAction(lbl, self)
+        act.setIcon(icon)
+        act.setCheckable(True)
+        act.setToolTip(tooltip)
+        act.toggled.connect(slot)
+        value = appsettings.get().simpleConfigBoolValue(configKey)
+        act.setChecked(value)
+        self._configMenu.addAction(act)
+        return (act, value)
+
     def _regenerateMoreFeatureMenu(self):
         self._moreMenu.clear()
 
-        act = self._moreMenu.addAction("Browse Test Root Dir ...")
+        act = self._moreMenu.addAction("Pick Test Root Dir ...")
         act.triggered.connect(self._onBrowseTestsRootDir)
-        act = self._moreMenu.addAction("Browse Top Root Dir ...")
+        act = self._moreMenu.addAction("Pick Top Root Dir ...")
         act.triggered.connect(self._onBrowseTopDir)
         self._moreMenu.addSeparator()
         act = self._moreMenu.addAction("Save Current Path Settings ...")
@@ -202,7 +204,39 @@ class IUTestWindow(QtWidgets.QWidget):
             act.triggered.connect(self._loadSavedDirPair)
             act.setToolTip("\n".join(pair))
         self._moreMenu.addSeparator()
-        act = self._moreMenu.addAction("Config..")
+
+    def _makeConfigMenu(self):
+        self._configBtn, self._configMenu = self._makeMenuToolButton(self._configIcon, "Configuration")
+        # Stop on error act:
+        self._stopOnErrorAct, stopOnError = self._addToggleConfigAction(
+            "Stop On Error",
+            self._stopAtErrorIcon,
+            "Stop the tests running once it encounters a test error/failure.",
+            configKey=constants.CONFIG_KEY_STOP_ON_ERROR,
+            slot=self._onStopOnErrorActionToggled
+        )
+        self._testManager.setStopOnError(stopOnError)
+
+        # auto filer on run act:
+        self._autoFilterAct, stopOnError = self._addToggleConfigAction(
+            "Only Show Tests that Run",
+            self._autoFilterIcon,
+            "Apply a ':ran' filter automatically after every test run so that only the run tests shown in the view.",
+            configKey=constants.CONFIG_KEY_AUTO_FILTERING_STATE,
+            slot=self._onAutoFilterActionToggled
+        )
+
+        # auto clear log on run act:
+        self._clearLogOnRunAct, stopOnError = self._addToggleConfigAction(
+            "Clear LogBrowser On Run",
+            self._clearLogOnRunIcon,
+            "Clear the log browser automatically before every test run.",
+            configKey=constants.CONFIG_KEY_AUTO_CLEAR_LOG_STATE,
+            slot=self._onAutoClearLogActionToggled
+        )
+
+        self._configMenu.addSeparator()
+        act = self._configMenu.addAction("Preference..")
         act.triggered.connect(self._showConfigWindow)
 
     def _showConfigWindow(self):
@@ -212,6 +246,8 @@ class IUTestWindow(QtWidgets.QWidget):
         btn = QtWidgets.QToolButton(self)
         btn.setIcon(icon)
         btn.setToolTip(toolTip)
+        btn.setContentsMargins(0,0,0,0)
+        btn.setIconSize(QtCore.QSize(20,20))
         btn.setPopupMode(btn.InstantPopup)
         menu = QtWidgets.QMenu(btn)
         btn.setMenu(menu)
@@ -225,24 +261,28 @@ class IUTestWindow(QtWidgets.QWidget):
             initRunnerMode = self._testManager.getFeasibleRunnerMode()
             
         self._testManager.setRunnerMode(initRunnerMode)
-        if initRunnerMode in self._testModeButtons:
-            self._testModeButtons[initRunnerMode].setChecked(True)
+        return self._testManager.getRunner()
+
+    def _tooltipForRunnerSwitchButton(self, runner):
+        return "Run tests using {}, long-press to switch to different runner.".format(runner.name())
 
     def _makeTestModeWidget(self, layout):
-        self._testModeButtons = {}
+        runner = self._setInitialTestMode()
+        self._runnerBtn, self._runnerSwitchMenu = self._makeMenuToolButton(
+            runner.icon(), 
+            self._tooltipForRunnerSwitchButton(runner)
+        )
+        layout.addWidget(self._runnerBtn)
         for runner in self._testManager.iterAllRunners():
             icon = runner.icon()
             toolTip = "Run tests using {}.".format(runner.name())
             runnerMode = runner.mode()
-            btn = uiutils.makeIconButton(icon, self)
-            btn.setEnabled(runner.isValid())
-            btn.setCheckable(True)
-            btn.setAutoExclusive(True)
-            btn.setToolTip(toolTip)
-            btn.setWindowTitle(str(runnerMode))
-            btn.clicked.connect(self._onTestModeClicked)
-            layout.addWidget(btn)
-            self._testModeButtons[runnerMode] = btn
+            act = self._runnerSwitchMenu.addAction(runner.name())
+            act.setIcon(icon)
+            act.setEnabled(runner.isValid())
+            act.setToolTip(toolTip)
+            act.setData(runnerMode)
+            act.triggered.connect(self._onTestRunnerSwitched)
 
     def _makeDirWidgets(self):
         lbl = QtWidgets.QLabel("Test Root")
@@ -262,13 +302,14 @@ class IUTestWindow(QtWidgets.QWidget):
             "Switch the test tree view and the log browser visibility."
         )
         self._panelVisBtn.clicked.connect(self._onPanelVisButtonClicked)
+        self._makeConfigMenu()
 
+        self._makeTestModeWidget(self._dirLayout)
         self._dirLayout.addWidget(lbl)
         self._dirLayout.addWidget(self._rootDirLE)
-        self._dirLayout.addWidget(self._browseBtn)
         self._dirLayout.addWidget(self._panelVisBtn)
-        uiutils.addSeparatorToLayout(self._dirLayout, QtCore.Qt.Vertical)
-        self._makeTestModeWidget(self._dirLayout)
+        self._dirLayout.addWidget(self._browseBtn)
+        self._dirLayout.addWidget(self._configBtn)
 
         self._updateDirUI()
 
@@ -308,58 +349,38 @@ class IUTestWindow(QtWidgets.QWidget):
             act.triggered.connect(self._addStateFilter)
         layout.addWidget(self._filterBtn)
 
-        self._autoFilterBtn = uiutils.makeIconButton(self._autoFilterIcon, self)
-        self._autoFilterBtn.setToolTip(
-            "Apply a ':ran' filter automatically after every test run so that only the run tests shown in the view."
-        )
-        self._autoFilterBtn.setCheckable(True)
-        autoFilter = appsettings.get().simpleConfigBoolValue(
-            constants.CONFIG_KEY_AUTO_FILTERING_STATE
-        )
-        self._autoFilterBtn.setChecked(autoFilter)
-        self._autoFilterBtn.toggled.connect(self._onAutoFilterButtonToggled)
-        layout.addWidget(self._autoFilterBtn)
-
-    def _onAutoFilterButtonToggled(self, state):
+    def _onAutoFilterActionToggled(self, state):
         appsettings.get().saveSimpleConfig(
             constants.CONFIG_KEY_AUTO_FILTERING_STATE, state
         )
 
-    def _onAutoClearButtonToggled(self, state):
+    def _onAutoClearLogActionToggled(self, state):
         appsettings.get().saveSimpleConfig(
             constants.CONFIG_KEY_AUTO_CLEAR_LOG_STATE, state
         )
 
-    def _onTestModeClicked(self):
-        btn = self.sender()
-        if not btn:
+    def _onTestRunnerSwitched(self):
+        act = self.sender()
+        if not act:
             return
 
-        runnerMode = int(btn.windowTitle())
+        runnerMode = act.data()
         self._testManager.setRunnerMode(runnerMode)
+        runner = self._testManager.getRunner()
+        self._runnerBtn.setIcon(runner.icon())
+        self._runnerBtn.setToolTip(self._tooltipForRunnerSwitchButton(runner))
+        logger.info("Switch to %s for test running.", runner.name())
+        
         self._onReloadUiButtonClicked()
         appsettings.get().saveSimpleConfig(
             constants.CONFIG_KEY_LAST_RUNNER_MODE, runnerMode
         )
 
-    def _onStopOnErrorButtonToggled(self, stop):
+    def _onStopOnErrorActionToggled(self, stop):
         self._testManager.setStopOnError(stop)
         appsettings.get().saveSimpleConfig(constants.CONFIG_KEY_STOP_ON_ERROR, stop)
 
     def _makeRunButtons(self, _btmLayout):
-        self._stopAtErrorBtn = uiutils.makeIconButton(self._stopAtErrorIcon, self)
-        self._stopAtErrorBtn.toggled.connect(self._onStopOnErrorButtonToggled)
-        self._stopAtErrorBtn.setToolTip(
-            "Stop the tests running once it encounters a test error/failure."
-        )
-        self._stopAtErrorBtn.setCheckable(True)
-        stopOnError = appsettings.get().simpleConfigBoolValue(
-            constants.CONFIG_KEY_STOP_ON_ERROR
-        )
-        self._stopAtErrorBtn.setChecked(stopOnError)
-        self._testManager.setStopOnError(stopOnError)
-        _btmLayout.addWidget(self._stopAtErrorBtn, 0)
-
         self._resetAllBtn = uiutils.makeIconButton(self._resetIcon, self)
         self._resetAllBtn.setToolTip(
             "Reset the test item states, icons and stats and collapse the tree view items in a certain level."
@@ -713,13 +734,13 @@ class IUTestWindow(QtWidgets.QWidget):
 
     def onTestRunningSessionStart(self):
         self._statusLbl.setText("Running tests...")
-        if self._clearLogOnRunBtn.isChecked():
+        if self._clearLogOnRunAct.isChecked():
             self._logWgt.clear()
         self._logWgt.logSeparator()
 
     def onAllTestsFinished(self):
         self._view.onAllTestsFinished()
-        if self._autoFilterBtn.isChecked():
+        if self._autoFilterAct.isChecked():
             self._searchLE.setText(constants.KEYWORD_TEST_STATE_RUN)
         self._statusLbl.updateReport()
 

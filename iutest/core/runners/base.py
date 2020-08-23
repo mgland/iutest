@@ -34,7 +34,7 @@ class BaseTestRunner(object):
     @classmethod
     def check(cls):
         if cls.isValid():
-            logger.info("Switch to test runner %s.", cls.name())
+            logger.debug("Switch to test runner %s.", cls.name())
         else:
             logger.warning(
                 "The test runner %s is unavailable, you need to install it first or switch to other runners.",
