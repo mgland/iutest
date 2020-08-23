@@ -11,7 +11,7 @@ from iutest.core import testmanager
 from iutest.core import uistream
 from iutest.ui import logbrowser
 from iutest.ui import rootpathedit
-from iutest.ui import utesttreeview
+from iutest.ui import unittesttree
 from iutest.ui import statuslabel
 from iutest.ui import uiutils
 from iutest.ui import configwindow
@@ -61,7 +61,7 @@ class IUTestWindow(QtWidgets.QWidget):
         self._makeTreeTopWidgets(_topLayout)
         leftLay.addLayout(_topLayout)
 
-        self._view = utesttreeview.UTestTreeView(self)
+        self._view = unittesttree.UnitTestTreeView(self)
         self._view.runAllTest.connect(self._runAllTests)
         self._view.runTests.connect(self._runTests)
         self._view.runSetupOnly.connect(self._runTestSetupOnly)
