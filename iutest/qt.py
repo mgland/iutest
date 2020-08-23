@@ -141,9 +141,7 @@ def checkQtAvailability():
     else:
         qtLibs = ["PySide"]
     cmdStr = " or ".join(["`pip install {}`".format(lib) for lib in qtLibs])
-    print(
-        "QT is required by IUTest UI, please install it by {}".format(cmdStr)
-    )
+    print("QT is required by IUTest UI, please install it by {}".format(cmdStr))
     return False
 
 
@@ -215,4 +213,3 @@ class ApplicationContext(object):
             else:
                 self._application.exec_()
                 self._application._eventLoopExited = True
-

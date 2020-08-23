@@ -72,7 +72,7 @@ class TestManager(object):
         startDirOrModule = str(startDirOrModule) if startDirOrModule else ""
         self.setStartDirOrModule(startDirOrModule)
         topDir = topDir or self._topDir
-        topDir = str(topDir) if topDir else "" 
+        topDir = str(topDir) if topDir else ""
         if startDirOrModule:
             if topDir:
                 if not self._topDir or not topDir.startswith(self._topDir):

@@ -9,6 +9,7 @@ from iutest.core import testmanager
 
 from iutest.core.runners import runnerconstants
 
+
 class RunnerDummyTestCase(unittest.TestCase):
     _setupExecuted = False
     _testExecuted = False
@@ -59,12 +60,12 @@ def setUpTest(testSuite, runnerMode):
     testSuite.assertEqual(testSuite._manager.getRunner().mode(), runnerMode)
     initTestTargets(testSuite)
 
+
 def checkListedTests(testSuite, tests):
     testSuite.assertTrue(tests)
     hasThisTest = False
     prefix = "iutest.tests.iutests.{}.{}.test_".format(
-        os.path.splitext(os.path.basename(__file__))[0],
-        RunnerDummyTestCase.__name__, 
+        os.path.splitext(os.path.basename(__file__))[0], RunnerDummyTestCase.__name__
     )
     for tid in tests:
         if tid.startswith(prefix):
@@ -74,8 +75,8 @@ def checkListedTests(testSuite, tests):
 
 def checkParseParameterizedTestId(testSuite):
     data = {
-        "test_mod.TestSuite.test_case":(False, "test_mod.TestSuite.test_case"),
-        "test_mod.TestSuite.test_case:34":(True, "test_mod.TestSuite.test_case"),
+        "test_mod.TestSuite.test_case": (False, "test_mod.TestSuite.test_case"),
+        "test_mod.TestSuite.test_case:34": (True, "test_mod.TestSuite.test_case"),
     }
     for testId, expected in data.items():
         testSuite.assertEqual(pyunitutils.parseParameterizedTestId(testId), expected)
@@ -92,7 +93,7 @@ def checkListByDir(testSuite):
 
 def checkListByModulePath(testSuite):
     testSuite._manager.setStartDirOrModule(testSuite._modulePath)
-    
+
     tests = list(testSuite._manager.iterAllTestIds())
     checkListedTests(testSuite, tests)
 
@@ -108,7 +109,7 @@ def checkRunTestsAfterAction(testSuite, action):
 
 def checkRunTests(testSuite):
     testSuite._manager.setStartDirOrModule(testSuite._modulePath)
-    action = lambda : testSuite._manager.runTests(testSuite._testId)
+    action = lambda: testSuite._manager.runTests(testSuite._testId)
     checkRunTestsAfterAction(testSuite, action)
 
 
@@ -116,19 +117,25 @@ def checkPartialRun(testSuite):
     RunnerDummyTestCase.resetStates(testSuite)
     testSuite._manager.setStartDirOrModule(testSuite._modulePath)
 
-    testSuite._manager.runSingleTestPartially(testSuite._testId, constants.RUN_TEST_SETUP_ONLY)
+    testSuite._manager.runSingleTestPartially(
+        testSuite._testId, constants.RUN_TEST_SETUP_ONLY
+    )
     RunnerDummyTestCase.checkSetUpRun(testSuite, True)
     RunnerDummyTestCase.checkTestRun(testSuite, False)
     RunnerDummyTestCase.checkTearDownRun(testSuite, False)
     RunnerDummyTestCase.resetStates(testSuite)
 
-    testSuite._manager.runSingleTestPartially(testSuite._testId, constants.RUN_TEST_NO_TEAR_DOWN)
+    testSuite._manager.runSingleTestPartially(
+        testSuite._testId, constants.RUN_TEST_NO_TEAR_DOWN
+    )
     RunnerDummyTestCase.checkSetUpRun(testSuite, True)
     RunnerDummyTestCase.checkTestRun(testSuite, True)
     RunnerDummyTestCase.checkTearDownRun(testSuite, False)
     RunnerDummyTestCase.resetStates(testSuite)
 
-    testSuite._manager.runSingleTestPartially(testSuite._testId, constants.RUN_TEST_FULL)
+    testSuite._manager.runSingleTestPartially(
+        testSuite._testId, constants.RUN_TEST_FULL
+    )
     RunnerDummyTestCase.checkSetUpRun(testSuite, True)
     RunnerDummyTestCase.checkTestRun(testSuite, True)
     RunnerDummyTestCase.checkTearDownRun(testSuite, True)

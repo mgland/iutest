@@ -70,7 +70,7 @@ class AppSettings(object):
         if isinstance(configValue, str):
             if not configValue.isdigit():
                 return 0
-                
+
         return int(configValue)
 
     def removeConfig(self, key):

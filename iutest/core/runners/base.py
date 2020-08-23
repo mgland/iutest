@@ -28,7 +28,8 @@ class BaseTestRunner(object):
     def _issueNotInstalledError(cls):
         logger.warning(
             "The test runner %s is not installed, consider installing it by: `pip install %s`",
-            cls.name(), cls.name(),
+            cls.name(),
+            cls.name(),
         )
 
     @classmethod
@@ -89,7 +90,7 @@ class BaseTestRunner(object):
     @classmethod
     def parseParameterizedTestId(cls, testId):
         return pyunitutils.parseParameterizedTestId(testId)
-    
+
     @classmethod
     def avoidRunTestsOnPackageLevel(self):
         """A stupid interface to tell the test manager to split these package level test id first.

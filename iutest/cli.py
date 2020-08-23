@@ -15,10 +15,12 @@ def runUi(modulePathOrDir=None, topDir=None, exit_=False):
         exit (bool): Whether we exit python console after the IUTest window closed.
     """
     from iutest import qt as _qt
+
     if not _qt.checkQtAvailability():
         return
 
     from iutest.ui import iutestwindow
+
     with _qt.ApplicationContext(exit_=exit_) as ctx:
         if ctx.isStandalone:
             logging.basicConfig()
@@ -44,15 +46,18 @@ def runTests(runnerName, *testModulePathsOrDir, **arguments):
     """
     from iutest.core import testmanager
     from iutest.core.runners import runnerconstants
+
     dirs = [s for s in testModulePathsOrDir if os.path.isdir(s)]
     if len(dirs) > 1:
         logger.error("Please only input at most one test root dir once at a time.")
         return
 
-    testRootDir =  dirs[0] if dirs else None
-    topDir  = arguments.get("topDir", None)
+    testRootDir = dirs[0] if dirs else None
+    topDir = arguments.get("topDir", None)
     stopOnError = arguments.get("stopOnError", False)
-    manager = testmanager.TestManager(ui=None, startDirOrModule=testRootDir, topDir=topDir)
+    manager = testmanager.TestManager(
+        ui=None, startDirOrModule=testRootDir, topDir=topDir
+    )
     manager.setRunnerMode(runnerconstants.runnerModeFromName(runnerName))
     manager.setStopOnError(stopOnError)
     if testRootDir:
@@ -131,15 +136,8 @@ def main():
             )
             return
 
-        arguments = {
-            "topDir" : results.topDir,
-            "stopOnError" : results.stopOnError,
-        }
-        runTests(
-            results.runner,
-            *results.testPathsOrDir,
-            **arguments
-        )
+        arguments = {"topDir": results.topDir, "stopOnError": results.stopOnError}
+        runTests(results.runner, *results.testPathsOrDir, **arguments)
 
 
 if __name__ == "__main__":

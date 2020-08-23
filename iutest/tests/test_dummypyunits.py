@@ -3,12 +3,15 @@ import logging
 
 logger = logging.Logger(__name__)
 
+
 def _nose2Params(*paramList):
     """Copy this directly from nose2 so that the tests here can still run without nose2.
     """
+
     def decorator(func):
         func.paramList = paramList
         return func
+
     return decorator
 
 

@@ -85,11 +85,8 @@ class Nose2TestRunner(base.BaseTestRunner):
 
         argv.extend(testIds)
         argv.extend(["--fail-fast"] if self._manager.stopOnError() else [])
-        self.uihooks.UiHooksPlugin.resetLastData()        
-        dependencies.Nose2Wrapper.getModule().discover(
-            argv=argv,
-            exit=False,
-        )
+        self.uihooks.UiHooksPlugin.resetLastData()
+        dependencies.Nose2Wrapper.getModule().discover(argv=argv, exit=False)
 
     def runSingleTestPartially(self, testId, partialMode):
         """Run partial steps of test, like running setUp only, or setUp and test but without teardown.

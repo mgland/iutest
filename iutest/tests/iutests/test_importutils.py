@@ -6,7 +6,11 @@ import shutil
 
 from iutest.core import importutils
 
-@unittest.skipUnless(importutils.isReimportFeatureAvailable(silentCheck=True), "reimport feature is unavailable.")
+
+@unittest.skipUnless(
+    importutils.isReimportFeatureAvailable(silentCheck=True),
+    "reimport feature is unavailable.",
+)
 class ImportUtilsTestCase(unittest.TestCase):
     def setUp(self):
         self._tempDir = tempfile.mkdtemp()
@@ -16,7 +20,7 @@ class ImportUtilsTestCase(unittest.TestCase):
             sys.path.append(self._tempDir)
 
     def _testModFilePath(self):
-        return os.path.join(self._tempDir, (self._modName+".py"))
+        return os.path.join(self._tempDir, (self._modName + ".py"))
 
     def _writeModule(self, value):
         value = "'{}'".format(value) if isinstance(value, str) else value
@@ -39,10 +43,12 @@ class ImportUtilsTestCase(unittest.TestCase):
     def _getVarValue(self):
         mod = __import__(self._modName)
         return getattr(mod, self._varName)
-    
-    @unittest.skip("Looks like different modifications happen too closed for reimport to know it is modified.")
+
+    @unittest.skip(
+        "Looks like different modifications happen too closed for reimport to know it is modified."
+    )
     def test_reimportByModulePath(self):
-        action = lambda:importutils.reimportByModulePath(self._modName)
+        action = lambda: importutils.reimportByModulePath(self._modName)
         self._checkReimport(action)
 
     def _checkReimport(self, reimportAction):
@@ -58,7 +64,11 @@ class ImportUtilsTestCase(unittest.TestCase):
             self.assertEqual(self._getVarValue(), v)
             oldValue = v
 
-    @unittest.skip("Looks like different modifications happen too closed for reimport to know it is modified.")
+    @unittest.skip(
+        "Looks like different modifications happen too closed for reimport to know it is modified."
+    )
     def test_reimportAllChangedPythonModules(self):
-        action = lambda:importutils.reimportAllChangedPythonModules(inclusiveKeyword=self._modName)
+        action = lambda: importutils.reimportAllChangedPythonModules(
+            inclusiveKeyword=self._modName
+        )
         self._checkReimport(action)

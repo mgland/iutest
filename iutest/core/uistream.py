@@ -6,6 +6,7 @@ from iutest.core import constants
 
 logger = logging.getLogger(__name__)
 
+
 class UiStream(object):
     _testMainWindow = None
     _logBrowser = None
@@ -62,7 +63,7 @@ class UiStream(object):
     def _processLinkInStackTrace(self, msg):
         if not self._processStackTraceLink:
             return msg
-            
+
         lines = msg.split("\n")
         for i, line in enumerate(lines):
             matches = re.finditer(self._traceExp, line)
@@ -118,12 +119,12 @@ class UiStream(object):
 
     def flush(self):
         pass
-    
+
     @classmethod
     def callUiMethod(cls, methodName, *args, **kwargs):
         if not cls._testMainWindow:
             return
-        ui = cls._testMainWindow() # deref
+        ui = cls._testMainWindow()  # deref
         method = getattr(ui, methodName)
         if not method:
             logger.error("%s has no method called %s", ui, methodName)

@@ -8,29 +8,28 @@ from iutest.plugins.pyunitextentions import pyunitcommon
 
 logger = logging.getLogger(__name__)
 
+
 class PyUnitTestRunnerWrapper(runner.TextTestRunner):
     def __init__(
-        self, 
-        verbosity=2, 
-        failfast=False, 
-        partialMode=constants.RUN_TEST_FULL
-        ):
+        self, verbosity=2, failfast=False, partialMode=constants.RUN_TEST_FULL
+    ):
         self._verbosity = verbosity
         self.stream = uistream.UiStream()
         self._partialMode = partialMode
 
         # call baseClass.__init__() here means running the test:
         runner.TextTestRunner.__init__(
-            self, 
+            self,
             stream=self.stream,
             resultclass=PyUnitTestResult,
-            verbosity=verbosity, 
-            failfast=failfast)
-    
+            verbosity=verbosity,
+            failfast=failfast,
+        )
+
     @staticmethod
     def _dummyFunction(*_, **__):
         pass
-    
+
     def resetUiStreamResult(self):
         self.stream.setResult()
 
@@ -41,7 +40,7 @@ class PyUnitTestRunnerWrapper(runner.TextTestRunner):
                 logger.error("No test to run.")
                 return
             test = tests[0]
-            
+
         return test
 
     def run(self, test):
@@ -63,8 +62,10 @@ class PyUnitTestRunnerWrapper(runner.TextTestRunner):
 class PyUnitTestResult(runner.TextTestResult, pyunitcommon.PyUnitUiMixin):
     """A test result class that can show text results in ui, both in tree view and the log browser.
     """
+
     _originalStdOut = sys.stdout
     _originalStdErr = sys.stderr
+
     def __init__(self, stream, descriptions, verbosity):
         self.Cls = self.__class__
         self.Base = super(PyUnitTestResult, self)
@@ -77,11 +78,11 @@ class PyUnitTestResult(runner.TextTestResult, pyunitcommon.PyUnitUiMixin):
 
     def startTest(self, test):
         self._atStartTest(test)
-        with self.stream.linkInfoCtx(self._linkInfoFromTest(test)):            
+        with self.stream.linkInfoCtx(self._linkInfoFromTest(test)):
             self.Base.startTest(test)
 
         self._startLogProcessers()
-    
+
     def stopTest(self, test):
         self.Base.stopTest(test)
         self._atStopTest(test)
@@ -89,8 +90,11 @@ class PyUnitTestResult(runner.TextTestResult, pyunitcommon.PyUnitUiMixin):
     def stopTestRun(self):
         self.Base.stopTestRun()
         self._atStopTestRun()
-        resultCode = constants.TEST_RESULT_PASS if self.wasSuccessful() \
+        resultCode = (
+            constants.TEST_RESULT_PASS
+            if self.wasSuccessful()
             else constants.TEST_RESULT_ERROR
+        )
         self.stream.setResult(resultCode)
 
     def addSuccess(self, test):
@@ -125,17 +129,17 @@ class PyUnitTestResult(runner.TextTestResult, pyunitcommon.PyUnitUiMixin):
 
     def printErrorList(self, flavour, errors):
         for test, err in errors:
-            with self.stream.resultCtx(constants.TEST_RESULT_FAIL): 
+            with self.stream.resultCtx(constants.TEST_RESULT_FAIL):
                 self.stream.writeln(self.separator1)
 
             with self.stream.linkInfoCtx(self._linkInfoFromTest(test)):
-                self.stream.writeln("%s: %s" % (flavour,self.getDescription(test)))
+                self.stream.writeln("%s: %s" % (flavour, self.getDescription(test)))
 
             self.stream.writeln(self.separator2)
 
             with self.stream.processStackTraceLinkCtx():
                 self.stream.writeln("%s" % err)
-        
+
         # We set the result code to error, so the summary will be in red.
         if errors:
             self.stream.setResult(constants.TEST_RESULT_ERROR)

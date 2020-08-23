@@ -6,6 +6,7 @@ from iutest.core import pyunitutils
 
 logger = logging.getLogger(__name__)
 
+
 def iterAllTestPathsFromRootDir(startDirOrModuleName, topDir=None):
     argv = [
         "nose2",
@@ -105,10 +106,7 @@ class TestCollector(nose2.events.Plugin):
                 continue
 
             if not self._checkError(
-                test,
-                testId,
-                self._loadTestsFailure,
-                "Unable to load tests from %s",
+                test, testId, self._loadTestsFailure, "Unable to load tests from %s"
             ):
                 TestCollector.gotError = True
                 continue

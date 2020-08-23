@@ -34,7 +34,7 @@ class CodeLineVisitor(QtCore.QObject):
     def goTo(self, filePath, lineNumber=0):
         if os.path.isfile(filePath):
             logger.warning("%s is not a valid file.", filePath)
-            
+
         cmd = self._goToCmd(self.config(), filePath, lineNumber)
         logger.debug(cmd)
         self._process.start(cmd)

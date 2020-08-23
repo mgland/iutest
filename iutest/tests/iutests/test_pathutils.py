@@ -28,12 +28,13 @@ class PathUtilsTestCase(unittest.TestCase):
     def test_objectFromDotPath(self):
         from iutest import core as corePackage
         from iutest.core import testmanager as testmanagerMod
+
         data = {
-            "iutest.core":corePackage,
-            "iutest.core.testmanager":testmanagerMod,
-            "iutest.core.testmanager.TestManager":testmanagerMod.TestManager,
-            "iutest.core.testmanager.TestManager.setRunnerMode":testmanagerMod.TestManager.setRunnerMode,
-            "iutest.core.testmanager.logger":testmanagerMod.logger,
+            "iutest.core": corePackage,
+            "iutest.core.testmanager": testmanagerMod,
+            "iutest.core.testmanager.TestManager": testmanagerMod.TestManager,
+            "iutest.core.testmanager.TestManager.setRunnerMode": testmanagerMod.TestManager.setRunnerMode,
+            "iutest.core.testmanager.logger": testmanagerMod.logger,
         }
         for dotPath, expectedObj in data.items():
             self.assertEqual(pathutils.objectFromDotPath(dotPath), expectedObj)
@@ -41,10 +42,11 @@ class PathUtilsTestCase(unittest.TestCase):
     def test_sourceFileAndLineFromObject(self):
         from iutest import core as corePackage
         from iutest.core import testmanager as testmanagerMod
+
         data = [
             (corePackage, False),
             (testmanagerMod, False),
-            (testmanagerMod.TestManager, True), 
+            (testmanagerMod.TestManager, True),
             (testmanagerMod.TestManager.setRunnerMode, True),
         ]
         for obj, notLine0 in data:

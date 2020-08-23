@@ -154,9 +154,13 @@ class UnitTestTreeView(QtWidgets.QTreeWidget):
             if self._categoryOfItem(item) != constants.ITEM_CATEGORY_PACKAGE:
                 testIds.append(self.testIdOfItem(item))
                 continue
-            
-            splittedTests = [self.testIdOfItem(item) for item in \
-                self._iterAllDescendentItem(item, constants.ITEM_CATEGORY_MODULE)]
+
+            splittedTests = [
+                self.testIdOfItem(item)
+                for item in self._iterAllDescendentItem(
+                    item, constants.ITEM_CATEGORY_MODULE
+                )
+            ]
             testIds.extend(splittedTests)
         return tuple(testIds)
 
@@ -192,10 +196,12 @@ class UnitTestTreeView(QtWidgets.QTreeWidget):
             cls._testSuiteIcons,
             cls._testCaseIcons,
         )
-        iconutils.initSingleClassIcon(cls,"_reimportAndRunIcon", "reimportAndRerun.svg")
-        iconutils.initSingleClassIcon(cls,"_runPartialIcon", "run_partial.svg")
-        iconutils.initSingleClassIcon(cls,"_runAllIcon", "runAll.svg")
-        iconutils.initSingleClassIcon(cls,"_runSelectedIcon", "runSelected.svg")
+        iconutils.initSingleClassIcon(
+            cls, "_reimportAndRunIcon", "reimportAndRerun.svg"
+        )
+        iconutils.initSingleClassIcon(cls, "_runPartialIcon", "run_partial.svg")
+        iconutils.initSingleClassIcon(cls, "_runAllIcon", "runAll.svg")
+        iconutils.initSingleClassIcon(cls, "_runSelectedIcon", "runSelected.svg")
 
     def setFilterKeywords(self, keywords, ensureFirstMatchVisible=False):
         itemStates = {}
@@ -356,7 +362,7 @@ class UnitTestTreeView(QtWidgets.QTreeWidget):
         for i in range(item.childCount()):
             cState = variantToPyValue(item.child(i).data(0, QtCore.Qt.UserRole + 1))
             stateToSet = max(stateToSet, cState)
-        
+
         self._setItemIconState(item, stateToSet)
 
         if item is self._rootTestItem:
@@ -426,7 +432,7 @@ class UnitTestTreeView(QtWidgets.QTreeWidget):
         if isModule:
             headingCount = len(startDirOrModule) + 1
             heading = startDirOrModule + "."
-        
+
         testCount = 0
         for test in self._testManager.iterAllTestIds():
             testCount = testCount + 1
@@ -467,13 +473,15 @@ class UnitTestTreeView(QtWidgets.QTreeWidget):
                 )
                 self._setItemIconState(packageItem, constants.TEST_RESULT_NONE)
                 packageItem = packageItem.parent()
-        
-        self._uiStream.write("\n{}\n".format("-"*20))
+
+        self._uiStream.write("\n{}\n".format("-" * 20))
         if not self._testManager.hasLastListerError():
             self._uiStream.write("{} tests collected.\n\n".format(testCount))
         else:
             with self._uiStream.resultCtx(constants.TEST_RESULT_ERROR):
-                msg = "Error collecting tests from {}.\n\n".format(self._testManager.startDirOrModule())
+                msg = "Error collecting tests from {}.\n\n".format(
+                    self._testManager.startDirOrModule()
+                )
                 self._uiStream.write(msg)
 
         if keepUiStates:
@@ -523,7 +531,7 @@ class UnitTestTreeView(QtWidgets.QTreeWidget):
             item = self._findItemById(testId)
             if not item:
                 continue
-            
+
             self._calculateAncestorItemStates(item.parent(), updatedIds)
             if self._testManager.lastFailedTestId() == testId:
                 lastFailedItem = item
@@ -570,7 +578,7 @@ class UnitTestTreeView(QtWidgets.QTreeWidget):
         for item in self._iterSelectedSuiteOrTestCaseItems():
             if self._categoryOfItem(item) == constants.ITEM_CATEGORY_TEST:
                 return item
-            
+
             for i in range(item.childCount()):
                 return item.child(i)
 
@@ -623,7 +631,9 @@ class UnitTestTreeView(QtWidgets.QTreeWidget):
         self._goToCodeAct.triggered.connect(self._atGoToCode)
 
         self._reloadModulesAct = QtWidgets.QAction("Reload Selected Modules", self)
-        self._reloadModulesAct.setVisible(importutils.isReimportFeatureAvailable(silentCheck=True))
+        self._reloadModulesAct.setVisible(
+            importutils.isReimportFeatureAvailable(silentCheck=True)
+        )
         self._reloadModulesAct.triggered.connect(self._atReloadSelectedModules)
         self._reloadModulesAct.setIcon(self._reimportAndRunIcon)
 

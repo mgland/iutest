@@ -10,12 +10,13 @@ from iutest.core import pyunitutils
 
 logger = logging.getLogger(__name__)
 
+
 class PyUnitUiMixin(object):
     lastRunInfo = runinfo.TestRunInfo()
 
     _originalStdOut = sys.stdout
     _originalStdErr = sys.stderr
-    
+
     def __init__(self, stream):
         self.stream = stream
         self.logHandler = uistream.LogHandler()
@@ -70,9 +71,7 @@ class PyUnitUiMixin(object):
         elif resultCode == constants.TEST_RESULT_PASS:
             self.Cls.lastRunInfo.successCount += 1
 
-        self._callUiMethod(
-                "showResultOnItemByTestId", testId, resultCode
-            )
+        self._callUiMethod("showResultOnItemByTestId", testId, resultCode)
         self.stdOutCapturer.stop()
         self.stdErrCapturer.stop()
         self.logHandler.stop()
@@ -105,12 +104,16 @@ class PyUnitUiMixin(object):
         originalTestId = test.id()
         _, testId = pyunitutils.parseParameterizedTestId(originalTestId)
         stopTime = time.time()
-        testStartTime = self.Cls.lastRunInfo._testStartTimes.get(testId, self.Cls.lastRunInfo._sessionStartTime)
+        testStartTime = self.Cls.lastRunInfo._testStartTimes.get(
+            testId, self.Cls.lastRunInfo._sessionStartTime
+        )
         self.Cls.lastRunInfo.singleTestRunTime = stopTime - testStartTime
-        
+
         self._callUiMethod("onSingleTestStop", testId, stopTime)
         self._callUiMethod("repaintUi")
 
     def _atStopTestRun(self):
-        self.Cls.lastRunInfo.sessionRunTime = time.time() - self.Cls.lastRunInfo._sessionStartTime
+        self.Cls.lastRunInfo.sessionRunTime = (
+            time.time() - self.Cls.lastRunInfo._sessionStartTime
+        )
         self._callUiMethod("onAllTestsFinished")

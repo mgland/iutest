@@ -2,6 +2,7 @@ import os
 from iutest.core import pathutils
 from iutest.qt import iconFromPath
 
+
 def _iconDir():
     return os.path.join(pathutils.iutestPackageDir(), "icons")
 

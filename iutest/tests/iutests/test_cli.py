@@ -22,7 +22,7 @@ class CliTestCase(unittest.TestCase):
     def tearDown(self):
         if self._tempModuleName in sys.modules:
             del sys.modules[self._tempModuleName]
-        
+
         if self._tempDir and os.path.isdir(self._tempDir):
             shutil.rmtree(self._tempDir)
             if self._tempDir in sys.path:
@@ -39,7 +39,7 @@ class CliTestCase(unittest.TestCase):
 
         with open(srcFile, "r") as f:
             content = f.read()
-            
+
         content = content.replace("RunnerDummyTestCase", "TempRunnerDummyTestCase")
         dstFile = os.path.join(self._tempDir, "{}.py".format(self._tempModuleName))
         with open(dstFile, "w") as f:
@@ -55,21 +55,23 @@ class CliTestCase(unittest.TestCase):
             sys.path.append(self._tempDir)
 
     def test_cliRunTestsByModulePath(self):
-        runAction = lambda : cli.runTests(self._runner, self._testId)
+        runAction = lambda: cli.runTests(self._runner, self._testId)
         common.checkRunTestsAfterAction(self, runAction)
 
     def test_cliRunTestsByDirs(self):
         self._buildTempTests()
         import test_iutest_cli_temp as tempcommon
-        runAction = lambda : cli.runTests(self._runner, self._tempDir)
+
+        runAction = lambda: cli.runTests(self._runner, self._tempDir)
         tempcommon.checkRunTestsAfterAction(self, runAction)
 
     def test_iutestRunTestsByModulePath(self):
-        runAction = lambda : iutest.runTests(self._runner, self._testId)
+        runAction = lambda: iutest.runTests(self._runner, self._testId)
         common.checkRunTestsAfterAction(self, runAction)
 
     def test_iurestRunTestsByDirs(self):
         self._buildTempTests()
         import test_iutest_cli_temp as tempcommon
-        runAction = lambda : iutest.runTests(self._runner, self._tempDir)
+
+        runAction = lambda: iutest.runTests(self._runner, self._tempDir)
         tempcommon.checkRunTestsAfterAction(self, runAction)

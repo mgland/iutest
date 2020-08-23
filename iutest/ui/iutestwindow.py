@@ -152,17 +152,17 @@ class IUTestWindow(QtWidgets.QWidget):
         cls._panelStateIconSet = [iconFromPath(p) for p in panelStatePaths]
 
         iconutils.initSingleClassIcon(cls, "_iutestIcon", "iutest.svg")
-        iconutils.initSingleClassIcon(cls,"_reimportIcon", "reimport.svg")
-        iconutils.initSingleClassIcon(cls,"_reloadUiIcon", "reloadUI.svg")
-        iconutils.initSingleClassIcon(cls,"_configIcon", "config.svg")
-        iconutils.initSingleClassIcon(cls,"_clearIcon", "clear.svg")
-        iconutils.initSingleClassIcon(cls,"_moreIcon", "more.svg")
-        iconutils.initSingleClassIcon(cls,"_filterIcon", "stateFilter.svg")
-        iconutils.initSingleClassIcon(cls,"_autoFilterIcon", "autoFilter.svg")
-        iconutils.initSingleClassIcon(cls,"_resetIcon", "reset.svg")
-        iconutils.initSingleClassIcon(cls,"_clearLogIcon", "clearLog.svg")
-        iconutils.initSingleClassIcon(cls,"_clearLogOnRunIcon", "clearLogOnRun.svg")
-        iconutils.initSingleClassIcon(cls,"_stopAtErrorIcon", "stopAtError.svg")
+        iconutils.initSingleClassIcon(cls, "_reimportIcon", "reimport.svg")
+        iconutils.initSingleClassIcon(cls, "_reloadUiIcon", "reloadUI.svg")
+        iconutils.initSingleClassIcon(cls, "_configIcon", "config.svg")
+        iconutils.initSingleClassIcon(cls, "_clearIcon", "clear.svg")
+        iconutils.initSingleClassIcon(cls, "_moreIcon", "more.svg")
+        iconutils.initSingleClassIcon(cls, "_filterIcon", "stateFilter.svg")
+        iconutils.initSingleClassIcon(cls, "_autoFilterIcon", "autoFilter.svg")
+        iconutils.initSingleClassIcon(cls, "_resetIcon", "reset.svg")
+        iconutils.initSingleClassIcon(cls, "_clearLogIcon", "clearLog.svg")
+        iconutils.initSingleClassIcon(cls, "_clearLogOnRunIcon", "clearLogOnRun.svg")
+        iconutils.initSingleClassIcon(cls, "_stopAtErrorIcon", "stopAtError.svg")
 
     def _addToggleConfigAction(self, lbl, icon, tooltip, configKey, slot):
         # Cannot use self._configMenu.addAction() directly here since over-zealous garbage collection in some DCC apps:
@@ -207,14 +207,16 @@ class IUTestWindow(QtWidgets.QWidget):
 
     def _updateConfigButton(self, runner):
         self._runnerConfigBtn.setIcon(runner.icon())
-        self._runnerConfigBtn.setToolTip("Test Runner: {}, click for more settings.".format(runner.name()))
+        self._runnerConfigBtn.setToolTip(
+            "Test Runner: {}, click for more settings.".format(runner.name())
+        )
 
     def _makeRunnerConfigButton(self):
         currentRunner = self._setInitialTestMode()
         currentRunnerMode = currentRunner.mode()
         self._runnerConfigBtn, self._configMenu = self._makeMenuToolButton()
         self._updateConfigButton(currentRunner)
-        
+
         for runner in self._testManager.iterAllRunners():
             icon = runner.icon()
             toolTip = "Run tests using {}.".format(runner.name())
@@ -237,7 +239,7 @@ class IUTestWindow(QtWidgets.QWidget):
             self._stopAtErrorIcon,
             "Stop the tests running once it encounters a test error/failure.",
             configKey=constants.CONFIG_KEY_STOP_ON_ERROR,
-            slot=self._onStopOnErrorActionToggled
+            slot=self._onStopOnErrorActionToggled,
         )
         self._testManager.setStopOnError(stopOnError)
 
@@ -247,7 +249,7 @@ class IUTestWindow(QtWidgets.QWidget):
             self._autoFilterIcon,
             "Apply a ':ran' filter automatically after every test run so that only the run tests shown in the view.",
             configKey=constants.CONFIG_KEY_AUTO_FILTERING_STATE,
-            slot=self._onAutoFilterActionToggled
+            slot=self._onAutoFilterActionToggled,
         )
 
         # auto clear log on run act:
@@ -256,7 +258,7 @@ class IUTestWindow(QtWidgets.QWidget):
             self._clearLogOnRunIcon,
             "Clear the log browser automatically before every test run.",
             configKey=constants.CONFIG_KEY_AUTO_CLEAR_LOG_STATE,
-            slot=self._onAutoClearLogActionToggled
+            slot=self._onAutoClearLogActionToggled,
         )
 
         self._configMenu.addSeparator()
@@ -272,8 +274,8 @@ class IUTestWindow(QtWidgets.QWidget):
         if icon:
             btn.setIcon(icon)
         btn.setToolTip(toolTip)
-        btn.setContentsMargins(0,0,0,0)
-        btn.setIconSize(QtCore.QSize(20,20))
+        btn.setContentsMargins(0, 0, 0, 0)
+        btn.setIconSize(QtCore.QSize(20, 20))
         btn.setPopupMode(btn.InstantPopup)
         menu = QtWidgets.QMenu(btn)
         btn.setMenu(menu)
@@ -285,7 +287,7 @@ class IUTestWindow(QtWidgets.QWidget):
         )
         if initRunnerMode < 0:
             initRunnerMode = self._testManager.getFeasibleRunnerMode()
-            
+
         self._testManager.setRunnerMode(initRunnerMode)
         return self._testManager.getRunner()
 
@@ -373,7 +375,7 @@ class IUTestWindow(QtWidgets.QWidget):
         runner = self._testManager.getRunner()
         self._updateConfigButton(runner)
         logger.info("Switch to %s for test running.", runner.name())
-        
+
         self._onReloadUiButtonClicked()
         appsettings.get().saveSimpleConfig(
             constants.CONFIG_KEY_LAST_RUNNER_MODE, runnerMode
@@ -542,9 +544,15 @@ class IUTestWindow(QtWidgets.QWidget):
 
     def _updateWindowTitle(self, configName=None):
         if configName:
-            self.setWindowTitle("{} {} - {}".format(constants.APP_NAME, _version.__version__, configName))
+            self.setWindowTitle(
+                "{} {} - {}".format(
+                    constants.APP_NAME, _version.__version__, configName
+                )
+            )
         else:
-            self.setWindowTitle("{} {}".format(constants.APP_NAME, _version.__version__))
+            self.setWindowTitle(
+                "{} {}".format(constants.APP_NAME, _version.__version__)
+            )
 
     def _configNameFromStartAndTopDir(self, startDir, topDir):
         config = appsettings.get().testDirSettings()
@@ -724,7 +732,7 @@ class IUTestWindow(QtWidgets.QWidget):
         keywords = lowerTxt.split(" ")
         self._clearFilterBtn.setEnabled(bool(keywords))
         self._view.setFilterKeywords(keywords, ensureFirstMatchVisible=not keepUiStates)
-    
+
     def closeEvent(self, event):
         uistream.UiStream.unsetUi(self)
         QtWidgets.QWidget.closeEvent(self, event)

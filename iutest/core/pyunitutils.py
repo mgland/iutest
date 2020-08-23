@@ -1,4 +1,3 @@
-
 def parseParameterizedTestId(testId):
     isParameterized = ":" in testId
     return (

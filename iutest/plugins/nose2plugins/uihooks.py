@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 class UiHooksPlugin(resultPlugin.ResultReporter, pyunitcommon.PyUnitUiMixin):
     """A nose2 plug to capture the logs for ui.
     """
+
     lastRunInfo = runinfo.TestRunInfo()
 
     def __init__(self):
@@ -27,7 +28,7 @@ class UiHooksPlugin(resultPlugin.ResultReporter, pyunitcommon.PyUnitUiMixin):
         """
         if resultCode == result.ERROR:
             return constants.TEST_RESULT_ERROR
-        
+
         if resultCode == result.FAIL:
             if expected:
                 return constants.TEST_RESULT_EXPECTED_FAIL
@@ -48,7 +49,7 @@ class UiHooksPlugin(resultPlugin.ResultReporter, pyunitcommon.PyUnitUiMixin):
 
     def startTest(self, event):
         self._atStartTest(event.test)
-        with self.stream.linkInfoCtx(self._linkInfoFromTest(event.test)):            
+        with self.stream.linkInfoCtx(self._linkInfoFromTest(event.test)):
             resultPlugin.ResultReporter.startTest(self, event)
 
         self._startLogProcessers()
@@ -59,7 +60,7 @@ class UiHooksPlugin(resultPlugin.ResultReporter, pyunitcommon.PyUnitUiMixin):
     def testOutcome(self, event):
         testId = event.test.id()
         resultCode = self._mapTestResultCode(event.outcome, event.expected)
-        self._atOutcomeAvailable(testId, resultCode)      
+        self._atOutcomeAvailable(testId, resultCode)
 
         with self.stream.resultCtx(resultCode):
             resultPlugin.ResultReporter.testOutcome(self, event)

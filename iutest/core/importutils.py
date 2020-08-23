@@ -5,6 +5,7 @@ from iutest.core import pathutils
 
 logger = logging.getLogger(__name__)
 
+
 def isReimportFeatureAvailable(silentCheck=False):
     if not hasattr(sys, "maxint"):
         return False
@@ -42,10 +43,12 @@ def reimportAllChangedPythonModules(inclusiveKeyword=None, exclusiveKeyword=None
     def _iterFilteredModules(modules):
         if not modules:
             return
-            
+
         for module in modules:
             if inclusiveKeyword and inclusiveKeyword.lower() not in module.lower():
-                logger.debug("Ignore %s since it does not match %s", module, inclusiveKeyword)
+                logger.debug(
+                    "Ignore %s since it does not match %s", module, inclusiveKeyword
+                )
                 continue
 
             if exclusiveKeyword and exclusiveKeyword.lower() in module.lower():

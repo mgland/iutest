@@ -18,6 +18,7 @@ class PyUnitRunner(base.BaseTestRunner):
     _gotError = False
 
     _loadTestsFailure = "_FailedTest"
+
     @classmethod
     def isValid(cls):
         return True
@@ -32,22 +33,17 @@ class PyUnitRunner(base.BaseTestRunner):
 
     def runTests(self, *testIds):
         self._runTests(constants.RUN_TEST_FULL, *testIds)
-        
+
     def _runTests(self, partialMode=constants.RUN_TEST_FULL, *testIds):
         failfast = self._manager.stopOnError()
         argv = [""]
         argv.extend(testIds)
         pyunitwrappers.PyUnitTestResult.resetLastData()
         testRunner = pyunitwrappers.PyUnitTestRunnerWrapper(
-            failfast=failfast,
-            partialMode=partialMode
+            failfast=failfast, partialMode=partialMode
         )
         runPyUnittest(
-            None, 
-            argv=argv,
-            testRunner=testRunner,
-            exit=False, 
-            failfast=failfast, 
+            None, argv=argv, testRunner=testRunner, exit=False, failfast=failfast
         )
         testRunner.resetUiStreamResult()
 
@@ -96,9 +92,11 @@ class PyUnitRunner(base.BaseTestRunner):
                 topDir = startDirOrModule
             elif startModule:
                 topDir = os.path.dirname(startModule.__file__)
-        
+
         try:
-            tests = loader.defaultTestLoader.discover(startDirOrModule, top_level_dir=topDir)
+            tests = loader.defaultTestLoader.discover(
+                startDirOrModule, top_level_dir=topDir
+            )
             if not startModule:
                 for p in self._collectAllPaths(tests):
                     yield p
@@ -117,7 +115,7 @@ class PyUnitRunner(base.BaseTestRunner):
     @classmethod
     def lastRunInfo(cls):
         return pyunitwrappers.PyUnitTestResult.lastRunInfo
-    
+
     @classmethod
     def avoidRunTestsOnPackageLevel(self):
         """PyUnit is difficult to run test from package level without discovering it.

@@ -10,6 +10,7 @@ def runUi(modulePathOrDir=None, topDir=None, exit_=False):
         exit (bool): Whether we exit python console after the IUTest window closed.
     """
     from iutest import cli
+
     cli.runUi(modulePathOrDir=modulePathOrDir, topDir=topDir, exit_=exit_)
 
 
@@ -24,6 +25,7 @@ def runTests(runnerName, *testModulePathsOrDir, **arguments):
             stopOnError (bool): Stop the tests running on the first error/failure.
     """
     from iutest import cli
+
     cli.runTests(runnerName, *testModulePathsOrDir, **arguments)
 
 

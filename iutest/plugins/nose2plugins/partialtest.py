@@ -36,8 +36,7 @@ class PartialTestRunner(nose2.events.Plugin):
         """Set run mode to either TEST_SETUP_ONLY or TEST_NO_TEAR_DOWN
         """
         cls.runMode = min(
-            constants.RUN_TEST_FULL,
-            max(constants.RUN_TEST_SETUP_ONLY, int(mode)),
+            constants.RUN_TEST_FULL, max(constants.RUN_TEST_SETUP_ONLY, int(mode))
         )
 
     def registerInSubprocess(self, event):
