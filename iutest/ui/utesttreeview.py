@@ -1,6 +1,6 @@
 import logging
 
-from iutest.qt import QtCore, QtGui, QtWidgets, Signal, variantToPyValue, iconFromPath
+from iutest.qt import QtCore, QtWidgets, Signal, variantToPyValue, iconFromPath
 from iutest.core import iconutils
 from iutest.core import constants
 from iutest.core import pathutils
@@ -66,6 +66,11 @@ class UTestTreeView(QtWidgets.QTreeWidget):
     _testSuiteIcons = []
     _testCaseIcons = []
     _allItemIconSet = []
+
+    _runPartialIcon = None
+    _runAllIcon = None
+    _runSelectedIcon = None
+    _reimportAndRunIcon = None
 
     supportPartialCategories = (
         constants.ITEM_CATEGORY_SUITE,
@@ -185,6 +190,10 @@ class UTestTreeView(QtWidgets.QTreeWidget):
             cls._testSuiteIcons,
             cls._testCaseIcons,
         )
+        iconutils.initSingleClassIcon(cls,"_reimportAndRunIcon", "reimportAndRerun.svg")
+        iconutils.initSingleClassIcon(cls,"_runPartialIcon", "run_partial.svg")
+        iconutils.initSingleClassIcon(cls,"_runAllIcon", "runAll.svg")
+        iconutils.initSingleClassIcon(cls,"_runSelectedIcon", "runSelected.svg")
 
     def setFilterKeywords(self, keywords, ensureFirstMatchVisible=False):
         itemStates = {}
@@ -577,27 +586,34 @@ class UTestTreeView(QtWidgets.QTreeWidget):
                 yield item
 
     def _makeContextMenu(self):
+        self._initAllIcons()
+
         self._runSetupOnlyAct = QtWidgets.QAction("Run setUp( ) Only", self)
         self._runSetupOnlyAct.triggered.connect(self._atRunSetupOnly)
+        self._runSetupOnlyAct.setIcon(self._runPartialIcon)
 
         self._runWithoutTearDownAct = QtWidgets.QAction("Run Without tearDown( )", self)
         self._runWithoutTearDownAct.triggered.connect(self._atRunWithoutTearDown)
+        self._runWithoutTearDownAct.setIcon(self._runPartialIcon)
 
         self._runSelectedAct = QtWidgets.QAction("Run Selected", self)
         self._runSelectedAct.triggered.connect(self._atRunSelected)
+        self._runSelectedAct.setIcon(self._runSelectedIcon)
 
         self._runAllAct = QtWidgets.QAction("Run All", self)
         self._runAllAct.triggered.connect(self._atRunAll)
+        self._runAllAct.setIcon(self._runAllIcon)
 
         self._copyPathAct = QtWidgets.QAction("Copy Selected Path", self)
         self._copyPathAct.triggered.connect(self.copyFirstSelectedTestId)
 
-        self._goToCodeAct = QtWidgets.QAction("Go To Code", self)
+        self._goToCodeAct = QtWidgets.QAction("Go To Code...", self)
         self._goToCodeAct.triggered.connect(self._atGoToCode)
 
         self._reloadModulesAct = QtWidgets.QAction("Reload Selected Modules", self)
         self._reloadModulesAct.setVisible(importutils.isReimportFeatureAvailable(silentCheck=True))
         self._reloadModulesAct.triggered.connect(self._atReloadSelectedModules)
+        self._reloadModulesAct.setIcon(self._reimportAndRunIcon)
 
         self._contextMenu.addAction(self._runAllAct)
         self._contextMenu.addAction(self._runSelectedAct)

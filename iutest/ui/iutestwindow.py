@@ -31,10 +31,6 @@ class IUTestWindow(QtWidgets.QWidget):
     _clearLogOnRunIcon = None
     _clearLogIcon = None
     _stopAtErrorIcon = None
-    _reimportAndRunIcon = None
-    _runPartialIcon = None
-    _runAllIcon = None
-    _runSelectedIcon = None
     _configIcon = None
     _panelStateIconSet = None
 
@@ -155,22 +151,18 @@ class IUTestWindow(QtWidgets.QWidget):
         )
         cls._panelStateIconSet = [iconFromPath(p) for p in panelStatePaths]
 
-        cls._initSingleIcon("_iutestIcon", "iutest.svg")
-        cls._initSingleIcon("_reimportIcon", "reimport.svg")
-        cls._initSingleIcon("_reloadUiIcon", "reloadUI.svg")
-        cls._initSingleIcon("_configIcon", "config.svg")
-        cls._initSingleIcon("_clearIcon", "clear.svg")
-        cls._initSingleIcon("_moreIcon", "more.svg")
-        cls._initSingleIcon("_filterIcon", "stateFilter.svg")
-        cls._initSingleIcon("_autoFilterIcon", "autoFilter.svg")
-        cls._initSingleIcon("_resetIcon", "reset.svg")
-        cls._initSingleIcon("_clearLogIcon", "clearLog.svg")
-        cls._initSingleIcon("_clearLogOnRunIcon", "clearLogOnRun.svg")
-        cls._initSingleIcon("_stopAtErrorIcon", "stopAtError.svg")
-        cls._initSingleIcon("_reimportAndRunIcon", "reimportAndRerun.svg")
-        cls._initSingleIcon("_runPartialIcon", "run_partial.svg")
-        cls._initSingleIcon("_runAllIcon", "runAll.svg")
-        cls._initSingleIcon("_runSelectedIcon", "runSelected.svg")
+        iconutils.initSingleClassIcon(cls, "_iutestIcon", "iutest.svg")
+        iconutils.initSingleClassIcon(cls,"_reimportIcon", "reimport.svg")
+        iconutils.initSingleClassIcon(cls,"_reloadUiIcon", "reloadUI.svg")
+        iconutils.initSingleClassIcon(cls,"_configIcon", "config.svg")
+        iconutils.initSingleClassIcon(cls,"_clearIcon", "clear.svg")
+        iconutils.initSingleClassIcon(cls,"_moreIcon", "more.svg")
+        iconutils.initSingleClassIcon(cls,"_filterIcon", "stateFilter.svg")
+        iconutils.initSingleClassIcon(cls,"_autoFilterIcon", "autoFilter.svg")
+        iconutils.initSingleClassIcon(cls,"_resetIcon", "reset.svg")
+        iconutils.initSingleClassIcon(cls,"_clearLogIcon", "clearLog.svg")
+        iconutils.initSingleClassIcon(cls,"_clearLogOnRunIcon", "clearLogOnRun.svg")
+        iconutils.initSingleClassIcon(cls,"_stopAtErrorIcon", "stopAtError.svg")
 
     def _addToggleConfigAction(self, lbl, icon, tooltip, configKey, slot):
         # Cannot use self._configMenu.addAction() directly here since over-zealous garbage collection in some DCC apps:
@@ -404,14 +396,14 @@ class IUTestWindow(QtWidgets.QWidget):
         self._runSelectedBtn = QtWidgets.QPushButton("Run &Selected", self)
         self._runSelectedBtn.setToolTip("Run the selected tests in the view.")
         self._runSelectedBtn.clicked.connect(self._runViewSelectedTests)
-        self._runSelectedBtn.setIcon(self._runSelectedIcon)
+        self._runSelectedBtn.setIcon(self._view._runSelectedIcon)
         _btmLayout.addWidget(self._runSelectedBtn, 1)
 
         self._runAllBtn = QtWidgets.QPushButton("Run &All", self)
         self._runAllBtn.setToolTip(
             "Run all the tests, including those filtered from the view."
         )
-        self._runAllBtn.setIcon(self._runAllIcon)
+        self._runAllBtn.setIcon(self._view._runAllIcon)
         self._runAllBtn.clicked.connect(self._runAllTests)
         _btmLayout.addWidget(self._runAllBtn, 1)
 
@@ -420,7 +412,7 @@ class IUTestWindow(QtWidgets.QWidget):
             "Reimport all changed python modules and rerun the last tests."
         )
         self._reimportAndRerunBtn.clicked.connect(self._reimportPyAndRerun)
-        self._reimportAndRerunBtn.setIcon(self._reimportAndRunIcon)
+        self._reimportAndRerunBtn.setIcon(self._view._reimportAndRunIcon)
         _btmLayout.addWidget(self._reimportAndRerunBtn, 1)
 
         _runMoreBtn = self._makeRunMoreButton()
@@ -428,13 +420,17 @@ class IUTestWindow(QtWidgets.QWidget):
 
     def _makeRunMoreButton(self):
         _runMoreBtn = QtWidgets.QToolButton(self)
-        _runMoreBtn.setIcon(self._runPartialIcon)
+        _runMoreBtn.setIcon(self._view._runPartialIcon)
         _runMoreBtn.setAutoRaise(True)
         _runMoreBtn.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
         _runMoreBtn.setPopupMode(_runMoreBtn.InstantPopup)
+
         self._runSetupAct = QtWidgets.QAction("Run setUp( ) Only", self)
+        self._runSetupAct.setIcon(self._view._runPartialIcon)
         self._runSetupAct.triggered.connect(self._runTestSetupOnly)
+
         self._runNoTearDown = QtWidgets.QAction("Run without tearDown( )", self)
+        self._runNoTearDown.setIcon(self._view._runPartialIcon)
         self._runNoTearDown.triggered.connect(self._runTestWithoutTearDown)
 
         menu = QtWidgets.QMenu(_runMoreBtn)

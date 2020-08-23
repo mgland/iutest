@@ -1,7 +1,7 @@
 import os
 from iutest.core import constants
 from iutest.core import pathutils
-
+from iutest.qt import iconFromPath
 
 def _iconDir():
     return os.path.join(pathutils.iutestPackageDir(), "icons")
@@ -22,3 +22,8 @@ def iconPathSet(iconName, suffixes):
         paths.append(os.path.join(iconDir, fileName))
 
     return paths
+
+
+def initSingleClassIcon(obj, objAttributeName, iconFileName):
+    path = iconPath(iconFileName)
+    setattr(obj, objAttributeName, iconFromPath(path))
