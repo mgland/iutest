@@ -5,7 +5,7 @@ python:
   - "3.4"
 
 install:
-  - travis_retry pip install -r ci_requirements-${TRAVIS_PYTHON_VERSION}.txt --use-mirrors
+  - travis_retry pip install -r ci_requirements-${TRAVIS_PYTHON_VERSION}.txt
   - travis_retry pip install coveralls
   - travis_retry pip install coverage
   
