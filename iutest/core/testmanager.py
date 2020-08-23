@@ -37,13 +37,13 @@ class TestManager(object):
 
     def iterAllRunners(self):
         for runnerMode in registry.getRunnerModes():
-            runner = self._getRunnerByMode(runnerMode)
+            runner = self.getRunnerByMode(runnerMode)
             if runner:
                 yield runner
 
     def getFeasibleRunnerMode(self):
         for runnerMode in registry.getRunnerModes():
-            runner = self._getRunnerByMode(runnerMode)
+            runner = self.getRunnerByMode(runnerMode)
             if runner.isValid():
                 return runnerMode
 
@@ -102,7 +102,7 @@ class TestManager(object):
         self._runners[runnerMode] = runnerClass(self)
         return True
 
-    def _getRunnerByMode(self, runnerMode):
+    def getRunnerByMode(self, runnerMode):
         if not self._initialiseRunner(runnerMode):
             logger.error("Unable to initialise the runner of mode %s", runnerMode)
             return None
@@ -110,7 +110,7 @@ class TestManager(object):
         return self._runners[runnerMode]
 
     def getRunner(self):
-        return self._getRunnerByMode(self._runnerMode)
+        return self.getRunnerByMode(self._runnerMode)
 
     def runTests(self, *tests):
         self.getRunner().runTests(*tests)

@@ -51,6 +51,7 @@ class IUTestWindow(QtWidgets.QWidget):
 
         # Top layout ------------------------------
         self._dirLayout = uiutils.makeMinorHorizontalLayout()
+        self._testRunnerActions = []
         self._makeDirWidgets()
         self._mainLay.addLayout(self._dirLayout)
 
@@ -205,8 +206,39 @@ class IUTestWindow(QtWidgets.QWidget):
             act.setToolTip("\n".join(pair))
         self._moreMenu.addSeparator()
 
-    def _makeConfigMenu(self):
-        self._configBtn, self._configMenu = self._makeMenuToolButton(self._configIcon, "Configuration")
+    def _updateLabelOfTestRunnerAct(self, act, currentMode):
+        runnerMode = act.data()
+        runner = self._testManager.getRunnerByMode(runnerMode)
+        suffix = " [actived]" if runnerMode == currentMode else ""
+        lbl = runner.name() + suffix
+        act.setText(lbl)
+
+    def _updateConfigButton(self, runner):
+        self._runnerConfigBtn.setIcon(runner.icon())
+        self._runnerConfigBtn.setToolTip("Test Runner: {}, click for more settings.".format(runner.name()))
+
+    def _makeRunnerConfigButton(self):
+        currentRunner = self._setInitialTestMode()
+        currentRunnerMode = currentRunner.mode()
+        self._runnerConfigBtn, self._configMenu = self._makeMenuToolButton()
+        self._updateConfigButton(currentRunner)
+        
+        for runner in self._testManager.iterAllRunners():
+            icon = runner.icon()
+            toolTip = "Run tests using {}.".format(runner.name())
+            runnerMode = runner.mode()
+            act = QtWidgets.QAction(runner.name(), self)
+            act.setIcon(icon)
+            act.setEnabled(runner.isValid())
+            act.setToolTip(toolTip)
+            act.setData(runnerMode)
+            act.triggered.connect(self._onTestRunnerSwitched)
+            self._updateLabelOfTestRunnerAct(act, currentRunnerMode)
+            self._testRunnerActions.append(act)
+            self._configMenu.addAction(act)
+
+        self._configMenu.addSeparator()
+
         # Stop on error act:
         self._stopOnErrorAct, stopOnError = self._addToggleConfigAction(
             "Stop On Error",
@@ -242,9 +274,10 @@ class IUTestWindow(QtWidgets.QWidget):
     def _showConfigWindow(self):
         configwindow.ConfigWindow.show(self)
 
-    def _makeMenuToolButton(self, icon, toolTip):
+    def _makeMenuToolButton(self, icon=None, toolTip=""):
         btn = QtWidgets.QToolButton(self)
-        btn.setIcon(icon)
+        if icon:
+            btn.setIcon(icon)
         btn.setToolTip(toolTip)
         btn.setContentsMargins(0,0,0,0)
         btn.setIconSize(QtCore.QSize(20,20))
@@ -266,24 +299,6 @@ class IUTestWindow(QtWidgets.QWidget):
     def _tooltipForRunnerSwitchButton(self, runner):
         return "Run tests using {}, long-press to switch to different runner.".format(runner.name())
 
-    def _makeTestModeWidget(self, layout):
-        runner = self._setInitialTestMode()
-        self._runnerBtn, self._runnerSwitchMenu = self._makeMenuToolButton(
-            runner.icon(), 
-            self._tooltipForRunnerSwitchButton(runner)
-        )
-        layout.addWidget(self._runnerBtn)
-        for runner in self._testManager.iterAllRunners():
-            icon = runner.icon()
-            toolTip = "Run tests using {}.".format(runner.name())
-            runnerMode = runner.mode()
-            act = self._runnerSwitchMenu.addAction(runner.name())
-            act.setIcon(icon)
-            act.setEnabled(runner.isValid())
-            act.setToolTip(toolTip)
-            act.setData(runnerMode)
-            act.triggered.connect(self._onTestRunnerSwitched)
-
     def _makeDirWidgets(self):
         lbl = QtWidgets.QLabel("Test Root")
         lbl.setToolTip(
@@ -302,14 +317,13 @@ class IUTestWindow(QtWidgets.QWidget):
             "Switch the test tree view and the log browser visibility."
         )
         self._panelVisBtn.clicked.connect(self._onPanelVisButtonClicked)
-        self._makeConfigMenu()
+        self._makeRunnerConfigButton()
 
-        self._makeTestModeWidget(self._dirLayout)
         self._dirLayout.addWidget(lbl)
         self._dirLayout.addWidget(self._rootDirLE)
-        self._dirLayout.addWidget(self._panelVisBtn)
         self._dirLayout.addWidget(self._browseBtn)
-        self._dirLayout.addWidget(self._configBtn)
+        self._dirLayout.addWidget(self._panelVisBtn)
+        self._dirLayout.addWidget(self._runnerConfigBtn)
 
         self._updateDirUI()
 
@@ -367,14 +381,15 @@ class IUTestWindow(QtWidgets.QWidget):
         runnerMode = act.data()
         self._testManager.setRunnerMode(runnerMode)
         runner = self._testManager.getRunner()
-        self._runnerBtn.setIcon(runner.icon())
-        self._runnerBtn.setToolTip(self._tooltipForRunnerSwitchButton(runner))
+        self._updateConfigButton(runner)
         logger.info("Switch to %s for test running.", runner.name())
         
         self._onReloadUiButtonClicked()
         appsettings.get().saveSimpleConfig(
             constants.CONFIG_KEY_LAST_RUNNER_MODE, runnerMode
         )
+        for act in self._testRunnerActions:
+            self._updateLabelOfTestRunnerAct(act, runnerMode)
 
     def _onStopOnErrorActionToggled(self, stop):
         self._testManager.setStopOnError(stop)
