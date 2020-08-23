@@ -1,4 +1,3 @@
-import logging
 from iutest import qt as _qt
 
 _APP_MODE_STANDALONE = "standalone"

@@ -3,7 +3,7 @@ import logging
 from iutest import dcc
 from iutest import _version
 from iutest.core import importutils
-from iutest.qt import QtCore, QtWidgets, iconFromPath
+from iutest.qt import QtCore, QtWidgets, iconFromPath, variantToPyValue
 from iutest.core import iconutils
 from iutest.core import appsettings
 from iutest.core import constants
@@ -199,7 +199,7 @@ class IUTestWindow(QtWidgets.QWidget):
         self._browseMenu.addSeparator()
 
     def _updateLabelOfTestRunnerAct(self, act, currentMode):
-        runnerMode = act.data()
+        runnerMode = variantToPyValue(act.data())
         runner = self._testManager.getRunnerByMode(runnerMode)
         suffix = " [actived]" if runnerMode == currentMode else ""
         lbl = runner.name() + suffix
@@ -368,7 +368,7 @@ class IUTestWindow(QtWidgets.QWidget):
         if not act:
             return
 
-        runnerMode = act.data()
+        runnerMode = variantToPyValue(act.data())
         self._testManager.setRunnerMode(runnerMode)
         runner = self._testManager.getRunner()
         self._updateConfigButton(runner)
@@ -447,8 +447,8 @@ class IUTestWindow(QtWidgets.QWidget):
         self._applyCurrentFilter(removeStateFilters=True, keepUiStates=True)
 
     def _addStateFilter(self):
-        stateKeyword = self.sender().text()
-        search = self._searchLE.text().strip()
+        stateKeyword = str(self.sender().text())
+        search = str(self._searchLE.text()).strip()
         if not search:
             self._searchLE.setText(stateKeyword)
             return
@@ -472,7 +472,7 @@ class IUTestWindow(QtWidgets.QWidget):
         self._testManager.setTopDir(_topDir)
         self._testManager.setStartDirOrModule(_startDirOrModule)
 
-        configName = act.text()
+        configName = str(act.text())
         self._saveLastTestDir(_startDirOrModule, _topDir)
         self._updateWindowTitle(configName)
         self._updateDirUI()
@@ -485,7 +485,7 @@ class IUTestWindow(QtWidgets.QWidget):
         self._updateDirUI()
         self._searchLE.clear()
         self.reload(keepUiStates=False)
-        if not self._testManager.haslastListerError():
+        if not self._testManager.hasLastListerError():
             self._saveLastTestDir(startDir, topDir)
 
     def _setPanelVisState(self, state, saveSettings=True):
@@ -688,7 +688,7 @@ class IUTestWindow(QtWidgets.QWidget):
         self._statusLbl.reportTestCount(self._view.testCount())
 
     def _applyCurrentFilter(self, removeStateFilters=True, keepUiStates=True):
-        searchText = self._searchLE.text()
+        searchText = str(self._searchLE.text())
         if removeStateFilters:
             keywords = searchText.split(" ")
             filterFunc = lambda x: not x.startswith(":")
@@ -717,7 +717,7 @@ class IUTestWindow(QtWidgets.QWidget):
         self._view.resetTestItemsById(tests)
 
     def _applyFilterText(self, txt):
-        self._applyFilterTextWithState(txt, keepUiStates=False)
+        self._applyFilterTextWithState(str(txt), keepUiStates=False)
 
     def _applyFilterTextWithState(self, txt, keepUiStates=True):
         lowerTxt = txt.strip().lower()

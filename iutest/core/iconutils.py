@@ -1,5 +1,4 @@
 import os
-from iutest.core import constants
 from iutest.core import pathutils
 from iutest.qt import iconFromPath
 

@@ -1,6 +1,5 @@
 import logging
 
-from iutest.core import constants
 from iutest.core import pathutils
 from iutest.core.runners import runnerconstants
 from iutest.core.runners import registry
@@ -70,8 +69,10 @@ class TestManager(object):
         return self._topDir
 
     def setDirs(self, startDirOrModule, topDir=None):
+        startDirOrModule = str(startDirOrModule) if startDirOrModule else ""
         self.setStartDirOrModule(startDirOrModule)
         topDir = topDir or self._topDir
+        topDir = str(topDir) if topDir else "" 
         if startDirOrModule:
             if topDir:
                 if not self._topDir or not topDir.startswith(self._topDir):
@@ -136,8 +137,8 @@ class TestManager(object):
         """
         self.getRunner().runSingleTestPartially(testId, partialMode)
 
-    def haslastListerError(self):
-        return self.getRunner().haslastListerError()
+    def hasLastListerError(self):
+        return self.getRunner().hasLastListerError()
 
     def lastRunTestIds(self):
         return self.getRunner().lastRunTestIds()

@@ -1,4 +1,4 @@
-from iutest.qt import QtCore, QtGui, QtWidgets
+from iutest.qt import QtCore, QtWidgets
 
 
 def makeMainLayout(hostWidget=None):

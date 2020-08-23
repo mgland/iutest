@@ -1,4 +1,4 @@
-from iutest.qt import QtCore, QtWidgets, Signal
+from iutest.qt import QtWidgets, Signal
 
 
 class RootPathEdit(QtWidgets.QLineEdit):
@@ -17,7 +17,7 @@ class RootPathEdit(QtWidgets.QLineEdit):
         self.setInitialPath(txt)
 
     def onEditFinished(self):
-        txt = self.text()
+        txt = str(self.text())
         if txt == self._initPath:
             return
 

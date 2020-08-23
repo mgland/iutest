@@ -1,5 +1,4 @@
 import logging
-import time
 import sys
 from unittest import runner
 

@@ -1,6 +1,3 @@
-import inspect
-import os
-import sys
 import logging
 
 from iutest.core import uistream

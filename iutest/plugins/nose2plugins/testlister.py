@@ -108,7 +108,7 @@ class TestCollector(nose2.events.Plugin):
                 test,
                 testId,
                 self._loadTestsFailure,
-                "Unable to load tests from directory %s",
+                "Unable to load tests from %s",
             ):
                 TestCollector.gotError = True
                 continue

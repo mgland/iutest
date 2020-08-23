@@ -71,7 +71,7 @@ class BaseTestRunner(object):
         self._raiseNotImplementedError()
 
     @classmethod
-    def haslastListerError(cls):
+    def hasLastListerError(cls):
         pass
 
     @classmethod

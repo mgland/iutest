@@ -1,4 +1,5 @@
 import logging
+import os
 from iutest.core import appsettings
 from iutest.core import constants
 from iutest.qt import QtCore
@@ -31,6 +32,9 @@ class CodeLineVisitor(QtCore.QObject):
         return cmd.replace(constants.CODE_LINE_VAR, str(lineNumber))
 
     def goTo(self, filePath, lineNumber=0):
+        if os.path.isfile(filePath):
+            logger.warning("%s is not a valid file.", filePath)
+            
         cmd = self._goToCmd(self.config(), filePath, lineNumber)
         logger.debug(cmd)
         self._process.start(cmd)

@@ -1,10 +1,9 @@
 import logging
-import os
 
 from iutest.core import constants
 from iutest.core import appsettings
 from iutest.core import gotocode
-from iutest.qt import QtCore, QtGui, QtWidgets
+from iutest.qt import QtCore, QtWidgets
 from iutest.ui import uiutils
 
 logger = logging.getLogger(__name__)
@@ -50,7 +49,7 @@ class ConfigWindow(QtWidgets.QDialog):
         self.destroyed.connect(self._onDialogDeleted)
 
     def _onCodeEditorEditFinished(self):
-        txt = self._codeEditorLE.text().strip()
+        txt = str(self._codeEditorLE.text()).strip()
         appsettings.get().saveSimpleConfig(constants.CONFIG_KEY_CODE_EDITOR, txt)
         gotocode.CodeLineVisitor.initEditorSetting()
 

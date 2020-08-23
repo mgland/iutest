@@ -1,7 +1,6 @@
 import os
 import inspect
 import logging
-import sys
 
 logger = logging.getLogger(__name__)
 

@@ -1,5 +1,3 @@
-import collections
-
 from iutest.qt import QtGui
 
 LOG_COLOR_INFORMATION = QtGui.QColor(200, 200, 200)

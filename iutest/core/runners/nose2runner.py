@@ -129,11 +129,11 @@ class Nose2TestRunner(base.BaseTestRunner):
             yield tid
 
     @classmethod
-    def haslastListerError(cls):
+    def hasLastListerError(cls):
         if not cls._importPlugins():
-            return None
+            return False
 
-        return cls.testlister.TestCollector.gotError()
+        return cls.testlister.TestCollector.gotError
 
     @classmethod
     def lastRunInfo(cls):

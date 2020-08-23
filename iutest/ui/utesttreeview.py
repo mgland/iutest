@@ -7,6 +7,7 @@ from iutest.core import pathutils
 from iutest.core import gotocode
 from iutest.core import importutils
 from iutest.core import loggingutils
+from iutest.core import uistream
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +57,7 @@ class ViewStates(object):
 
 class UTestTreeView(QtWidgets.QTreeWidget):
     runAllTest = Signal()
-    runTests = Signal(list)
+    runTests = Signal(tuple)
     runSetupOnly = Signal(str)
     runWithoutTearDown = Signal(str)
 
@@ -83,6 +84,7 @@ class UTestTreeView(QtWidgets.QTreeWidget):
 
     def __init__(self, parent):
         QtWidgets.QTreeWidget.__init__(self, parent)
+        self._uiStream = uistream.UiStream()
         self._codeVisitor = gotocode.CodeLineVisitor(self)
 
         self.setItemDelegate(self._TreeItemDelegate(self))
@@ -285,7 +287,7 @@ class UTestTreeView(QtWidgets.QTreeWidget):
         return variantToPyValue(item.data(0, QtCore.Qt.UserRole))
 
     def _stateOfItem(self, item):
-        return item.data(0, QtCore.Qt.UserRole + 1)
+        return variantToPyValue(item.data(0, QtCore.Qt.UserRole + 1))
 
     def _setItemIconState(self, item, state):
         self._initAllIcons()
@@ -363,7 +365,7 @@ class UTestTreeView(QtWidgets.QTreeWidget):
         self._calculateAncestorItemStates(item.parent(), updatedIds)
 
     def testIdOfItem(self, item):
-        return item.toolTip(0)
+        return str(item.toolTip(0))
 
     def _resetExpandStates(self, item):
         item.setExpanded(True)
@@ -424,8 +426,10 @@ class UTestTreeView(QtWidgets.QTreeWidget):
         if isModule:
             headingCount = len(startDirOrModule) + 1
             heading = startDirOrModule + "."
-
+        
+        testCount = 0
         for test in self._testManager.iterAllTestIds():
+            testCount = testCount + 1
             if isModule and test.startswith(startDirOrModule):
                 test = test[headingCount:]
             testPaths = test.split(".")
@@ -463,6 +467,14 @@ class UTestTreeView(QtWidgets.QTreeWidget):
                 )
                 self._setItemIconState(packageItem, constants.TEST_RESULT_NONE)
                 packageItem = packageItem.parent()
+        
+        self._uiStream.write("\n{}\n".format("-"*20))
+        if not self._testManager.hasLastListerError():
+            self._uiStream.write("{} tests collected.\n\n".format(testCount))
+        else:
+            with self._uiStream.resultCtx(constants.TEST_RESULT_ERROR):
+                msg = "Error collecting tests from {}.\n\n".format(self._testManager.startDirOrModule())
+                self._uiStream.write(msg)
 
         if keepUiStates:
             self._viewStates.restore()

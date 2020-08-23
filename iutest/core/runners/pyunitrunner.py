@@ -1,11 +1,9 @@
 from iutest.core import constants
 import logging
 import os
-import unittest
 from unittest import loader, suite
 from unittest import main as runPyUnittest
 from iutest.core import pathutils
-from iutest.core import runinfo
 from iutest.core.runners import base
 from iutest.core.runners import runnerconstants
 from iutest.plugins.pyunitextentions import pyunitwrappers
@@ -98,18 +96,22 @@ class PyUnitRunner(base.BaseTestRunner):
                 topDir = startDirOrModule
             elif startModule:
                 topDir = os.path.dirname(startModule.__file__)
-
-        tests = loader.defaultTestLoader.discover(startDirOrModule, top_level_dir=topDir)
-        if not startModule:
-            for p in self._collectAllPaths(tests):
-                yield p
-        else:
-            for p in self._collectAllPaths(tests):
-                if not p.startswith(startDirOrModule):
-                    yield ".".join([startDirOrModule, p])
+        
+        try:
+            tests = loader.defaultTestLoader.discover(startDirOrModule, top_level_dir=topDir)
+            if not startModule:
+                for p in self._collectAllPaths(tests):
+                    yield p
+            else:
+                for p in self._collectAllPaths(tests):
+                    if not p.startswith(startDirOrModule):
+                        yield ".".join([startDirOrModule, p])
+        except Exception:
+            self.__class__._gotError = True
+            logger.exception("Unable to load tests from %s", startModule)
 
     @classmethod
-    def haslastListerError(cls):
+    def hasLastListerError(cls):
         return cls._gotError
 
     @classmethod
