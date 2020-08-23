@@ -1,2 +1,2 @@
-https://files.pythonhosted.org/packages/ea/58/e5a1aa7417f87987f03f02c0d0ce4bb1112ae9981667107ee9a1560f3607/PySide2-5.13.2-5.13.2-cp35.cp36.cp37-abi3-manylinux1_x86_64.whl
+PyQt5==5.13.2
 nose2
