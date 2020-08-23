@@ -1,8 +1,9 @@
 import unittest
 
 from iutest.core import gotocode
+from iutest import qt as _qt
 
-
+@unittest.skipUnless(_qt.checkQtAvailability())
 class GoToCodeTestCase(unittest.TestCase):
     def setUp(self):
         self._path = "/path/to/source.py"

@@ -1,8 +1,9 @@
 import unittest
 
 from iutest.core import appsettings
+from iutest import qt as _qt
 
-
+@unittest.skipUnless(_qt.checkQtAvailability())
 class AppSettingsTestCase(unittest.TestCase):
     def test_saveRestore(self):
         setting = appsettings.AppSettings.get()
