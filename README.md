@@ -1,3 +1,5 @@
+![Build](https://travis-ci.com/mgland/iutest.svg?token=WGEhoDYTsfEntWSzsqkZ&branch=master)
+![PyPi](https://img.shields.io/pypi/v/iutest) ![License](https://img.shields.io/pypi/l/iutest) ![Download](https://img.shields.io/pypi/dm/iutest)
 
 [logo]: ./iutest/icons/iutest.svg "IUTest Logo"
 
