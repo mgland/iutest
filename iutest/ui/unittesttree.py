@@ -8,6 +8,7 @@ from iutest.core import gotocode
 from iutest.core import importutils
 from iutest.core import loggingutils
 from iutest.core import uistream
+from iutest.ui import uiutils
 
 logger = logging.getLogger(__name__)
 
@@ -86,6 +87,7 @@ class UnitTestTreeView(QtWidgets.QTreeWidget):
         QtWidgets.QTreeWidget.__init__(self, parent)
         self._uiStream = uistream.UiStream()
         self._codeVisitor = gotocode.CodeLineVisitor(self)
+        self._codeVisitor.errorIssued.connect(self._onGoToCodeError)
 
         self.setItemDelegate(self._TreeItemDelegate(self))
         self.setTextElideMode(QtCore.Qt.ElideLeft)
@@ -204,6 +206,9 @@ class UnitTestTreeView(QtWidgets.QTreeWidget):
         iconutils.initSingleClassIcon(cls, "_runSelectedIcon", "runSelected.svg")
 
     def setFilterKeywords(self, keywords, ensureFirstMatchVisible=False):
+        if not self._rootTestItem:
+            return
+
         itemStates = {}
         if keywords:
             itemToFocus = None
@@ -725,3 +730,6 @@ class UnitTestTreeView(QtWidgets.QTreeWidget):
             act.triggered.connect(self._setSelectedItemsLevel)
 
         self._contextMenu.exec_(event.globalPos())
+
+    def _onGoToCodeError(self, msg):
+        uiutils.popUpMessageOnCursorPos(msg, self)

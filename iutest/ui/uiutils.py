@@ -1,4 +1,4 @@
-from iutest.qt import QtCore, QtWidgets
+from iutest.qt import QtCore, QtGui, QtWidgets
 
 
 def makeMainLayout(hostWidget=None):
@@ -45,3 +45,8 @@ def addSeparatorToLayout(layout, direction):
 
     sep.setLineWidth(1)
     layout.addWidget(sep)
+
+
+def popUpMessageOnCursorPos(msg, bgWidget=None):
+    gpos = QtGui.QCursor.pos()
+    QtWidgets.QWhatsThis.showText(gpos, msg, bgWidget)

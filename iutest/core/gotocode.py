@@ -2,13 +2,15 @@ import logging
 import os
 from iutest.core import appsettings
 from iutest.core import constants
-from iutest.qt import QtCore
+from iutest.qt import QtCore, Signal
 
 logger = logging.getLogger(__name__)
 
 
 class CodeLineVisitor(QtCore.QObject):
     _editorSetting = None
+
+    errorIssued = Signal(str)
 
     @classmethod
     def initEditorSetting(cls):
@@ -24,7 +26,10 @@ class CodeLineVisitor(QtCore.QObject):
 
     def __init__(self, parent=None):
         QtCore.QObject.__init__(self, parent=parent)
+        self._lastCmd = None
         self._process = QtCore.QProcess(self)
+        self._process.error.connect(self._onGoToCodeError)
+        self._process.readyReadStandardError.connect(self._onReadyReadStandardError)
 
     @staticmethod
     def _goToCmd(template, filePath, lineNumber):
@@ -32,9 +37,31 @@ class CodeLineVisitor(QtCore.QObject):
         return cmd.replace(constants.CODE_LINE_VAR, str(lineNumber))
 
     def goTo(self, filePath, lineNumber=0):
-        if os.path.isfile(filePath):
+        if not os.path.isfile(filePath):
             logger.warning("%s is not a valid file.", filePath)
 
-        cmd = self._goToCmd(self.config(), filePath, lineNumber)
-        logger.debug(cmd)
-        self._process.start(cmd)
+        self._lastCmd = self._goToCmd(self.config(), filePath, lineNumber)
+        logger.debug(self._lastCmd)
+        self._process.start(self._lastCmd)
+
+    def _onGoToCodeError(self, err):
+        msg = "<font color=red><b>Error: </b></font>"
+        if err == self._process.FailedToStart:
+            msg = msg + "Failed to launch the program as it was either missing or insufficient permissions.<br><br>"
+            msg = msg + "You might need to change the goToCode setting in Preference Dialog, e.g.<br>Specify full path to the program, etc."
+        elif err == self._process.FailedToStart:
+            msg = msg + "The program to browse the code has crashed."
+        elif err == self._process.Timedout:
+            msg = msg + "The last goToCodeProcess.waitFor...() function timed out."
+        elif err == self._process.WriteError:
+            msg = msg + "An error occurred when attempting to write to the goToCode process."
+        elif err == self._process.ReadError:
+            msg = msg + "An error occurred when attempting to read to the goToCode process."
+        else:
+            msg = msg + "An unknown error occurred when attempting to go to the code."
+
+        msg = msg + "<hr><font color=red><b>Failed Command:</b></font><br>{}".format(self._lastCmd)      
+        self.errorIssued.emit(msg)
+
+    def _onReadyReadStandardError(self):
+        logger.error(self.readAllStandardError())

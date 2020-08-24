@@ -1,7 +1,7 @@
 from iutest.core import gotocode
 from iutest.ui import uiconstants
 from iutest.qt import QtGui, QtWidgets
-
+from iutest.ui import uiutils
 
 class LogBrowser(QtWidgets.QTextBrowser):
     def __init__(self, parent=None):
@@ -17,6 +17,7 @@ class LogBrowser(QtWidgets.QTextBrowser):
         self.anchorClicked.connect(self.onLinkClicked)
         self._initCSS()
         self._codeVisitor = gotocode.CodeLineVisitor(self)
+        self._codeVisitor.errorIssued.connect(self._onGoToCodeError)
 
     def _initCSS(self):
         css = """
@@ -66,3 +67,7 @@ class LogBrowser(QtWidgets.QTextBrowser):
 
     def logWarning(self, msg, *args):
         self.logWithColor(msg, uiconstants.LOG_COLOR_WARNING, *args)
+
+    def _onGoToCodeError(self, msg):
+        uiutils.popUpMessageOnCursorPos(msg, self)
+        
