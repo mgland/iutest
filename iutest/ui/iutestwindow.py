@@ -15,6 +15,7 @@ from iutest.ui import unittesttree
 from iutest.ui import statuslabel
 from iutest.ui import uiutils
 from iutest.ui import configwindow
+from iutest.ui import inlinebuttonlineedit
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,6 @@ class IUTestWindow(QtWidgets.QWidget):
     _iutestIcon = None
     _reimportIcon = None
     _reloadUiIcon = None
-    _clearIcon = None
     _moreIcon = None
     _filterIcon = None
     _autoFilterIcon = None
@@ -93,8 +93,8 @@ class IUTestWindow(QtWidgets.QWidget):
 
         self.resize(QtCore.QSize(900, 500))
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)  # for reimport convenience.
-        self.setTabOrder(self._rootDirLE, self._searchLE)
-        self.setTabOrder(self._searchLE, self._view)
+        self.setTabOrder(self._rootDirLE, self._treeFilterLE)
+        self.setTabOrder(self._treeFilterLE, self._view)
         self.setTabOrder(self._view, self._logWgt)
         self.setWindowIcon(self._iutestIcon)
         self.setWindowFlags(QtCore.Qt.Window)
@@ -156,7 +156,6 @@ class IUTestWindow(QtWidgets.QWidget):
         iconutils.initSingleClassIcon(cls, "_reimportIcon", "reimport.svg")
         iconutils.initSingleClassIcon(cls, "_reloadUiIcon", "reloadUI.svg")
         iconutils.initSingleClassIcon(cls, "_configIcon", "config.svg")
-        iconutils.initSingleClassIcon(cls, "_clearIcon", "clear.svg")
         iconutils.initSingleClassIcon(cls, "_moreIcon", "more.svg")
         iconutils.initSingleClassIcon(cls, "_filterIcon", "stateFilter.svg")
         iconutils.initSingleClassIcon(cls, "_autoFilterIcon", "autoFilter.svg")
@@ -332,21 +331,16 @@ class IUTestWindow(QtWidgets.QWidget):
         reloadUIBtn.clicked.connect(self._onReloadUiButtonClicked)
         layout.addWidget(reloadUIBtn)
 
-        self._searchLE = QtWidgets.QLineEdit()
-        self._searchLE.setToolTip(
+        self._treeFilterLE = inlinebuttonlineedit.InlineButtonLineEdit(self)
+        self._treeFilterLE.addClearButton()
+        self._treeFilterLE.setToolTip(
             "Input keywords to filter the tests, separated by space.\n"
             "For normal keyword, the match operation is 'AND'\n"
             "For state keyword starting with ':', the match operation is 'OR'."
         )
-        self._searchLE.setPlaceholderText("Input to filter")
-        self._searchLE.textChanged.connect(self._applyFilterText)
-        layout.addWidget(self._searchLE)
-
-        self._clearFilterBtn = uiutils.makeIconButton(self._clearIcon, self)
-        self._clearFilterBtn.setToolTip("Clear all filters.")
-        self._clearFilterBtn.setEnabled(False)
-        self._clearFilterBtn.clicked.connect(self._clearFilter)
-        layout.addWidget(self._clearFilterBtn)
+        self._treeFilterLE.setPlaceholderText("Input to filter")
+        self._treeFilterLE.textChanged.connect(self._applyFilterText)
+        layout.addWidget(self._treeFilterLE)
 
         self._filterBtn, self._filterMenu = self._makeMenuToolButton(
             self._filterIcon, "Click to apply more predefined filters."
@@ -454,15 +448,15 @@ class IUTestWindow(QtWidgets.QWidget):
 
     def _addStateFilter(self):
         stateKeyword = str(self.sender().text())
-        search = str(self._searchLE.text()).strip()
+        search = str(self._treeFilterLE.text()).strip()
         if not search:
-            self._searchLE.setText(stateKeyword)
+            self._treeFilterLE.setText(stateKeyword)
             return
         parts = search.split(" ")
         if stateKeyword in parts:
             return
         parts.insert(0, stateKeyword)
-        self._searchLE.setText(" ".join(parts))
+        self._treeFilterLE.setText(" ".join(parts))
 
     def _saveLastTestDir(self, startDir, topDir):
         settings = appsettings.get()
@@ -482,14 +476,14 @@ class IUTestWindow(QtWidgets.QWidget):
         self._saveLastTestDir(_startDirOrModule, _topDir)
         self._updateWindowTitle(configName)
         self._updateDirUI()
-        self._searchLE.clear()
+        self._treeFilterLE.clear()
         self.reload()
 
     def _switchToTestRootPath(self, startDir, topDir):
         self._testManager.setDirs(startDir, topDir)
         self._updateWindowTitle(startDir)
         self._updateDirUI()
-        self._searchLE.clear()
+        self._treeFilterLE.clear()
         self.reload(keepUiStates=False)
         if not self._testManager.hasLastListerError():
             self._saveLastTestDir(startDir, topDir)
@@ -532,7 +526,7 @@ class IUTestWindow(QtWidgets.QWidget):
         if dirPath:
             self._testManager.setStartDirOrModule(dirPath)
             self._updateDirUI()
-            self._searchLE.clear()
+            self._treeFilterLE.clear()
             self.reload()
 
     def _onBrowseTopDir(self):
@@ -542,7 +536,7 @@ class IUTestWindow(QtWidgets.QWidget):
         if dirPath:
             self._testManager.setTopDir(dirPath)
 
-        self._searchLE.clear()
+        self._treeFilterLE.clear()
         self._updateDirUI()
         self.reload()
 
@@ -636,7 +630,7 @@ class IUTestWindow(QtWidgets.QWidget):
 
     def _runAllTests(self):
         self._view.resetAllItemsToNormal()
-        self._searchLE.clear()
+        self._treeFilterLE.clear()
         self._testManager.runAllTests()
         self._updateReimportRerunButtonEnabled()
 
@@ -684,9 +678,6 @@ class IUTestWindow(QtWidgets.QWidget):
         self._testManager.runSingleTestPartially(testId, partialMode)
         self._updateReimportRerunButtonEnabled()
 
-    def _clearFilter(self):
-        self._searchLE.clear()
-
     def reload(self, keepUiStates=True):
         self._beforeTestCollection()
         with uistream.LogCaptureContext():  # Report the possible error report to UI as well:
@@ -700,13 +691,13 @@ class IUTestWindow(QtWidgets.QWidget):
         self._statusLbl.reportTestCount(self._view.testCount())
 
     def _applyCurrentFilter(self, removeStateFilters=True, keepUiStates=True):
-        searchText = str(self._searchLE.text())
+        searchText = str(self._treeFilterLE.text())
         if removeStateFilters:
             keywords = searchText.split(" ")
             filterFunc = lambda x: not x.startswith(":")
             keywords = filter(filterFunc, keywords)
             searchText = " ".join(keywords)
-            self._searchLE.setText(searchText)
+            self._treeFilterLE.setText(searchText)
 
         self._applyFilterTextWithState(searchText, keepUiStates=keepUiStates)
 
@@ -734,7 +725,6 @@ class IUTestWindow(QtWidgets.QWidget):
     def _applyFilterTextWithState(self, txt, keepUiStates=True):
         lowerTxt = txt.strip().lower()
         keywords = lowerTxt.split(" ")
-        self._clearFilterBtn.setEnabled(bool(keywords))
         self._view.setFilterKeywords(keywords, ensureFirstMatchVisible=not keepUiStates)
 
     def closeEvent(self, event):
@@ -762,7 +752,7 @@ class IUTestWindow(QtWidgets.QWidget):
     def onAllTestsFinished(self):
         self._view.onAllTestsFinished()
         if self._autoFilterAct.isChecked():
-            self._searchLE.setText(constants.KEYWORD_TEST_STATE_RUN)
+            self._treeFilterLE.setText(constants.KEYWORD_TEST_STATE_RUN)
         self._statusLbl.updateReport()
 
     def repaintUi(self):
