@@ -3,6 +3,7 @@ import logging
 import nose2
 from iutest.core import pathutils
 from iutest.core import pyunitutils
+from iutest.plugins.nose2plugins import duplicationremoval # it has no nose2 import
 
 logger = logging.getLogger(__name__)
 
@@ -15,18 +16,17 @@ def iterAllTestPathsFromRootDir(startDirOrModuleName, topDir=None):
         "--list-tests",
         "--plugin",
         "nose2.plugins.loader.eggdiscovery",
-        "--plugin",
-        "iutest.plugins.nose2plugins.removeduplicated",
         "--exclude-plugin",
         "nose2.plugins.result",
     ]
+    extraHooks = duplicationremoval.TestsDuplicationRemovalHooks.getHooks()
     if pathutils.isPath(startDirOrModuleName):
         argv.extend(["-s", startDirOrModuleName, "-t", topDir])
     else:
         argv.append(startDirOrModuleName)
 
     TestCollector.gotError = False
-    nose2.discover(argv=argv, exit=False)
+    nose2.discover(argv=argv, exit=False, extraHooks=extraHooks)
     for tid in TestCollector.iterTestIds():
         yield tid
 
