@@ -3,6 +3,7 @@ from iutest.ui import uiconstants
 from iutest.qt import QtGui, QtWidgets
 from iutest.ui import uiutils
 
+
 class LogBrowser(QtWidgets.QTextBrowser):
     def __init__(self, parent=None):
         QtWidgets.QTextBrowser.__init__(self, parent)
@@ -70,4 +71,3 @@ class LogBrowser(QtWidgets.QTextBrowser):
 
     def _onGoToCodeError(self, msg):
         uiutils.popUpMessageOnCursorPos(msg, self)
-        

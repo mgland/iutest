@@ -47,20 +47,34 @@ class CodeLineVisitor(QtCore.QObject):
     def _onGoToCodeError(self, err):
         msg = "<font color=red><b>Error: </b></font>"
         if err == self._process.FailedToStart:
-            msg = msg + "Failed to launch the program as it was either missing or insufficient permissions.<br><br>"
-            msg = msg + "You might need to change the goToCode setting in Preference Dialog, e.g.<br>Specify full path to the program, etc."
+            msg = (
+                msg
+                + "Failed to launch the program as it was either missing or insufficient permissions.<br><br>"
+            )
+            msg = (
+                msg
+                + "You might need to change the goToCode setting in Preference Dialog, e.g.<br>Specify full path to the program, etc."
+            )
         elif err == self._process.FailedToStart:
             msg = msg + "The program to browse the code has crashed."
         elif err == self._process.Timedout:
             msg = msg + "The last goToCodeProcess.waitFor...() function timed out."
         elif err == self._process.WriteError:
-            msg = msg + "An error occurred when attempting to write to the goToCode process."
+            msg = (
+                msg
+                + "An error occurred when attempting to write to the goToCode process."
+            )
         elif err == self._process.ReadError:
-            msg = msg + "An error occurred when attempting to read to the goToCode process."
+            msg = (
+                msg
+                + "An error occurred when attempting to read to the goToCode process."
+            )
         else:
             msg = msg + "An unknown error occurred when attempting to go to the code."
 
-        msg = msg + "<hr><font color=red><b>Failed Command:</b></font><br>{}".format(self._lastCmd)      
+        msg = msg + "<hr><font color=red><b>Failed Command:</b></font><br>{}".format(
+            self._lastCmd
+        )
         self.errorIssued.emit(msg)
 
     def _onReadyReadStandardError(self):

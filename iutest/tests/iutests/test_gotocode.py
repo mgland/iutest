@@ -2,6 +2,7 @@ import unittest
 
 from iutest import qt as _qt
 
+
 @unittest.skipUnless(_qt.checkQtAvailability(), "Qt is not available")
 class GoToCodeTestCase(unittest.TestCase):
     def setUp(self):
@@ -10,6 +11,7 @@ class GoToCodeTestCase(unittest.TestCase):
 
     def test_saveRestore(self):
         from iutest.core import gotocode
+
         data = {
             'code --goto "$file":$line': 'code --goto "/path/to/source.py":21',
             'notepad "$file"': 'notepad "/path/to/source.py"',

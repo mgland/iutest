@@ -3,7 +3,7 @@ import logging
 import nose2
 from iutest.core import pathutils
 from iutest.core import pyunitutils
-from iutest.plugins.nose2plugins import duplicationremoval # it has no nose2 import
+from iutest.plugins.nose2plugins import duplicationremoval  # it has no nose2 import
 
 logger = logging.getLogger(__name__)
 

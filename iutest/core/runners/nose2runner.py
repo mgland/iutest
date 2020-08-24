@@ -4,7 +4,7 @@ from iutest.core import pathutils
 from iutest.core import runinfo
 from iutest.core.runners import base
 from iutest.core.runners import runnerconstants
-from iutest.plugins.nose2plugins import duplicationremoval # it has no nose2 import
+from iutest.plugins.nose2plugins import duplicationremoval  # it has no nose2 import
 
 logger = logging.getLogger(__name__)
 
@@ -88,9 +88,7 @@ class Nose2TestRunner(base.BaseTestRunner):
         argv.extend(["--fail-fast"] if self._manager.stopOnError() else [])
         self.uihooks.UiHooksPlugin.resetLastData()
         dependencies.Nose2Wrapper.getModule().discover(
-            argv=argv, 
-            exit=False,
-            extraHooks=extraHooks
+            argv=argv, exit=False, extraHooks=extraHooks
         )
 
     def runSingleTestPartially(self, testId, partialMode):

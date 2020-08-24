@@ -6,6 +6,7 @@ from iutest.core import pathutils
 from iutest.core import pyunitutils
 from iutest.core import testmanager
 
+
 class RunnerDummyTestCase(unittest.TestCase):
     _setupExecuted = False
     _testExecuted = False

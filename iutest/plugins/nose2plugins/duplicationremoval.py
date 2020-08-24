@@ -1,4 +1,3 @@
-
 class TestsDuplicationRemovalHooks(object):
     """ Remove potentially duplicated tests collected.
 
@@ -11,6 +10,7 @@ class TestsDuplicationRemovalHooks(object):
         to load first but to remove duplicated test we need to ensure the plugin comes after
         other discovery plugin. Thus we need to use hooks instead of plugin.
     """
+
     def _removeDuplicate(self, tests):
         uniqueTests = []
         for t in tests:
