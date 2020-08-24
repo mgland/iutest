@@ -3,9 +3,9 @@ class TestRunInfo(object):
         self.reset()
 
     def reset(self):
-        self.runTestIds = []
+        self.runTestIds = []    # The ids here will all be unique.
+        self.runCount = 0       # The count here will be the actually test run, including potential duplicated.
         self.failedTestId = None
-        self.runCount = 0
         self.successCount = 0
         self.failedCount = 0
         self.errorCount = 0

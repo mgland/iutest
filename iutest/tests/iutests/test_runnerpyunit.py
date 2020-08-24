@@ -29,3 +29,6 @@ class PyUnitRunnerTestCase(unittest.TestCase):
 
     def test_lastRunInfo(self):
         common.checkLastRunInfo(self)
+
+    def test_testNotDuplicated(self):
+        common.checkTestsNotDuplicated(self)

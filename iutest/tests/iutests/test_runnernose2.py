@@ -1,5 +1,4 @@
 import unittest
-import os
 from iutest.tests.iutests import test_runnercommon as common
 from iutest import dependencies
 from iutest.core import pathutils
@@ -29,3 +28,6 @@ class Nose2RunnerTestCase(unittest.TestCase):
 
     def test_lastRunInfo(self):
         common.checkLastRunInfo(self)
+
+    def test_testNotDuplicated(self):
+        common.checkTestsNotDuplicated(self)

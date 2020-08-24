@@ -1,14 +1,10 @@
 import unittest
 import os
-from unittest.suite import TestSuite
 
 from iutest.core import constants
 from iutest.core import pathutils
 from iutest.core import pyunitutils
 from iutest.core import testmanager
-
-from iutest.core.runners import runnerconstants
-
 
 class RunnerDummyTestCase(unittest.TestCase):
     _setupExecuted = False
@@ -26,6 +22,10 @@ class RunnerDummyTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.__class__._tearDownExecuted = True
+
+    @classmethod
+    def getTestCount(cls):
+        return 1
 
     @classmethod
     def checkSetUpRun(cls, testSuite, expectRun):
@@ -150,3 +150,10 @@ def checkLastRunInfo(testSuite):
     testSuite.assertEqual(lastRunInfo.failedTestId, None)
     testSuite.assertTrue(lastRunInfo.runCount)
     testSuite.assertTrue(lastRunInfo.successCount)
+
+
+def checkTestsNotDuplicated(testSuite):
+    testSuite._manager.setStartDirOrModule(testSuite._modulePath)
+    testSuite._manager.runTests(testSuite._testId)
+    lastRunInfo = testSuite._manager.lastRunInfo()
+    testSuite.assertEqual(lastRunInfo.runCount, RunnerDummyTestCase.getTestCount())

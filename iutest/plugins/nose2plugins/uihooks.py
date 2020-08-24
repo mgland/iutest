@@ -14,9 +14,6 @@ logger = logging.getLogger(__name__)
 class UiHooksPlugin(resultPlugin.ResultReporter, pyunitcommon.PyUnitUiMixin):
     """A nose2 plug to capture the logs for ui.
     """
-
-    lastRunInfo = runinfo.TestRunInfo()
-
     def __init__(self):
         resultPlugin.ResultReporter.__init__(self)
         pyunitcommon.PyUnitUiMixin.__init__(self, uistream.UiStream())
