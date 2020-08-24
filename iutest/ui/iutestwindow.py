@@ -37,6 +37,7 @@ class IUTestWindow(QtWidgets.QWidget):
     def __init__(self, startDirOrModule=None, topDir=None, parent=None):
         parent = parent or dcc.findParentWindow()
         QtWidgets.QWidget.__init__(self, parent)
+        self._uiStream = uistream.UiStream()
 
         self._initIcons()
 
@@ -374,7 +375,10 @@ class IUTestWindow(QtWidgets.QWidget):
         self._testManager.setRunnerMode(runnerMode)
         runner = self._testManager.getRunner()
         self._updateConfigButton(runner)
-        logger.info("Switch to %s for test running.", runner.name())
+
+        self._uiStream.write(
+            ">> Switch to unittest runner <b>{}</b>.<br>".format(runner.name())
+        )
 
         self._onReloadUiButtonClicked()
         appsettings.get().saveSimpleConfig(
