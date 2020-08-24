@@ -11,11 +11,15 @@ class InlineButtonLineEdit(QtWidgets.QLineEdit):
     _CLEAR_BUTTON_ID = "__clear__"
     _BUTTON_GAP = 2
     _BUTTON_DIMENTION = 20
-    def __init__(self, parent=None):
+
+    def __init__(self, withClearButton=False, parent=None):
         QtWidgets.QLineEdit.__init__(self, parent)
         self._buttons = collections.OrderedDict()
         self._initMargins = self.getTextMargins()
         self._initIcons()
+
+        if withClearButton:
+            self.addClearButton()
         
     @classmethod
     def _initIcons(cls):
@@ -69,7 +73,7 @@ class InlineButtonLineEdit(QtWidgets.QLineEdit):
 
     def _atTextChanged(self, txt):
         if self.getClearButton():
-            self.setButtonVisible(self._CLEAR_BUTTON_ID, bool(txt.strip()))
+            self.setButtonVisible(self._CLEAR_BUTTON_ID, bool(str(txt).strip()))
 
     def _refreshButtons(self):
         visibleButtons = [btn for btn in self._buttons.values() if btn.isVisible()]

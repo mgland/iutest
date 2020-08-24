@@ -331,8 +331,7 @@ class IUTestWindow(QtWidgets.QWidget):
         reloadUIBtn.clicked.connect(self._onReloadUiButtonClicked)
         layout.addWidget(reloadUIBtn)
 
-        self._treeFilterLE = inlinebuttonlineedit.InlineButtonLineEdit(self)
-        self._treeFilterLE.addClearButton()
+        self._treeFilterLE = inlinebuttonlineedit.InlineButtonLineEdit(withClearButton=True, parent=self)
         self._treeFilterLE.setToolTip(
             "Input keywords to filter the tests, separated by space.\n"
             "For normal keyword, the match operation is 'AND'\n"
