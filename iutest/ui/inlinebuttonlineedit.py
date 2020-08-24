@@ -35,9 +35,10 @@ class InlineButtonLineEdit(QtWidgets.QLineEdit):
 
         button.setFixedSize(QtCore.QSize(self._BUTTON_DIMENTION, self._BUTTON_DIMENTION))
         button.setParent(self)
-        button.setStyleSheet("background:transparent")
+        button.setStyleSheet("QAbstractButton{background:transparent;border:0px;}")
         self._buttons[btnId] = button
         self._refreshButtons()
+        return button
 
     def addClearButton(self):
         existBtn = self.getClearButton()
@@ -49,7 +50,7 @@ class InlineButtonLineEdit(QtWidgets.QLineEdit):
         btn.setVisible(False)
         btn.clicked.connect(self.clear)
         self.textChanged.connect(self._atTextChanged)
-        self.addButton(self._CLEAR_BUTTON_ID, btn)
+        return self.addButton(self._CLEAR_BUTTON_ID, btn)
 
     def getClearButton(self):
         return self._buttons.get(self._CLEAR_BUTTON_ID)
@@ -69,6 +70,10 @@ class InlineButtonLineEdit(QtWidgets.QLineEdit):
 
     def resizeEvent(self, event):
         QtWidgets.QLineEdit.resizeEvent(self, event)
+        self._refreshButtons()
+
+    def showEvent(self, event):
+        QtWidgets.QLineEdit.showEvent(self, event)
         self._refreshButtons()
 
     def _atTextChanged(self, txt):

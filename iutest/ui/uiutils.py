@@ -32,6 +32,19 @@ def makeIconButton(icon, parent=None):
     return btn
 
 
+def makeMenuToolButton(icon=None, toolTip="", parent=None):
+    btn = QtWidgets.QToolButton(parent)
+    if icon:
+        btn.setIcon(icon)
+    btn.setToolTip(toolTip)
+    btn.setContentsMargins(0, 0, 0, 0)
+    btn.setIconSize(QtCore.QSize(20, 20))
+    btn.setPopupMode(btn.InstantPopup)
+    menu = QtWidgets.QMenu(btn)
+    btn.setMenu(menu)
+    return (btn, menu)
+
+
 def addSeparatorToLayout(layout, direction):
     sep = QtWidgets.QFrame()
     sep.setStyleSheet("color:black")

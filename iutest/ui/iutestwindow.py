@@ -15,7 +15,7 @@ from iutest.ui import unittesttree
 from iutest.ui import statuslabel
 from iutest.ui import uiutils
 from iutest.ui import configwindow
-from iutest.ui import inlinebuttonlineedit
+from iutest.ui import inlinebuttonlineedit as btnLineEdit
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,6 @@ class IUTestWindow(QtWidgets.QWidget):
     _iutestIcon = None
     _reimportIcon = None
     _reloadUiIcon = None
-    _moreIcon = None
     _filterIcon = None
     _autoFilterIcon = None
     _resetIcon = None
@@ -74,10 +73,10 @@ class IUTestWindow(QtWidgets.QWidget):
         # right layout -----------------------------------
         self._rightWidget, rightLay = self._createSplitterContent()
         _logTopLayout = uiutils.makeMinorHorizontalLayout()
-        self._logWgt = logbrowser.LogBrowser(self)
-        self._makeLogTopLayout(_logTopLayout)
+        self._logBrowser = logbrowser.LogBrowser(self)
+        self._makeLogBrowserTopWidgets(_logTopLayout)
         rightLay.addLayout(_logTopLayout, 0)
-        rightLay.addWidget(self._logWgt, 1)
+        rightLay.addWidget(self._logBrowser, 1)
 
         self._splitter.setSizes([230, 500])
         self._splitter.setStretchFactor(0, 0)
@@ -95,7 +94,7 @@ class IUTestWindow(QtWidgets.QWidget):
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)  # for reimport convenience.
         self.setTabOrder(self._rootDirLE, self._treeFilterLE)
         self.setTabOrder(self._treeFilterLE, self._view)
-        self.setTabOrder(self._view, self._logWgt)
+        self.setTabOrder(self._view, self._logBrowser)
         self.setWindowIcon(self._iutestIcon)
         self.setWindowFlags(QtCore.Qt.Window)
 
@@ -108,7 +107,7 @@ class IUTestWindow(QtWidgets.QWidget):
         QtCore.QTimer.singleShot(0, self._initialLoad)
 
     def getLogBrowserWidget(self):
-        return self._logWgt
+        return self._logBrowser
 
     def resetUiTestManager(self):
         self._view.setTestManager(self._testManager)
@@ -126,16 +125,28 @@ class IUTestWindow(QtWidgets.QWidget):
         self._splitter.addWidget(wgt)
         return wgt, splitterLay
 
-    def _makeLogTopLayout(self, layout):
+    def _makeLogBrowserTopWidgets(self, layout):
         _console = QtWidgets.QLabel("Log Browser")
+
+        self._logSearchLE = btnLineEdit.InlineButtonLineEdit(withClearButton=True, parent=self)
+        self._logSearchLE.setToolTip(
+            "Search text in the test history."
+        )
+        self._logSearchLE.setPlaceholderText("Input to search")
+        self._logSearchLE.textChanged.connect(self._applyLoggingSearchText)
 
         self._clearLogBtn = uiutils.makeIconButton(self._clearLogIcon, self)
         self._clearLogBtn.setToolTip("Clear the log browser logging.")
-        self._clearLogBtn.clicked.connect(self._logWgt.clear)
+        self._clearLogBtn.clicked.connect(self._logBrowser.clear)
 
         layout.addWidget(_console, 0)
         layout.addStretch(1)
+        layout.addWidget(self._logSearchLE, 0)
         layout.addWidget(self._clearLogBtn, 0)
+
+    def _applyLoggingSearchText(self, txt):
+        keyword = str(txt).strip()
+        self._logBrowser.find(keyword)
 
     @classmethod
     def _initSingleIcon(cls, iconVarName, iconFileName):
@@ -176,28 +187,6 @@ class IUTestWindow(QtWidgets.QWidget):
         self._configMenu.addAction(act)
         return (act, value)
 
-    def _regenerateBrowseMenu(self):
-        self._browseMenu.clear()
-
-        act = self._browseMenu.addAction("Pick Test Root Dir ...")
-        act.triggered.connect(self._onBrowseTestsRootDir)
-        act = self._browseMenu.addAction("Pick Top Root Dir ...")
-        act.triggered.connect(self._onBrowseTopDir)
-        self._browseMenu.addSeparator()
-        act = self._browseMenu.addAction("Save Current Path Settings ...")
-        act.triggered.connect(self._onSaveCurrentDirSettings)
-        act = self._browseMenu.addAction("Delete Current Settings ...")
-        act.triggered.connect(self._onDeleteCurrentDirSettings)
-        self._browseMenu.addSeparator()
-
-        # Read settings:
-        config = appsettings.get().testDirSettings()
-        for key, pair in config.items():
-            act = self._browseMenu.addAction(key)
-            act.triggered.connect(self._loadSavedDirPair)
-            act.setToolTip("\n".join(pair))
-        self._browseMenu.addSeparator()
-
     def _updateLabelOfTestRunnerAct(self, act, currentMode):
         runnerMode = variantToPyValue(act.data())
         runner = self._testManager.getRunnerByMode(runnerMode)
@@ -214,7 +203,7 @@ class IUTestWindow(QtWidgets.QWidget):
     def _makeRunnerConfigButton(self):
         currentRunner = self._setInitialTestMode()
         currentRunnerMode = currentRunner.mode()
-        self._runnerConfigBtn, self._configMenu = self._makeMenuToolButton()
+        self._runnerConfigBtn, self._configMenu = uiutils.makeMenuToolButton(parent=self)
         self._updateConfigButton(currentRunner)
 
         for runner in self._testManager.iterAllRunners():
@@ -269,18 +258,6 @@ class IUTestWindow(QtWidgets.QWidget):
     def _showConfigWindow(self):
         configwindow.ConfigWindow.show(self)
 
-    def _makeMenuToolButton(self, icon=None, toolTip=""):
-        btn = QtWidgets.QToolButton(self)
-        if icon:
-            btn.setIcon(icon)
-        btn.setToolTip(toolTip)
-        btn.setContentsMargins(0, 0, 0, 0)
-        btn.setIconSize(QtCore.QSize(20, 20))
-        btn.setPopupMode(btn.InstantPopup)
-        menu = QtWidgets.QMenu(btn)
-        btn.setMenu(menu)
-        return (btn, menu)
-
     def _setInitialTestMode(self):
         initRunnerMode = appsettings.get().simpleConfigIntValue(
             constants.CONFIG_KEY_LAST_RUNNER_MODE, -1
@@ -298,11 +275,11 @@ class IUTestWindow(QtWidgets.QWidget):
         )
         self._rootDirLE = rootpathedit.RootPathEdit(self)
         self._rootDirLE.rootPathChanged.connect(self._switchToTestRootPath)
-
-        self._browseBtn, self._browseMenu = self._makeMenuToolButton(
-            self._moreIcon, "Click to access more features."
-        )
-        self._regenerateBrowseMenu()
+        self._rootDirLE.rootDirPicked.connect(self._onBrowseTestsRootDir)
+        self._rootDirLE.topDirPicked.connect(self._onBrowseTopDir)
+        self._rootDirLE.saveCurrentDirSettings.connect(self._onSaveCurrentDirSettings)
+        self._rootDirLE.loadSavedDirPair.connect(self._loadSavedDirPair)
+        self._rootDirLE.deleteCurrentDirSettings.connect(self._onDeleteCurrentDirSettings)
 
         self._panelVisBtn = uiutils.makeIconButton(self._panelStateIconSet[-1], self)
         self._panelVisBtn.setToolTip(
@@ -313,7 +290,6 @@ class IUTestWindow(QtWidgets.QWidget):
 
         self._dirLayout.addWidget(lbl)
         self._dirLayout.addWidget(self._rootDirLE)
-        self._dirLayout.addWidget(self._browseBtn)
         self._dirLayout.addWidget(self._panelVisBtn)
         self._dirLayout.addWidget(self._runnerConfigBtn)
 
@@ -331,18 +307,18 @@ class IUTestWindow(QtWidgets.QWidget):
         reloadUIBtn.clicked.connect(self._onReloadUiButtonClicked)
         layout.addWidget(reloadUIBtn)
 
-        self._treeFilterLE = inlinebuttonlineedit.InlineButtonLineEdit(withClearButton=True, parent=self)
+        self._treeFilterLE = btnLineEdit.InlineButtonLineEdit(withClearButton=True, parent=self)
         self._treeFilterLE.setToolTip(
             "Input keywords to filter the tests, separated by space.\n"
             "For normal keyword, the match operation is 'AND'\n"
             "For state keyword starting with ':', the match operation is 'OR'."
         )
         self._treeFilterLE.setPlaceholderText("Input to filter")
-        self._treeFilterLE.textChanged.connect(self._applyFilterText)
+        self._treeFilterLE.textChanged.connect(self._applyTreeFilterText)
         layout.addWidget(self._treeFilterLE)
 
-        self._filterBtn, self._filterMenu = self._makeMenuToolButton(
-            self._filterIcon, "Click to apply more predefined filters."
+        self._filterBtn, self._filterMenu = uiutils.makeMenuToolButton(
+            self._filterIcon, "Click to apply more predefined filters.", self
         )
         for lbl in constants.KEYWORD_TEST_STATES:
             act = self._filterMenu.addAction(lbl)
@@ -518,22 +494,14 @@ class IUTestWindow(QtWidgets.QWidget):
         self._rootDirLE.setText(self._testManager.startDirOrModule())
         self._rootDirLE.setToolTip(self._testManager.topDir())
 
-    def _onBrowseTestsRootDir(self):
-        dirPath = QtWidgets.QFileDialog.getExistingDirectory(
-            self, "Pick the Test Root Directory"
-        )
-        if dirPath:
-            self._testManager.setStartDirOrModule(dirPath)
-            self._updateDirUI()
-            self._treeFilterLE.clear()
-            self.reload()
+    def _onBrowseTestsRootDir(self, dirPath):
+        self._testManager.setStartDirOrModule(dirPath)
+        self._updateDirUI()
+        self._treeFilterLE.clear()
+        self.reload()
 
-    def _onBrowseTopDir(self):
-        dirPath = QtWidgets.QFileDialog.getExistingDirectory(
-            self, "Pick the Top Python Directory"
-        )
-        if dirPath:
-            self._testManager.setTopDir(dirPath)
+    def _onBrowseTopDir(self, dirPath):
+        self._testManager.setTopDir(dirPath)
 
         self._treeFilterLE.clear()
         self._updateDirUI()
@@ -599,7 +567,7 @@ class IUTestWindow(QtWidgets.QWidget):
         self._updateWindowTitle(name[0])
 
     def _deferredRegenerateMenu(self):
-        QtCore.QTimer.singleShot(0, self._regenerateBrowseMenu)
+        QtCore.QTimer.singleShot(0, self._rootDirLE.regenerateBrowseMenu)
 
     def _onDeleteCurrentDirSettings(self):
         config = appsettings.get().testDirSettings()
@@ -718,7 +686,7 @@ class IUTestWindow(QtWidgets.QWidget):
         self._hookUiToStream()
         self._view.resetTestItemsById(tests)
 
-    def _applyFilterText(self, txt):
+    def _applyTreeFilterText(self, txt):
         self._applyFilterTextWithState(str(txt), keepUiStates=False)
 
     def _applyFilterTextWithState(self, txt, keepUiStates=True):
@@ -745,8 +713,8 @@ class IUTestWindow(QtWidgets.QWidget):
     def onTestRunningSessionStart(self):
         self._statusLbl.setText("Running tests...")
         if self._clearLogOnRunAct.isChecked():
-            self._logWgt.clear()
-        self._logWgt.logSeparator()
+            self._logBrowser.clear()
+        self._logBrowser.logSeparator()
 
     def onAllTestsFinished(self):
         self._view.onAllTestsFinished()
