@@ -4,6 +4,7 @@ from iutest.core import pathutils
 from iutest.core import runinfo
 from iutest.core.runners import base
 from iutest.core.runners import runnerconstants
+from iutest.plugins.nose2plugins import duplicationremoval # it has no nose2 import
 
 logger = logging.getLogger(__name__)
 
@@ -53,15 +54,15 @@ class Nose2TestRunner(base.BaseTestRunner):
         plugins = [
             "iutest.plugins.nose2plugins.uihooks",
             "nose2.plugins.loader.eggdiscovery",
-            "iutest.plugins.nose2plugins.removeduplicated",
         ]
         excludePlugins = [
             "iutest.plugins.nose2plugins.testlister",
             "iutest.plugins.nose2plugins.partialtest",
         ]
-        self._runTest(plugins, excludePlugins, [], *testIds)
+        extraHooks = duplicationremoval.TestsDuplicationRemovalHooks.getHooks()
+        self._runTest(plugins, excludePlugins, [], extraHooks, *testIds)
 
-    def _runTest(self, plugins, excludePlugins, extraArgs, *testIds):
+    def _runTest(self, plugins, excludePlugins, extraArgs, extraHooks, *testIds):
         if not testIds:
             logger.warning("No test to run.")
             return
@@ -86,7 +87,11 @@ class Nose2TestRunner(base.BaseTestRunner):
         argv.extend(testIds)
         argv.extend(["--fail-fast"] if self._manager.stopOnError() else [])
         self.uihooks.UiHooksPlugin.resetLastData()
-        dependencies.Nose2Wrapper.getModule().discover(argv=argv, exit=False)
+        dependencies.Nose2Wrapper.getModule().discover(
+            argv=argv, 
+            exit=False,
+            extraHooks=extraHooks
+        )
 
     def runSingleTestPartially(self, testId, partialMode):
         """Run partial steps of test, like running setUp only, or setUp and test but without teardown.
@@ -102,7 +107,6 @@ class Nose2TestRunner(base.BaseTestRunner):
         plugins = [
             "iutest.plugins.nose2plugins.uihooks",
             "nose2.plugins.loader.eggdiscovery",
-            "iutest.plugins.nose2plugins.removeduplicated",
             "iutest.plugins.nose2plugins.partialtest",
         ]
         excludePlugins = [
@@ -110,8 +114,9 @@ class Nose2TestRunner(base.BaseTestRunner):
             "nose2.plugins.result",
         ]
         extraArgs = ["--partial-test"]
+        extraHooks = duplicationremoval.TestsDuplicationRemovalHooks.getHooks()
         self.partialtest.PartialTestRunner.setRunMode(partialMode)
-        self._runTest(plugins, excludePlugins, extraArgs, testId)
+        self._runTest(plugins, excludePlugins, extraArgs, extraHooks, testId)
 
     def iterAllTestIds(self):
         if not self._importPlugins():
