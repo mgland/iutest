@@ -9,7 +9,8 @@ class InlineButtonLineEdit(QtWidgets.QLineEdit):
     _clearIcon = None
     
     _CLEAR_BUTTON_ID = "__clear__"
-    _BUTTON_GAP = 2
+    _BUTTON_RIGHT_MARGIN = 2
+    _BUTTON_GAP = 1
     _BUTTON_DIMENTION = 20
 
     def __init__(self, withClearButton=False, parent=None):
@@ -28,14 +29,15 @@ class InlineButtonLineEdit(QtWidgets.QLineEdit):
 
         iconutils.initSingleClassIcon(cls, "_clearIcon", "clear.svg")
 
-    def addButton(self, btnId, button):
+    def addButton(self, btnId, button, overrideStyle=True):
         existBtn = self._buttons.get(btnId)
         if existBtn:
             return existBtn
 
         button.setFixedSize(QtCore.QSize(self._BUTTON_DIMENTION, self._BUTTON_DIMENTION))
         button.setParent(self)
-        button.setStyleSheet("QAbstractButton{background:transparent;border:0px;}")
+        if overrideStyle:
+            button.setStyleSheet("QAbstractButton{background:transparent;}")
         self._buttons[btnId] = button
         self._refreshButtons()
         return button
@@ -83,7 +85,7 @@ class InlineButtonLineEdit(QtWidgets.QLineEdit):
     def _refreshButtons(self):
         visibleButtons = [btn for btn in self._buttons.values() if btn.isVisible()]
         btnLen = len(visibleButtons)
-        rightTxtMargin = btnLen * (self._BUTTON_DIMENTION + self._BUTTON_GAP)
+        rightTxtMargin = btnLen * (self._BUTTON_DIMENTION ) + (btnLen-1) * self._BUTTON_GAP + self._BUTTON_RIGHT_MARGIN
         newTextMargin = list(copy.copy(self._initMargins))
         newTextMargin[2] = rightTxtMargin
         self.setTextMargins(*newTextMargin)

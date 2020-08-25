@@ -3,7 +3,7 @@ import logging
 from iutest import dcc
 from iutest import _version
 from iutest.core import importutils
-from iutest.qt import QtCore, QtWidgets, iconFromPath, variantToPyValue
+from iutest.qt import QtCore, QtGui, QtWidgets, iconFromPath, variantToPyValue
 from iutest.core import iconutils
 from iutest.core import appsettings
 from iutest.core import constants
@@ -31,6 +31,8 @@ class IUTestWindow(QtWidgets.QWidget):
     _clearLogIcon = None
     _stopAtErrorIcon = None
     _configIcon = None
+    _caseSensitiveIcon = None
+    _wholeWordIcon = None
     _panelStateIconSet = None
 
     def __init__(self, startDirOrModule=None, topDir=None, parent=None):
@@ -133,7 +135,15 @@ class IUTestWindow(QtWidgets.QWidget):
             "Search text in the test history."
         )
         self._logSearchLE.setPlaceholderText("Input to search")
-        self._logSearchLE.textChanged.connect(self._applyLoggingSearchText)
+        self._logSearchLE.returnPressed.connect(self._applyLoggingSearchText)
+
+        self._wholeWordBtn = uiutils.makeIconButton(self._wholeWordIcon)
+        self._wholeWordBtn.setCheckable(True)
+        self._logSearchLE.addButton("wholeWord", self._wholeWordBtn)
+
+        self._sensitiveBtn = uiutils.makeIconButton(self._caseSensitiveIcon)
+        self._sensitiveBtn.setCheckable(True)
+        self._logSearchLE.addButton("caseSensitive", self._sensitiveBtn)
 
         self._clearLogBtn = uiutils.makeIconButton(self._clearLogIcon, self)
         self._clearLogBtn.setToolTip("Clear the log browser logging.")
@@ -144,9 +154,28 @@ class IUTestWindow(QtWidgets.QWidget):
         layout.addWidget(self._logSearchLE, 0)
         layout.addWidget(self._clearLogBtn, 0)
 
-    def _applyLoggingSearchText(self, txt):
-        keyword = str(txt).strip()
-        self._logBrowser.find(keyword)
+    def _applyLoggingSearchText(self):
+        keyword = str(self._logSearchLE.text())
+        if not keyword:
+            return
+
+        ctrl = bool(QtWidgets.QApplication.keyboardModifiers() & QtCore.Qt.ControlModifier)
+        flag = QtGui.QTextDocument.FindFlags()
+        if self._wholeWordBtn.isChecked():
+            flag = flag | QtGui.QTextDocument.FindWholeWords
+        if self._sensitiveBtn.isChecked():
+            flag = flag | QtGui.QTextDocument.FindCaseSensitively
+        if ctrl:
+            flag = flag | QtGui.QTextDocument.FindBackward
+
+        found = self._logBrowser.find(keyword, flag)
+        if found:
+            return
+        if not ctrl:
+            self._logBrowser.moveCursor(QtGui.QTextCursor.Start)
+        else:
+            self._logBrowser.moveCursor(QtGui.QTextCursor.End)
+        self._logBrowser.find(keyword, flag)
 
     @classmethod
     def _initSingleIcon(cls, iconVarName, iconFileName):
@@ -174,6 +203,8 @@ class IUTestWindow(QtWidgets.QWidget):
         iconutils.initSingleClassIcon(cls, "_clearLogIcon", "clearLog.svg")
         iconutils.initSingleClassIcon(cls, "_clearLogOnRunIcon", "clearLogOnRun.svg")
         iconutils.initSingleClassIcon(cls, "_stopAtErrorIcon", "stopAtError.svg")
+        iconutils.initSingleClassIcon(cls, "_caseSensitiveIcon", "caseSensitive.svg")
+        iconutils.initSingleClassIcon(cls, "_wholeWordIcon", "wholeWord.svg")
 
     def _addToggleConfigAction(self, lbl, icon, tooltip, configKey, slot):
         # Cannot use self._configMenu.addAction() directly here since over-zealous garbage collection in some DCC apps:
