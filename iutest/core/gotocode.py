@@ -55,7 +55,7 @@ class CodeLineVisitor(QtCore.QObject):
                 msg
                 + "You might need to change the goToCode setting in Preference Dialog, e.g.<br>Specify full path to the program, etc."
             )
-        elif err == self._process.FailedToStart:
+        elif err == self._process.Crashed:
             msg = msg + "The program to browse the code has crashed."
         elif err == self._process.Timedout:
             msg = msg + "The last goToCodeProcess.waitFor...() function timed out."
