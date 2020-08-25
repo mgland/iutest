@@ -128,14 +128,14 @@ class IUTestWindow(QtWidgets.QWidget):
         splitterLay.setContentsMargins(0, 0, 0, 0)
         self._splitter.addWidget(wgt)
         return wgt, splitterLay
-    
+
     def _prepareLogSearch(self, txt):
         if txt:
             self._logSearchLE.setText(txt)
-        
+
         self._logSearchLE.selectAll()
         self._logSearchLE.setFocus()
-    
+
     def _prepareTreeSearch(self):
         self._treeFilterLE.selectAll()
         self._treeFilterLE.setFocus()
@@ -143,7 +143,9 @@ class IUTestWindow(QtWidgets.QWidget):
     def _makeLogBrowserTopWidgets(self, layout):
         _console = QtWidgets.QLabel("Log Browser")
 
-        self._logSearchLE = btnLineEdit.InlineButtonLineEdit(withClearButton=True, parent=self)
+        self._logSearchLE = btnLineEdit.InlineButtonLineEdit(
+            withClearButton=True, parent=self
+        )
         self._logSearchLE.setToolTip(
             "Enter to search next keyword in the log browser, ctrl+Enter to search backward."
         )
@@ -172,7 +174,9 @@ class IUTestWindow(QtWidgets.QWidget):
         if not keyword:
             return
 
-        ctrl = bool(QtWidgets.QApplication.keyboardModifiers() & QtCore.Qt.ControlModifier)
+        ctrl = bool(
+            QtWidgets.QApplication.keyboardModifiers() & QtCore.Qt.ControlModifier
+        )
         flag = QtGui.QTextDocument.FindFlags()
         if self._wholeWordBtn.isChecked():
             flag = flag | QtGui.QTextDocument.FindWholeWords
@@ -247,7 +251,9 @@ class IUTestWindow(QtWidgets.QWidget):
     def _makeRunnerConfigButton(self):
         currentRunner = self._setInitialTestMode()
         currentRunnerMode = currentRunner.mode()
-        self._runnerConfigBtn, self._configMenu = uiutils.makeMenuToolButton(parent=self)
+        self._runnerConfigBtn, self._configMenu = uiutils.makeMenuToolButton(
+            parent=self
+        )
         self._updateConfigButton(currentRunner)
 
         for runner in self._testManager.iterAllRunners():
@@ -323,7 +329,9 @@ class IUTestWindow(QtWidgets.QWidget):
         self._rootDirLE.topDirPicked.connect(self._onBrowseTopDir)
         self._rootDirLE.saveCurrentDirSettings.connect(self._onSaveCurrentDirSettings)
         self._rootDirLE.loadSavedDirPair.connect(self._loadSavedDirPair)
-        self._rootDirLE.deleteCurrentDirSettings.connect(self._onDeleteCurrentDirSettings)
+        self._rootDirLE.deleteCurrentDirSettings.connect(
+            self._onDeleteCurrentDirSettings
+        )
 
         self._panelVisBtn = uiutils.makeIconButton(self._panelStateIconSet[-1], self)
         self._panelVisBtn.setToolTip(
@@ -351,7 +359,9 @@ class IUTestWindow(QtWidgets.QWidget):
         reloadUIBtn.clicked.connect(self._onReloadUiButtonClicked)
         layout.addWidget(reloadUIBtn)
 
-        self._treeFilterLE = btnLineEdit.InlineButtonLineEdit(withClearButton=True, parent=self)
+        self._treeFilterLE = btnLineEdit.InlineButtonLineEdit(
+            withClearButton=True, parent=self
+        )
         self._treeFilterLE.setToolTip(
             "Input keywords to filter the tests, separated by space.\n"
             "For normal keyword, the match operation is 'AND'\n"

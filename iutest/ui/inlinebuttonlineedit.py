@@ -5,9 +5,10 @@ from iutest.core import iconutils
 from iutest.qt import QtCore, QtWidgets
 from iutest.ui import uiutils
 
+
 class InlineButtonLineEdit(QtWidgets.QLineEdit):
     _clearIcon = None
-    
+
     _CLEAR_BUTTON_ID = "__clear__"
     _BUTTON_RIGHT_MARGIN = 2
     _BUTTON_GAP = 1
@@ -21,7 +22,7 @@ class InlineButtonLineEdit(QtWidgets.QLineEdit):
 
         if withClearButton:
             self.addClearButton()
-        
+
     @classmethod
     def _initIcons(cls):
         if cls._clearIcon:
@@ -34,7 +35,9 @@ class InlineButtonLineEdit(QtWidgets.QLineEdit):
         if existBtn:
             return existBtn
 
-        button.setFixedSize(QtCore.QSize(self._BUTTON_DIMENTION, self._BUTTON_DIMENTION))
+        button.setFixedSize(
+            QtCore.QSize(self._BUTTON_DIMENTION, self._BUTTON_DIMENTION)
+        )
         button.setParent(self)
         if overrideStyle:
             button.setStyleSheet("QAbstractButton{background:transparent;}")
@@ -85,7 +88,11 @@ class InlineButtonLineEdit(QtWidgets.QLineEdit):
     def _refreshButtons(self):
         visibleButtons = [btn for btn in self._buttons.values() if btn.isVisible()]
         btnLen = len(visibleButtons)
-        rightTxtMargin = btnLen * (self._BUTTON_DIMENTION ) + (btnLen-1) * self._BUTTON_GAP + self._BUTTON_RIGHT_MARGIN
+        rightTxtMargin = (
+            btnLen * (self._BUTTON_DIMENTION)
+            + (btnLen - 1) * self._BUTTON_GAP
+            + self._BUTTON_RIGHT_MARGIN
+        )
         newTextMargin = list(copy.copy(self._initMargins))
         newTextMargin[2] = rightTxtMargin
         self.setTextMargins(*newTextMargin)
@@ -93,6 +100,6 @@ class InlineButtonLineEdit(QtWidgets.QLineEdit):
         halfH = self.height() / 2
         halfBtnH = self._BUTTON_DIMENTION / 2
         for i, btn in enumerate(visibleButtons, 1):
-            x = w - i*self._BUTTON_DIMENTION - i*self._BUTTON_GAP
+            x = w - i * self._BUTTON_DIMENTION - i * self._BUTTON_GAP
             y = int(halfH - halfBtnH)
             btn.move(x, y)

@@ -87,10 +87,7 @@ class UnitTestTreeView(QtWidgets.QTreeWidget):
 
     def __init__(self, parent):
         QtWidgets.QTreeWidget.__init__(self, parent)
-        self._pan = scrollareapan.ScrollAreaPan(
-            self, 
-            scrollFactor=0.05
-        )
+        self._pan = scrollareapan.ScrollAreaPan(self, scrollFactor=0.05)
         self._pan.installEventFilterOn(self.viewport())
         self._uiStream = uistream.UiStream()
         self._codeVisitor = gotocode.CodeLineVisitor(self)
@@ -119,8 +116,8 @@ class UnitTestTreeView(QtWidgets.QTreeWidget):
         self._makeContextMenu()
 
         self.setToolTip(
-            "This view lists out the tests, <b>Double Click</b> on them to run them, <b>Ctrl+C</b> to copy the python module path;" + \
-            "<br><br><b>MMB Dragging</b> to pan the view around."
+            "This view lists out the tests, <b>Double Click</b> on them to run them, <b>Ctrl+C</b> to copy the python module path;"
+            + "<br><br><b>MMB Dragging</b> to pan the view around."
         )
 
     def setTestManager(self, manager):

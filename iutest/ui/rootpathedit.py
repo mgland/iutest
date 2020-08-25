@@ -13,17 +13,19 @@ class RootPathEdit(btnLineEdit.InlineButtonLineEdit):
     rootDirPicked = Signal(str)
     topDirPicked = Signal(str)
 
-    saveCurrentDirSettings  = Signal()
-    loadSavedDirPair  = Signal(str, str, str)
-    deleteCurrentDirSettings  = Signal()
+    saveCurrentDirSettings = Signal()
+    loadSavedDirPair = Signal(str, str, str)
+    deleteCurrentDirSettings = Signal()
 
     def __init__(self, parent=None):
-        btnLineEdit.InlineButtonLineEdit.__init__(self, withClearButton=False, parent=parent)
+        btnLineEdit.InlineButtonLineEdit.__init__(
+            self, withClearButton=False, parent=parent
+        )
         self._initIcons()
 
         self.editingFinished.connect(self.onEditFinished)
         self._initPath = None
-        
+
         self._browseBtn = uiutils.makeIconButton(self._moreIcon, self)
         self._browseBtn.clicked.connect(self._onBrowseBtnClicked)
         self._browseMenu = QtWidgets.QMenu(self._browseBtn)
@@ -38,7 +40,9 @@ class RootPathEdit(btnLineEdit.InlineButtonLineEdit):
         iconutils.initSingleClassIcon(cls, "_moreIcon", "more.svg")
 
     def _onBrowseBtnClicked(self):
-        btmLeft = self._browseBtn.mapToGlobal(QtCore.QPoint(0, self._browseBtn.height()))
+        btmLeft = self._browseBtn.mapToGlobal(
+            QtCore.QPoint(0, self._browseBtn.height())
+        )
         self._browseMenu.exec_(btmLeft)
 
     def setInitialPath(self, path):

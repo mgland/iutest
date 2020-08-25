@@ -3,12 +3,12 @@ from setuptools import setup
 
 def readme():
     replacement = {
-        "./iutest/icons/iutest.svg":"http://mgland.com/opensource/iutest/iutest.svg",
-        "./iutest/docs/images/iutest-0.1.5.gif":"http://mgland.com/opensource/iutest/iutest-0.1.5.gif",
+        "./iutest/icons/iutest.svg": "http://mgland.com/opensource/iutest/iutest.svg",
+        "./iutest/docs/images/iutest-0.1.5.gif": "http://mgland.com/opensource/iutest/iutest-0.1.5.gif",
     }
     with open("README.md") as f:
         longDesc = f.read()
-        
+
     for src, dst in replacement.items():
         longDesc = longDesc.replace(src, dst)
     return longDesc

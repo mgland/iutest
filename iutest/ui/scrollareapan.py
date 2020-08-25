@@ -1,15 +1,20 @@
 import weakref
 from iutest.qt import QtCore
 
+
 class ScrollAreaPan(QtCore.QObject):
     """Enable a scrollable view to support MMB dragging to pan the view.
     """
+
     _MOUSE_EVENT_TYPES = (
-        QtCore.QEvent.MouseButtonPress, 
+        QtCore.QEvent.MouseButtonPress,
         QtCore.QEvent.MouseMove,
-        QtCore.QEvent.MouseButtonRelease
+        QtCore.QEvent.MouseButtonRelease,
     )
-    def __init__(self, scrollArea=None, hScrollBar=None, vScrollBar=None, scrollFactor=1.0):
+
+    def __init__(
+        self, scrollArea=None, hScrollBar=None, vScrollBar=None, scrollFactor=1.0
+    ):
         QtCore.QObject.__init__(self, scrollArea)
         self._scrollFactor = scrollFactor
         self._scrollArea = weakref.ref(scrollArea)
@@ -23,8 +28,11 @@ class ScrollAreaPan(QtCore.QObject):
     def _scrollBars(self):
         if not self._scrollArea:
             return (None, None)
-            
-        return (self._scrollArea().horizontalScrollBar(), self._scrollArea().verticalScrollBar())
+
+        return (
+            self._scrollArea().horizontalScrollBar(),
+            self._scrollArea().verticalScrollBar(),
+        )
 
     def installEventFilterOn(self, widget):
         if widget:
@@ -32,15 +40,15 @@ class ScrollAreaPan(QtCore.QObject):
 
     def _initStartScrollValues(self):
         hScrollBar, vScrollBar = self._scrollBars()
-        if hScrollBar:        
+        if hScrollBar:
             self._startHScrollValue = hScrollBar.value()
-        if vScrollBar:        
+        if vScrollBar:
             self._startVScrollValue = vScrollBar.value()
 
     def _processContentMousePressEvent(self, event):
         self._wasMMB = bool(event.buttons() & QtCore.Qt.MidButton)
-        if not self._wasMMB :
-            return self._wasMMB 
+        if not self._wasMMB:
+            return self._wasMMB
 
         self._startPressViewPnt = self._currentPressViewPnt = event.globalPos()
         self._initStartScrollValues()
@@ -88,6 +96,10 @@ class ScrollAreaPan(QtCore.QObject):
     def _panViewBy(self, gap):
         hScrollBar, vScrollBar = self._scrollBars()
         if hScrollBar:
-            hScrollBar.setValue(int(self._startHScrollValue - gap.x() * self._scrollFactor))
+            hScrollBar.setValue(
+                int(self._startHScrollValue - gap.x() * self._scrollFactor)
+            )
         if vScrollBar:
-            vScrollBar.setValue(int(self._startVScrollValue - gap.y() * self._scrollFactor))
+            vScrollBar.setValue(
+                int(self._startVScrollValue - gap.y() * self._scrollFactor)
+            )
