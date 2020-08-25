@@ -1,3 +1,4 @@
 include README.md LICENSE Pipfile 
 include iutest/icons/*
 include iutest/docs/*
+include iutest/docs/images/*
