@@ -61,6 +61,7 @@ class UnitTestTreeView(QtWidgets.QTreeWidget):
     runTests = Signal(tuple)
     runSetupOnly = Signal(str)
     runWithoutTearDown = Signal(str)
+    searchNeeded = Signal()
 
     _testAllIcons = []
     _testPackageIcons = []
@@ -401,10 +402,15 @@ class UnitTestTreeView(QtWidgets.QTreeWidget):
             logger.info("No item selected to copy the module path.")
 
     def keyPressEvent(self, event):
-        if event.key() == QtCore.Qt.Key_C and (
-            event.modifiers() & QtCore.Qt.ControlModifier
-        ):
+        ctrl = bool(event.modifiers() & QtCore.Qt.ControlModifier)
+        key = event.key()
+        if ctrl and key == QtCore.Qt.Key_C:
             self.copyFirstSelectedTestId()
+            event.accept()
+            return
+
+        if ctrl and key == QtCore.Qt.Key_F:
+            self.searchNeeded.emit()
             event.accept()
             return
 

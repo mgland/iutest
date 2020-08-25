@@ -68,6 +68,7 @@ class IUTestWindow(QtWidgets.QWidget):
         self._view.runTests.connect(self._runTests)
         self._view.runSetupOnly.connect(self._runTestSetupOnly)
         self._view.runWithoutTearDown.connect(self._runTestWithoutTearDown)
+        self._view.searchNeeded.connect(self._prepareTreeSearch)
         self._view.itemSelectionChanged.connect(self._viewSelectionChanged)
 
         leftLay.addWidget(self._view)
@@ -76,6 +77,7 @@ class IUTestWindow(QtWidgets.QWidget):
         self._rightWidget, rightLay = self._createSplitterContent()
         _logTopLayout = uiutils.makeMinorHorizontalLayout()
         self._logBrowser = logbrowser.LogBrowser(self)
+        self._logBrowser.searchNeeded.connect(self._prepareLogSearch)
         self._makeLogBrowserTopWidgets(_logTopLayout)
         rightLay.addLayout(_logTopLayout, 0)
         rightLay.addWidget(self._logBrowser, 1)
@@ -126,6 +128,17 @@ class IUTestWindow(QtWidgets.QWidget):
         splitterLay.setContentsMargins(0, 0, 0, 0)
         self._splitter.addWidget(wgt)
         return wgt, splitterLay
+    
+    def _prepareLogSearch(self, txt):
+        if txt:
+            self._logSearchLE.setText(txt)
+        
+        self._logSearchLE.selectAll()
+        self._logSearchLE.setFocus()
+    
+    def _prepareTreeSearch(self):
+        self._treeFilterLE.selectAll()
+        self._treeFilterLE.setFocus()
 
     def _makeLogBrowserTopWidgets(self, layout):
         _console = QtWidgets.QLabel("Log Browser")

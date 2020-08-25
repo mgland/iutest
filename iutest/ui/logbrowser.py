@@ -1,10 +1,12 @@
 from iutest.core import gotocode
 from iutest.ui import uiconstants
-from iutest.qt import QtGui, QtWidgets
+from iutest.qt import QtCore, QtGui, QtWidgets, Signal
 from iutest.ui import uiutils
 
 
 class LogBrowser(QtWidgets.QTextBrowser):
+    searchNeeded = Signal(str)
+
     def __init__(self, parent=None):
         QtWidgets.QTextBrowser.__init__(self, parent)
         fn = self.font()
@@ -71,3 +73,13 @@ class LogBrowser(QtWidgets.QTextBrowser):
 
     def _onGoToCodeError(self, msg):
         uiutils.popUpMessageOnCursorPos(msg, self)
+
+    def keyPressEvent(self, event):
+        key = event.key()
+        ctrl = bool(event.modifiers() & QtCore.Qt.ControlModifier)
+        if ctrl and key == QtCore.Qt.Key_F:
+            self.searchNeeded.emit(str(self.textCursor().selectedText()))
+            event.accept()
+            return
+            
+        QtWidgets.QTextBrowser.keyPressEvent(self, event)

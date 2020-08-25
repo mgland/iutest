@@ -40,7 +40,7 @@ class RootPathEdit(btnLineEdit.InlineButtonLineEdit):
     def _onBrowseBtnClicked(self):
         btmLeft = self._browseBtn.mapToGlobal(QtCore.QPoint(0, self._browseBtn.height()))
         self._browseMenu.exec_(btmLeft)
-        
+
     def setInitialPath(self, path):
         self._initPath = path
 
