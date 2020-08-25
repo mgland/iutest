@@ -132,7 +132,7 @@ class IUTestWindow(QtWidgets.QWidget):
 
         self._logSearchLE = btnLineEdit.InlineButtonLineEdit(withClearButton=True, parent=self)
         self._logSearchLE.setToolTip(
-            "Search text in the test history."
+            "Enter to search next keyword in the log browser, ctrl+Enter to search backward."
         )
         self._logSearchLE.setPlaceholderText("Input to search")
         self._logSearchLE.returnPressed.connect(self._applyLoggingSearchText)
