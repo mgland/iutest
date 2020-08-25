@@ -2,11 +2,16 @@ from setuptools import setup
 
 
 def readme():
-    src = "./iutest/icons/iutest.svg"
-    dst = "http://mgland.com/shared/iutest.svg"
+    replacement = {
+        "./iutest/icons/iutest.svg":"http://mgland.com/opensource/iutest/iutest.svg",
+        "./iutest/docs/images/iutest-0.1.5.gif":"http://mgland.com/opensource/iutest/iutest-0.1.5.gif",
+    }
     with open("README.md") as f:
         longDesc = f.read()
-    return longDesc.replace(src, dst)
+        
+    for src, dst in replacement.items():
+        longDesc = longDesc.replace(src, dst)
+    return longDesc
 
 
 def version():

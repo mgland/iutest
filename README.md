@@ -15,6 +15,7 @@
 
 It has a pretty yummy Chinese name "[Youtiao](https://en.wikipedia.org/wiki/Youtiao)", which is Chinese fried breadstick typically for breakfast :)
 
+![Demo](./iutest/docs/images/iutest-0.1.5.gif) 
 
 ### To install IUTest
 ```shell
