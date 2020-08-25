@@ -90,11 +90,7 @@ class InlineButtonLineEdit(QtWidgets.QLineEdit):
         w = self.width() - self.contentsMargins().right()
         halfH = self.height() / 2
         halfBtnH = self._BUTTON_DIMENTION / 2
-        for i, btn in enumerate(visibleButtons):
-            x = w - (i+1)*self._BUTTON_DIMENTION - i*self._BUTTON_GAP
+        for i, btn in enumerate(visibleButtons, 1):
+            x = w - i*self._BUTTON_DIMENTION - i*self._BUTTON_GAP
             y = int(halfH - halfBtnH)
             btn.move(x, y)
-
-
-
-    

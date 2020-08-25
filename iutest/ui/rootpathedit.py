@@ -1,4 +1,4 @@
-from iutest.qt import QtWidgets, Signal
+from iutest.qt import QtCore, QtWidgets, Signal
 
 from iutest.core import appsettings
 from iutest.core import iconutils
@@ -24,9 +24,9 @@ class RootPathEdit(btnLineEdit.InlineButtonLineEdit):
         self.editingFinished.connect(self.onEditFinished)
         self._initPath = None
         
-        self._browseBtn, self._browseMenu = uiutils.makeMenuToolButton(
-            self._moreIcon, "Click to access more features.", self
-        )
+        self._browseBtn = uiutils.makeIconButton(self._moreIcon, self)
+        self._browseBtn.clicked.connect(self._onBrowseBtnClicked)
+        self._browseMenu = QtWidgets.QMenu(self._browseBtn)
         self.addButton("Browse", self._browseBtn)
         self.regenerateBrowseMenu()
 
@@ -37,6 +37,10 @@ class RootPathEdit(btnLineEdit.InlineButtonLineEdit):
 
         iconutils.initSingleClassIcon(cls, "_moreIcon", "more.svg")
 
+    def _onBrowseBtnClicked(self):
+        btmLeft = self._browseBtn.mapToGlobal(QtCore.QPoint(0, self._browseBtn.height()))
+        self._browseMenu.exec_(btmLeft)
+        
     def setInitialPath(self, path):
         self._initPath = path
 
