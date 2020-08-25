@@ -1,4 +1,5 @@
-from iutest.qt import QtCore, QtWidgets, Signal
+import weakref
+from iutest.qt import QtCore
 
 class ScrollAreaPan(QtCore.QObject):
     """Enable a scrollable view to support MMB dragging to pan the view.
@@ -11,23 +12,30 @@ class ScrollAreaPan(QtCore.QObject):
     def __init__(self, scrollArea=None, hScrollBar=None, vScrollBar=None, scrollFactor=1.0):
         QtCore.QObject.__init__(self, scrollArea)
         self._scrollFactor = scrollFactor
-        self._scrollArea = scrollArea
-        if self._scrollArea:
-            self._scrollArea.installEventFilter(self)
-
-        self._hScrollBar = hScrollBar
-        if not self._hScrollBar:
-            self._hScrollBar = self._scrollArea.horizontalScrollBar() if self._scrollArea else None
-
-        self._vScrollBar = vScrollBar
-        if not self._vScrollBar:
-            self._vScrollBar = self._scrollArea.verticalScrollBar() if self._scrollArea else None
-
+        self._scrollArea = weakref.ref(scrollArea)
         self._wasMMB = False
         self._startPressViewPnt = None
         self._currentPressViewPnt = None
-        self._startHScrollValues = None
-        self._startVScrollValues = None
+        self._startHScrollValue = None
+        self._startVScrollValue = None
+        self._initStartScrollValues()
+
+    def _scrollBars(self):
+        if not self._scrollArea:
+            return (None, None)
+            
+        return (self._scrollArea().horizontalScrollBar(), self._scrollArea().verticalScrollBar())
+
+    def installEventFilterOn(self, widget):
+        if widget:
+            widget.installEventFilter(self)
+
+    def _initStartScrollValues(self):
+        hScrollBar, vScrollBar = self._scrollBars()
+        if hScrollBar:        
+            self._startHScrollValue = hScrollBar.value()
+        if vScrollBar:        
+            self._startVScrollValue = vScrollBar.value()
 
     def _processContentMousePressEvent(self, event):
         self._wasMMB = bool(event.buttons() & QtCore.Qt.MidButton)
@@ -35,10 +43,7 @@ class ScrollAreaPan(QtCore.QObject):
             return self._wasMMB 
 
         self._startPressViewPnt = self._currentPressViewPnt = event.globalPos()
-        if self._hScrollBar:        
-            self._startHScrollValues = self._hScrollBar.value()
-        if self._vScrollBar:        
-            self._startVScrollValues = self._vScrollBar.value()
+        self._initStartScrollValues()
         event.accept()
         return self._wasMMB
 
@@ -69,9 +74,6 @@ class ScrollAreaPan(QtCore.QObject):
         return event.type() in self._MOUSE_EVENT_TYPES
 
     def eventFilter(self, obj, event):
-        if obj is not self._scrollArea:
-            return False
-
         if not self.isMouseEvent(event):
             return False
 
@@ -84,7 +86,8 @@ class ScrollAreaPan(QtCore.QObject):
         return self._processContentMouseReleaseEvent(event)
 
     def _panViewBy(self, gap):
-        if self._hScrollBar:
-            self._hScrollBar.setValue(int(self._startHScrollValues - gap.x() * self._scrollFactor))
-        if self._vScrollBar:
-            self._vScrollBar.setValue(int(self._startVScrollValues - gap.y() * self._scrollFactor))
+        hScrollBar, vScrollBar = self._scrollBars()
+        if hScrollBar:
+            hScrollBar.setValue(int(self._startHScrollValue - gap.x() * self._scrollFactor))
+        if vScrollBar:
+            vScrollBar.setValue(int(self._startVScrollValue - gap.y() * self._scrollFactor))

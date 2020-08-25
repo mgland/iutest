@@ -88,11 +88,10 @@ class UnitTestTreeView(QtWidgets.QTreeWidget):
     def __init__(self, parent):
         QtWidgets.QTreeWidget.__init__(self, parent)
         self._pan = scrollareapan.ScrollAreaPan(
-            self.viewport(), 
-            self.horizontalScrollBar(), 
-            self.verticalScrollBar(),
+            self, 
             scrollFactor=0.05
         )
+        self._pan.installEventFilterOn(self.viewport())
         self._uiStream = uistream.UiStream()
         self._codeVisitor = gotocode.CodeLineVisitor(self)
         self._codeVisitor.errorIssued.connect(self._onGoToCodeError)

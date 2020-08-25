@@ -10,8 +10,8 @@ class LogBrowser(QtWidgets.QTextBrowser):
 
     def __init__(self, parent=None):
         QtWidgets.QTextBrowser.__init__(self, parent)
-        self._pan = scrollareapan.ScrollAreaPan(self.viewport(), self.horizontalScrollBar(), self.verticalScrollBar())
-        
+        self._pan = scrollareapan.ScrollAreaPan(self, 1.0)
+        self._pan.installEventFilterOn(self.viewport())
         self._codeVisitor = gotocode.CodeLineVisitor(self)
         self._codeVisitor.errorIssued.connect(self._onGoToCodeError)
         self._setupUi()
