@@ -14,7 +14,7 @@ class RootPathEdit(btnLineEdit.InlineButtonLineEdit):
     topDirPicked = Signal(str)
 
     saveCurrentDirSettings  = Signal()
-    loadSavedDirPair  = Signal()
+    loadSavedDirPair  = Signal(str, str, str)
     deleteCurrentDirSettings  = Signal()
 
     def __init__(self, parent=None):
@@ -74,7 +74,7 @@ class RootPathEdit(btnLineEdit.InlineButtonLineEdit):
         config = appsettings.get().testDirSettings()
         for key, pair in config.items():
             act = self._browseMenu.addAction(key)
-            act.triggered.connect(self.loadSavedDirPair)
+            act.triggered.connect(self._loadSavedDirPair)
             act.setToolTip("\n".join(pair))
         self._browseMenu.addSeparator()
 
@@ -91,3 +91,9 @@ class RootPathEdit(btnLineEdit.InlineButtonLineEdit):
         )
         if dirPath:
             self.topDirPicked.emit(dirPath)
+
+    def _loadSavedDirPair(self):
+        act = self.sender()
+        _topDir, _startDirOrModule = act.toolTip().split("\n")
+        configName = str(act.text())
+        self.loadSavedDirPair.emit(_startDirOrModule, _topDir, configName)

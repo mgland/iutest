@@ -485,13 +485,9 @@ class IUTestWindow(QtWidgets.QWidget):
         settings.saveSimpleConfig(constants.CONFIG_KEY_LAST_TOP_DIR, topDir, sync=True)
         logger.info("Save the last test root: %s", startDir)
 
-    def _loadSavedDirPair(self):
-        act = self.sender()
-        _topDir, _startDirOrModule = act.toolTip().split("\n")
+    def _loadSavedDirPair(self, _startDirOrModule, _topDir, configName):
         self._testManager.setTopDir(_topDir)
         self._testManager.setStartDirOrModule(_startDirOrModule)
-
-        configName = str(act.text())
         self._saveLastTestDir(_startDirOrModule, _topDir)
         self._updateWindowTitle(configName)
         self._updateDirUI()
