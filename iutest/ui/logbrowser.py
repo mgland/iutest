@@ -1,7 +1,8 @@
+from iutest.qt import QtCore, QtGui, QtWidgets, Signal
 from iutest.core import gotocode
 from iutest.ui import uiconstants
-from iutest.qt import QtCore, QtGui, QtWidgets, Signal
 from iutest.ui import uiutils
+from iutest.ui import scrollareapan
 
 
 class LogBrowser(QtWidgets.QTextBrowser):
@@ -9,6 +10,13 @@ class LogBrowser(QtWidgets.QTextBrowser):
 
     def __init__(self, parent=None):
         QtWidgets.QTextBrowser.__init__(self, parent)
+        self._pan = scrollareapan.ScrollAreaPan(self.viewport(), self.horizontalScrollBar(), self.verticalScrollBar())
+        
+        self._codeVisitor = gotocode.CodeLineVisitor(self)
+        self._codeVisitor.errorIssued.connect(self._onGoToCodeError)
+        self._setupUi()
+
+    def _setupUi(self):
         fn = self.font()
         pixelSize = max(12, fn.pixelSize() + 2)
         fn.setPixelSize(pixelSize)
@@ -18,9 +26,8 @@ class LogBrowser(QtWidgets.QTextBrowser):
         self.setWordWrapMode(QtGui.QTextOption.NoWrap)
         self.setOpenLinks(False)
         self.anchorClicked.connect(self.onLinkClicked)
+        self.setToolTip("The test logging browser, use <b>MMB</b> to pan around.")
         self._initCSS()
-        self._codeVisitor = gotocode.CodeLineVisitor(self)
-        self._codeVisitor.errorIssued.connect(self._onGoToCodeError)
 
     def _initCSS(self):
         css = """
@@ -81,5 +88,5 @@ class LogBrowser(QtWidgets.QTextBrowser):
             self.searchNeeded.emit(str(self.textCursor().selectedText()))
             event.accept()
             return
-            
+
         QtWidgets.QTextBrowser.keyPressEvent(self, event)
