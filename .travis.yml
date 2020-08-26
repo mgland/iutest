@@ -2,18 +2,13 @@ language: python
 
 python:
   - "2.7"
-  - "3.4"
 
 install:
   - travis_retry pip install -r ci_requirements-${TRAVIS_PYTHON_VERSION}.txt
-  - travis_retry pip install coveralls
   - travis_retry pip install coverage
   
 script:
-  - PYTHONPATH=. coverage run -m unittest discover iutest.tests.iutests -v
-
-after_success:
-  - coveralls
+  - PYTHONPATH=. coverage run -m pytest -v iutest/tests/iutests
 
 matrix:
   fast_finish: true

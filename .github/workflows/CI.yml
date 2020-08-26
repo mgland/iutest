@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [2.7, 3.7]
+        python-version: [3.7]
 
     steps:
     - uses: actions/checkout@v2
@@ -25,12 +25,8 @@ jobs:
         if [ -f ci_requirements-${{ matrix.python-version }}.txt ]; then pip install -r ci_requirements-${{ matrix.python-version }}.txt; fi
     - name: Test with pytest
       run: |
-        pytest iutest/tests/iutests
-        
-    - name: SonarCloud Scan
-      uses: SonarSource/sonarcloud-github-action@v1.3
-      with:
-        projectBaseDir: ./iutest
-        
+        coverage run -m pytest -v iutest/tests/iutests 
+
     - name: TestCoverage
       uses: codecov/codecov-action@v1.0.13
+        
