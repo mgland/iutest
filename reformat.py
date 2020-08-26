@@ -3,7 +3,6 @@
 # Please see the LICENSE file that should have been included as part of this package.
 
 import os
-import glob
 
 
 def _getCopyrightHeader():
@@ -18,15 +17,35 @@ def _getCopyrightHeader():
     return copyRightLines
 
 
+def _iterAllPythonSourceFiles(rootdir, excludedDirPath):
+    # for py-2 and py-3 compatibility we cannot use glob.iglob.
+    subfolders = []
+
+    for f in os.scandir(rootdir):
+        if f.is_dir():
+            subfolders.append(f.path)
+
+        if f.is_file():
+            if f.name.endswith(".py"):
+                yield f.path
+
+    for subDir in subfolders:
+        if subDir == excludedDirPath:
+            continue
+
+        for f in _iterAllPythonSourceFiles(subDir, excludedDirPath):
+            yield f
+
+
 def addCopyrightHeader():
     copyRightLines = _getCopyrightHeader()
     copyRightStr = "".join(copyRightLines)
     rootdir = os.path.dirname(__file__)
 
-    excludedFolder = os.path.join(rootdir, "build", "")
+    excludedFolder = os.path.join(rootdir, "build")
 
-    for filename in glob.iglob(rootdir + "/**/*.py", recursive=True):
-        if filename == __file__ or filename.startswith(excludedFolder):
+    for filename in _iterAllPythonSourceFiles(rootdir, excludedFolder):
+        if filename == __file__:
             continue
 
         with open(filename, "r") as f:
