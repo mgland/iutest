@@ -1,5 +1,5 @@
 ![Build](https://travis-ci.com/mgland/iutest.svg?token=WGEhoDYTsfEntWSzsqkZ&branch=master)
-[![Coverage Status](https://coveralls.io/repos/github/mgland/iutest/badge.svg?branch=master)](https://coveralls.io/github/mgland/iutest?branch=master)
+[![Coverage](https://codecov.io/gh/mgland/iutest/branch/master/graph/badge.svg)](https://codecov.io/gh/mgland/iutest)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=mgland_iutest&metric=alert_status)](https://sonarcloud.io/dashboard?id=mgland_iutest)
 
 ![PyPi](https://img.shields.io/pypi/v/iutest) 

@@ -1,0 +1,9 @@
+ignore:
+  - "iutest/docs"
+  - "iutest/icons"
+  - "iutest/tests"
+  - "iutest/ui"
+  - "__init__.py"
+  - "reformat.py"
+  - "setup.py"
+  
