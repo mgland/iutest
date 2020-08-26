@@ -17,23 +17,15 @@ def _getCopyrightHeader():
     return copyRightLines
 
 
-def _iterAllPythonSourceFiles(rootdir, excludedDirPath):
-    # for py-2 and py-3 compatibility we cannot use glob.iglob.
-    subfolders = []
+def _iterAllPythonSourceFiles(rootdir):
+    # for py-2 compatibility we cannot use glob.iglob or os.scandir.
+    for root, directories, files in os.walk(rootdir):
+        for f in files:
+            if f.endswith(".py"):
+                yield os.path.join(root, f)
 
-    for f in os.scandir(rootdir):
-        if f.is_dir():
-            subfolders.append(f.path)
-
-        if f.is_file():
-            if f.name.endswith(".py"):
-                yield f.path
-
-    for subDir in subfolders:
-        if subDir == excludedDirPath:
-            continue
-
-        for f in _iterAllPythonSourceFiles(subDir, excludedDirPath):
+    for subDir in directories:
+        for f in _iterAllPythonSourceFiles(subDir):
             yield f
 
 
@@ -44,8 +36,8 @@ def addCopyrightHeader():
 
     excludedFolder = os.path.join(rootdir, "build")
 
-    for filename in _iterAllPythonSourceFiles(rootdir, excludedFolder):
-        if filename == __file__:
+    for filename in _iterAllPythonSourceFiles(rootdir):
+        if filename == __file__ or filename.startswith(excludedFolder):
             continue
 
         with open(filename, "r") as f:
@@ -56,7 +48,7 @@ def addCopyrightHeader():
 
         with open(filename, "w") as f:
             f.write(copyRightStr + "\n" + data)
-            print("Append copyright header for {}".format(filename))
+            print("Prepend copyright header: {}".format(filename))
 
 
 if __name__ == "__main__":
