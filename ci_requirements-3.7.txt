@@ -1,3 +1,4 @@
+wheel
 nose2
-PySide2
 pytest
+PySide2
