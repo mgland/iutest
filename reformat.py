@@ -1,9 +1,10 @@
 # Copyright 2019-2020 by Wenfeng Gao, MGLAND animation studio. All rights reserved.
-# This file is part of IUTest, and is released under the "MIT License Agreement". 
+# This file is part of IUTest, and is released under the "MIT License Agreement".
 # Please see the LICENSE file that should have been included as part of this package.
 
 import os
 import glob
+
 
 def _getCopyrightHeader():
     copyRightLines = []
@@ -15,18 +16,19 @@ def _getCopyrightHeader():
                 break
 
     return copyRightLines
-    
+
+
 def addCopyrightHeader():
     copyRightLines = _getCopyrightHeader()
     copyRightStr = "".join(copyRightLines)
     rootdir = os.path.dirname(__file__)
 
     excludedFolder = os.path.join(rootdir, "build", "")
-    
-    for filename in glob.iglob(rootdir + '/**/*.py', recursive=True):
+
+    for filename in glob.iglob(rootdir + "/**/*.py", recursive=True):
         if filename == __file__ or filename.startswith(excludedFolder):
             continue
-        
+
         with open(filename, "r") as f:
             data = f.read()
 

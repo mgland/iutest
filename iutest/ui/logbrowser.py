@@ -1,3 +1,7 @@
+# Copyright 2019-2020 by Wenfeng Gao, MGLAND animation studio. All rights reserved.
+# This file is part of IUTest, and is released under the "MIT License Agreement".
+# Please see the LICENSE file that should have been included as part of this package.
+
 from iutest.qt import QtCore, QtGui, QtWidgets, Signal
 from iutest.core import gotocode
 from iutest.ui import uiconstants
