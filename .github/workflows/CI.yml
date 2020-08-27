@@ -6,8 +6,7 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  build:
-
+  build-python3-linux:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -29,4 +28,26 @@ jobs:
 
     - name: TestCoverage
       uses: codecov/codecov-action@v1.0.13
-        
+
+  build-python2:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: [2.7]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r "ci_requirements-${{ matrix.python-version }}.txt"
+    - name: Test with pytest
+      run: |
+        coverage run -m pytest -v iutest/tests/iutests 
+
+    - name: TestCoverage
+      uses: codecov/codecov-action@v1.0.13
